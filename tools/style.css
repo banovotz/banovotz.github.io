@@ -11,6 +11,18 @@ font-family: Helvetica Neue, Helvetica, Arial;
 color: 	#FFFFFF;
 }
 
+.modal-content {
+  position: relative;
+  background-color: #ffffff;
+  color: 	#000000;
+  margin-left: -130px;
+  font-family: serif;
+  text-align: left;
+  margin: 40 400 0.5px;
+}
+
+
+
 #wrapper{
 margin: 0 auto;
 width: 940px;
@@ -21,13 +33,15 @@ width: 940px;
 float: left;
 }
 
-.logo{
+.logoa {
 margin: 0 auto 60px auto;
 width: 160px;
 text-align: center;
+padding-top: 40px;
 }
 
-.logo h1{
+
+.logoa h1{
 width: 95px;
 height: 70px;
 margin: 44px auto 5px auto;
@@ -35,11 +49,11 @@ border-radius: 50%;
 background: #fff;
 color: #68b2b1;
 text-align: center;
-padding-top: 25px;
+padding-top: 125px;
 font-size: 49px;
 }
 
-.logo span{
+.logoa span{
 font-size: 22px;
 text-align: center;
 margin: 0 auto;
