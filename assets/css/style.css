@@ -72,6 +72,10 @@ h1, h2, h3, h4, h5, h6 {
     color: #4a4a4a;
 }
 
+h4 {
+font-size: 25px;
+}
+
 
 .navbar-brand {
 	font-weight: 700;
@@ -123,10 +127,10 @@ h1, h2, h3, h4, h5, h6 {
 
 #headerwrap h1 {
 	color:#ffffff;
-	padding-top: 10px;
-	padding-bottom: 20px;
+	padding-top: 5px;
+	padding-bottom: 10px;
 	letter-spacing: 4px;
-	font-size: 80px;
+	font-size: 60px;
 	font-weight: bold;
 }
 
@@ -227,4 +231,23 @@ h1, h2, h3, h4, h5, h6 {
 
 .gallery img:hover {
 	opacity: 0.4;
+}
+
+.clientblock {
+	margin-top:40px;
+	margin-left:10px;
+}
+.clientblock img {
+	float:left;
+	-webkit-border-radius:100%;
+	-moz-border-radius:100%;
+	border-radius:100%;
+}
+.clientblock p {
+	padding-left:80px;
+	padding-top:13px;
+}
+.clientblock p strong {
+	color:#384047;
+	font-size:16px;
 }
