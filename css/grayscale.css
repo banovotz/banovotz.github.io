@@ -339,6 +339,10 @@ a:focus {
   border-color: #219ab3;
 }
 
+*.inner-editor {
+  -webkit-user-select:text;
+ 
+}
 
 ul.banner-social-buttons {
     margin-top: 0;
@@ -399,3 +403,5 @@ body {
 	-webkit-box-shadow:none;
 	box-shadow:none;border:0;
 	}
+	
+
