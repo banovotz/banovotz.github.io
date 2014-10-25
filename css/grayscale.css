@@ -9,7 +9,7 @@ body {
     height: 100%;
     font-family: Lora,"Helvetica Neue",Helvetica,Arial,sans-serif;
     color: #fff;
-    background-color: #000;
+    background-color: #2E2C2A;
 }
 
 html {
@@ -123,7 +123,7 @@ a:focus {
 
     .top-nav-collapse {
         padding: 0;
-        background-color: #000;
+        background-color: #2E2C2A;
     }
 
     .navbar-custom.top-nav-collapse {
@@ -323,6 +323,23 @@ a:focus {
     background-color: #219ab3;
 }
 
+
+.btn-success {
+    background: #219ab3;
+    background-color: #219ab3;
+	border-color: #219ab3;
+    }
+.btn-success:hover,
+.btn-success:focus,
+.btn-success:active,
+.btn-success.active,
+.open .dropdown-toggle.btn-success {
+  color: #fff;
+  background-color: #B33A21;
+  border-color: #219ab3;
+}
+
+
 ul.banner-social-buttons {
     margin-top: 0;
 }
@@ -377,22 +394,8 @@ body {
     webkit-tap-highlight-color: rgba(255,255,255,.2);
 }
 
-.form-control {
-display: block;
-vertical-align: middle;
-width: 50%;
-height: 44px;
-padding: 6px 12px;
-font-size: 14px;
-line-height: 1.42857143;
-color: #555;
-background-color: #fff;
-background-image: none;
-border: 1px solid #ccc;
-border-radius: 4px;
--webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
-box-shadow: inset 
-.form-control input {
-        width: 100%;
-        clear: both;
-}
+.form-control{
+	border-radius:3px;
+	-webkit-box-shadow:none;
+	box-shadow:none;border:0;
+	}
