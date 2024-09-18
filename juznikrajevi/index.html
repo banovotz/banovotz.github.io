@@ -15,59 +15,11 @@ Davor started writing reasonably early in his life as probably most writers did.
     <link href="../assets/css/style_jk.css" rel="stylesheet">
     <link href="../assets/css/font-awesome.min.css" rel="stylesheet" type="text/css">
     
-    <script>
-      // select the target node
-      var target = document.getElementById('mce-success-response');
-      // create an observer instance
-      var observer = new MutationObserver(function(mutations) {
-        mutations.forEach(function(mutation) {
-          if (target.innerHTML === "Thank you for subscribing!") {
-            target.innerHTML = "Check your email!";
-          }
-        });
-      });
-      // configuration of the observer:
-      var config = {
-        attributes: true,
-        childList: true,
-        characterData: true
-      };
-      // pass in the target node, as well as the observer options
-      observer.observe(target, config);
-    </script>
+   
   </head>
   <body>
-    <!-- Static navbar -->
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="index.html"></a>
-        </div>
-        <div class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li>
-              <a href="/">Home</a>
-            </li>
-            <li>
-              <a href="#about">About</a>
-            </li>
-            <li>
-              <a href="#books">Book</a>
-            </li>
-            <li>
-              <a href="#stories">Free stories</a>
-            </li>
-          </ul>
-        </div>
-        <!--/.nav-collapse -->
-      </div>
-    </div>
+ 
+  
     <div id="headerwrap">
       <div class="container">
         <div class="row">
@@ -101,7 +53,26 @@ Davor started writing reasonably early in his life as probably most writers did.
 </form>
 </div>
 <script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';fnames[3]='ADDRESS';ftypes[3]='address';fnames[4]='PHONE';ftypes[4]='phone';fnames[5]='BIRTHDAY';ftypes[5]='birthday';fnames[6]='COMPANY';ftypes[6]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script></div>
-
+ <script>
+      // select the target node
+      var target = document.getElementById('mce-success-response');
+      // create an observer instance
+      var observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (target.innerHTML === "Thank you for subscribing!") {
+            target.innerHTML = "Check your email!";
+          }
+        });
+      });
+      // configuration of the observer:
+      var config = {
+        attributes: true,
+        childList: true,
+        characterData: true
+      };
+      // pass in the target node, as well as the observer options
+      observer.observe(target, config);
+    </script>
         </div>
     
   </body>
