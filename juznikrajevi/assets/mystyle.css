@@ -33,8 +33,23 @@
     padding: 4%;  
   }
 
+  @media screen and (max-width: 900px) {
+
+    .sredlijevi {
+      float:none;
+      width: 100%;
+   }
+
+    .sreddesni {
+       float:none;
+       width: 100%;
+       padding: 10%; 
+    }
+ 
+  }
+
   input[type=email] {
-    width: calc(100% + 40px);;
+    width: calc(100%);;
     padding: 12px 20px;
     margin: 8px 0;
     box-sizing: border-box;
