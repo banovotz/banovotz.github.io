@@ -24,13 +24,13 @@
   .sredlijevi {
     float: left;
     width: 50%;
-    padding: 10%; 
+    padding: 8%; 
   }
   
   .sreddesni {
     float:right;
     width: 50%;
-    padding: 4%;  
+    padding: 0%;  
   }
 
   @media screen and (max-width: 900px) {
