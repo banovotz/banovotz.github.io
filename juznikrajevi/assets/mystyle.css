@@ -67,8 +67,15 @@
     font-size: 16px;
   }
 
+body {
+  background-image: url("oblaci.png");
+  background-repeat: no-repeat;
+
+}
 
 html, body, h1, p {
+ 
+  background-color: #93b495;
   font-family: Palatino;
   color: #57110E;
 
