@@ -43,10 +43,29 @@
     .sreddesni {
        float:none;
        width: 100%;
-       padding: 10%; 
+       padding: 10%;
+       vertical-align: top; 
     }
  
   }
+
+  @media  (max-resolution: 112dpi) {
+
+    .gornji {
+      height: 40%;
+      padding-bottom: 180px;
+      padding-left: 5%;
+      
+    }
+    .sredlijevi {
+      padding-left: 20%;  
+    }
+
+    .sreddesni {
+      padding-top: 4%;  
+    }
+ 
+  }  
 
   input[type=email] {
     width: calc(100%);;
