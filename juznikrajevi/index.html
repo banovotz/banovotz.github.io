@@ -87,7 +87,7 @@ var target = document.getElementById('mce-success-response');
 var observer = new MutationObserver(function(mutations) {
   mutations.forEach(function(mutation) {
     if (target.innerHTML === "Thank you for subscribing!") {
-      target.innerHTML = "<p>Hvala što si se pretplatio. Provjeri svoj inbox! Uskoro će ti stići besplatno poglavlje rumana Južni krajevi!</p> <div class="sharethis-inline-share-buttons"></div>";
+      target.innerHTML = "<p>Hvala što si se pretplatio. Provjeri svoj inbox! Uskoro će ti stići besplatno poglavlje romana Južni krajevi! Ako nije stiglo u inbox, provjeri spam folder!</p><div class=" + "\"sharethis-inline-share-buttons\"" + "></div>";
     }
   });
 });
