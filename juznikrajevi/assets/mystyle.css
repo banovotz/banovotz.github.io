@@ -88,6 +88,11 @@
     font-size: 16px;
   }
 
+.sharethis-inline-share-buttons{
+
+  height: 30px;
+}
+
 body {
   background-image: url("oblaci.png");
   background-repeat: no-repeat;
