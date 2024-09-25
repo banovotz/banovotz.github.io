@@ -27,7 +27,7 @@
 <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=66f27a06e960c500199eca99&product=inline-share-buttons&source=platform" async="async"></script>
+
 
 
 </head>
@@ -77,15 +77,14 @@
 
   
   
-    <div class="sharethis-inline-share-buttons st-center st-has-labels  st-inline-share-buttons st-animated" id="share-buttons" style="display: none;">
-    <p class="blurb">Dok čekaš da tvoje besplatno poglavlje stigne, <b>podijeli ga s prijateljima</b>:</p>
-    <img alt="twitter-white sharing button"  src="https://platform-cdn.sharethis.com/img/twitter-white.svg" style="display: inline-block; border: outset #57110E; background-color:whitesmoke; height: 50px; width: 30%; padding-left: 10px;">
-    <img alt="facebook-white sharing button" src="https://platform-cdn.sharethis.com/img/facebook-white.svg" style="display: inline-block; border: outset #57110E; background-color:whitesmoke; height: 50px; width: 30%; padding-left: 10px;">
-    <img alt="whatsapp-white sharing button" src="https://platform-cdn.sharethis.com/img/whatsapp-white.svg" style="display: inline-block; border: outset #57110E; background-color:whitesmoke; height: 50px; width: 30%;">
-      
-      
-      </div>
+<div id="share-buttons" style="display: inline;">
+  <p class="blurb">Dok čekaš da ti besplatno poglavlje stigne na e-mail, podijeli ga i s prijateljima:</p>
+  <button onclick="shareOnFacebook()" style="width: 23%;"><img src="assets/facebook.png" style="width:23%;"></button>
+  <button onclick="shareOnTwitter()" style="width: 23%;"><img src="assets/x.png" style="width:23%;"></button>
+  <button onclick="shareOnWhatsApp()" style="width: 23%;"><img src="assets/wa.png" style="width:23%;"></button>
+  <button onclick="shareOnViber()" style="width: 23%;"><img src="assets/viber.png" style="width:23%;"></button>
 
+</div>
   
 
 <script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js"></script><script type="text/javascript">(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';fnames[3]='ADDRESS';ftypes[3]='address';fnames[4]='PHONE';ftypes[4]='phone';fnames[5]='BIRTHDAY';ftypes[5]='birthday';fnames[6]='COMPANY';ftypes[6]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script></div>
@@ -119,5 +118,33 @@ var config = { attributes: true, childList: true, characterData: true };
 observer.observe(target, config);
 
       </script>
+
+<script>
+  const link = "https://www.davorbanovic.com/juznikrajevi/";
+  const text = "Besplatno poglavlje romana Južni Krajevi Davora Banovića";
+  function shareOnFacebook() {
+      const facebookIntentURL = "https://www.facebook.com/sharer/sharer.php";
+      const contentQuery = `?u=${encodeURIComponent(link)}&quote=${encodeURIComponent(text)}`;
+      const shareURL =  facebookIntentURL + contentQuery;
+      window.open(shareURL, "_blank");
+  }
+
+  function shareOnTwitter() {
+      const twitterIntentURL = "https://twitter.com/intent/tweet";
+      const contentQuery = `?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`;
+      const shareURL = twitterIntentURL + contentQuery;
+      window.open(shareURL, "_blank");
+  }
+
+  function shareOnViber() {
+      const url = "viber://pa?chatURI=" + encodeURIComponent(text + "\n" + link);
+      window.open(url, "_blank");
+  }
+
+  function shareOnWhatsApp() {
+      const url = "https://wa.me/?text=" + encodeURIComponent(text + "\n" + link);
+      window.open(url, "_blank");
+  }
+</script>
 </body>
 </html>
