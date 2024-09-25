@@ -84,12 +84,13 @@
       <script type="text/javascript">
         // select the target node
 var target = document.getElementById('mce-success-response');
+var buttons = document.getElementById("share-buttons");
 // create an observer instance
 var observer = new MutationObserver(function(mutations) {
   mutations.forEach(function(mutation) {
     if (target.innerHTML === "Thank you for subscribing!") {
       target.innerHTML = "<p>Hvala što si se pretplatio. Provjeri svoj inbox! Uskoro će ti stići besplatno poglavlje rumana Južni krajevi!</p>";
-      document.getElementById("share-buttons").style.display = "block";
+      buttons.style.display = "block";
     }
   });
 });
