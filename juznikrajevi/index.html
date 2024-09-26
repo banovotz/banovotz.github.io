@@ -79,10 +79,10 @@
   
 <div id="share-buttons" style="display: none;">
   <p class="blurb">Dok čekaš da ti besplatno poglavlje stigne na e-mail, podijeli ga i s prijateljima:</p>
-  <button onclick="shareOnFacebook()" style="width: 23%;"><img src="assets/facebook.png" style="width:23%;"></button>
-  <button onclick="shareOnTwitter()" style="width: 23%;"><img src="assets/x.png" style="width:23%;"></button>
-  <button onclick="shareOnWhatsApp()" style="width: 23%;"><img src="assets/wa.png" style="width:23%;"></button>
-  <button onclick="shareOnViber()" style="width: 23%;"><img src="assets/viber.png" style="width:23%;"></button>
+  <button onclick="shareOnFacebook()" style="width: 23%;"><img src="assets/facebook.png" style="width:50%;"></button>
+  <button onclick="shareOnTwitter()" style="width: 23%;"><img src="assets/x.png" style="width:50%;"></button>
+  <button onclick="shareOnWhatsApp()" style="width: 23%;"><img src="assets/wa.png" style="width:50%;"></button>
+  <button onclick="shareOnViber()" style="width: 23%;"><img src="assets/viber.png" style="width:50%;"></button>
 
 </div>
   
@@ -137,8 +137,11 @@ observer.observe(target, config);
   }
 
   function shareOnViber() {
-      const url = "viber://pa?chatURI=" + encodeURIComponent(text + "\n" + link);
-      window.open(url, "_blank");
+    const viberIntentURL = "viber://pa";
+      const contentQuery = `?chatURI=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`;
+      const shareURL = viberIntentURL + contentQuery;
+      window.open(shareURL, "_blank");  
+    
   }
 
   function shareOnWhatsApp() {
