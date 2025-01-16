@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Modal Explorer</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Explore musical modes and their parent scales. Generate scales, intervals, whole/half steps, and chords for any key and mode.">
+    <meta name="keywords" content="music, modes, scales, chords, theory, ionian, dorian, phrygian, lydian, mixolydian, aeolian, locrian, key, musical theory, music education">
+    <meta name="author" content="Davor Banovic">
+    <meta name="robots" content="index, follow"> <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <meta property="og:title" content="Modal Explorer">
+    <meta property="og:description" content="Explore musical modes and their parent scales. Generate scales, intervals, whole/half steps, and chords for any key and mode.">
+    <meta property="og:url" content="https://davorbanovic.com/modes">
+    <meta property="og:image" content="https://davorbanovic.com/modes/background.png">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="Explore musical modes and their parent scales. Generate scales, intervals, whole/half steps, and chords for any key and mode.>
+    <meta name="twitter:title" content="Modal Explorer">
+    <meta name="twitter:description" content="Explore musical modes and their parent scales. Generate scales, intervals, whole/half steps, and chords for any key and mode.">
+    <meta name="twitter:url" content="https://davorbanovic.com/modes">
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 0; /* Remove default body margin */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Ensure body covers full viewport height */
+            align-items: center; /* Center horizontally */
+            justify-content: flex-start; /* Align content to top */
+            background-color: #dddcbc; /* Light background */
+            color: #333; /* Darker text color */
+            background-image: url("background.png");
+            background-size:cover;
+            background-repeat:no-repeat;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 20%;
+            color: #555;
+        }
+
+        .container {
+            width: 90%; /* Occupy most of the screen on smaller devices */
+            max-width: 800px; /* Set a maximum width for larger screens */
+            padding: 20px;
+            background-color: #dddcbc;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 8px; /* Rounded corners */
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-wrap: wrap; /* Allow inputs to wrap on smaller screens */
+            justify-content: center; /* Center input elements horizontally */
+            gap: 10px; /* Space between input elements */
+            margin-bottom: 20px;
+        }
+
+        label, select, button {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        select{
+                width: auto;
+            }
+
+        button {
+            background-color: #4CAF50; /* Green */
+            border: none;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            cursor: pointer;
+            transition: background-color 0.3s; /* Smooth transition on hover */
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .scale-info {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            background-color: #dddcbc;
+        }
+
+        .scale-info h2 {
+            margin-top: 0;
+            color: #666;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            h1{
+                margin-top: 40%;   
+            }
+           .input-group {
+                flex-direction: column; /* Stack inputs vertically on very small screens */
+                align-items: stretch; /* Make inputs take full width */
+            }
+            select{
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<h1>Modal Explorer</h1>
+<div id="selctor">
+<label for="key">Key:</label>
+<select id="key">
+    <option value="C">C</option>
+    <option value="C#">C#</option>
+    <option value="D">D</option>
+    <option value="D#">D#</option>
+    <option value="E">E</option>
+    <option value="F">F</option>
+    <option value="F#">F#</option>
+    <option value="G">G</option>
+    <option value="G#">G#</option>
+    <option value="A">A</option>
+    <option value="A#">A#</option>
+    <option value="B">B</option>
+</select>
+
+<label for="mode">Mode:</label>
+<select id="mode">
+    <option value="ionian">Ionian</option>
+    <option value="dorian">Dorian</option>
+    <option value="phrygian">Phrygian</option>
+    <option value="lydian">Lydian</option>
+    <option value="mixolydian">Mixolydian</option>
+    <option value="aeolian">Aeolian</option>
+    <option value="locrian">Locrian</option>
+</select>
+
+<button onclick="generateMode()">Generate</button>
+</div>
+<div id="results"></div>
+
+<script>
+    const notes = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+    const modes = {
+        ionian: { intervals: [0, 2, 4, 5, 7, 9, 11], relativeRoot: 0 }, // Relative to Ionian
+        dorian: { intervals: [0, 2, 3, 5, 7, 9, 10], relativeRoot: -2 }, // -2 semitones from Ionian
+        phrygian: { intervals: [0, 1, 3, 5, 7, 8, 10], relativeRoot: -4 },
+        lydian: { intervals: [0, 2, 4, 6, 7, 9, 11], relativeRoot: -5 },
+        mixolydian: { intervals: [0, 2, 4, 5, 7, 9, 10], relativeRoot: -7 },
+        aeolian: { intervals: [0, 2, 3, 5, 7, 8, 10], relativeRoot: -9 },
+        locrian: { intervals: [0, 1, 3, 5, 6, 8, 10], relativeRoot: -11 }
+    };
+    const chordTypes = ["", "m", "dim", "aug"];
+    const intervalNames = ["R", "m2", "M2", "m3", "M3", "P4", "A4/d5", "P5", "m6", "M6", "m7", "M7"];
+
+    function generateMode() {
+        const key = document.getElementById("key").value;
+        const modeName = document.getElementById("mode").value;
+        const modeRootIndex = notes.indexOf(key);
+        const modeData = modes[modeName];
+        const modeIntervals = modeData.intervals;
+
+        let modeNotes = modeIntervals.map(interval => notes[(modeRootIndex + interval) % 12]);
+
+        let parentRootIndex = (modeRootIndex + modeData.relativeRoot + 12) % 12; // Use relativeRoot
+        let parentRoot = notes[parentRootIndex];
+
+        // Sharp correction
+        if (key.includes("#") && !parentRoot.includes("#") && notes[(parentRootIndex + 11) % 12] === key.replace("#","")) {
+          parentRoot = notes[(parentRootIndex+11)%12]+"#";
+        }
+
+        let parentScaleNotes = modes.ionian.intervals.map(interval => notes[(notes.indexOf(parentRoot) + interval) % 12]);
+    
+
+        let resultsDiv = document.getElementById("results");
+        resultsDiv.innerHTML = "";
+
+        displayScaleInfo(resultsDiv, key, modeName, modeNotes);
+        displayScaleInfo(resultsDiv, parentRoot, "Major (Parent)", parentScaleNotes);
+    }
+
+
+        function displayScaleInfo(resultsDiv, scaleName, scaleType, scaleNotes) {
+        let scaleInfoDiv = document.createElement("div");
+        scaleInfoDiv.className = "scale-info";
+        resultsDiv.appendChild(scaleInfoDiv);
+
+        scaleInfoDiv.innerHTML += `<h2>${scaleName} ${scaleType}</h2>`;
+        scaleInfoDiv.innerHTML += `<p>Notes: ${scaleNotes.join(" - ")}</p>`;
+        scaleInfoDiv.innerHTML += `<p>Whole/Half Steps: ${getWholeHalfSteps(scaleNotes).join("-")}</p>`;
+        scaleInfoDiv.innerHTML += `<p>Intervals: ${getIntervalNames(scaleNotes, scaleNotes[0]).join(" - ")}</p>`;
+        scaleInfoDiv.innerHTML += `<p>Chords: ${generateChords(scaleNotes).join(" - ")}</p>`;
+    }
+
+    function getWholeHalfSteps(scale) {
+        let steps = [];
+        for (let i = 0; i < scale.length - 1; i++) {
+            let diff = (notes.indexOf(scale[i + 1]) - notes.indexOf(scale[i]) + 12) % 12;
+            steps.push(diff == 1 ? "H" : "W");
+        }
+        return steps;
+    }
+
+    function getIntervalNames(scale, rootNote) {
+        let intervals = [];
+        let rootNoteIndex = notes.indexOf(rootNote);
+        for (let i = 0; i < scale.length; i++) {
+            let currentNoteIndex = notes.indexOf(scale[i]);
+            let interval = (currentNoteIndex - rootNoteIndex + 12) % 12;
+            intervals.push(intervalNames[interval]);
+        }
+        return intervals;
+    }
+
+    function generateChords(scaleNotes) {
+        let chords = [];
+        for (let i = 0; i < 7; i++) {
+            let rootIndex = i;
+            let thirdIndex = (i + 2) % 7;
+            let fifthIndex = (i + 4) % 7;
+
+            let root = scaleNotes[rootIndex];
+            let third = scaleNotes[thirdIndex];
+            let fifth = scaleNotes[fifthIndex];
+
+            let thirdInterval = (notes.indexOf(third) - notes.indexOf(root) + 12) % 12;
+            let fifthInterval = (notes.indexOf(fifth) - notes.indexOf(root) + 12) % 12;
+
+            let chordType = "";
+            
+            if (thirdInterval === 3) chordType = "m";
+            else if (thirdInterval === 3 && fifthInterval === 6) chordType = "dim";
+            else if (thirdInterval === 4 && fifthInterval === 8) chordType = "aug";
+
+            
+            chords.push(root + chordType);
+            
+        }
+        
+        return chords;
+    }
+</script>
+
+</body>
+</html>
