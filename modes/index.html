@@ -67,14 +67,16 @@
         select{
                 width: auto;
             }
+        .butoncic{
+           float: right;
+        }
 
         button {
             background-color: #4CAF50; /* Green */
             border: none;
             color: white;
-            text-align: center;
             text-decoration: none;
-            display: inline-block;
+            display:inline-flex;
             cursor: pointer;
             transition: background-color 0.3s; /* Smooth transition on hover */
         }
@@ -113,7 +115,7 @@
 <body>
 
 <h1>Modal Explorer</h1>
-<div id="selctor">
+<div id="selector">
 <label for="key">Key:</label>
 <select id="key">
     <option value="C">C</option>
@@ -140,8 +142,9 @@
     <option value="aeolian">Aeolian</option>
     <option value="locrian">Locrian</option>
 </select>
-<br>
-<button onclick="generateMode()">Generate</button>
+</div>
+<div id="buttoncic">
+<button onclick="generateMode()">Go</button>
 </div>
 <div id="results"></div>
 
@@ -158,6 +161,7 @@
     };
     const chordTypes = ["", "m", "dim", "aug"];
     const intervalNames = ["R", "m2", "M2", "m3", "M3", "P4", "A4/d5", "P5", "m6", "M6", "m7", "M7"];
+
 
     function generateMode() {
         const key = document.getElementById("key").value;
