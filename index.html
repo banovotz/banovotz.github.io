@@ -1,245 +1,463 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Davor Banovic
-Davor started writing reasonably early in his life as probably most writers did. He wrote several short stories and poems. Most of it got published somewhere in mid nineties. However, with the dawn of 21st century he almost completely stopped writing. But, fortunately or not, he is back. In both his fiction and non fiction works he is trying to contribute to the development of the fragile culture of dialogue. Davor is holdig a masters degree in theology. He is employed with a software start-up so he knows to appreciate that little free time he has. He is happily married.">
-    <meta name="author" content="Davor Banovic">   
-    <link rel="shortcut icon" href="assets/ico/favicon.ico">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Davor Banovic - Official home page of author Davor Banovic</title>
-    <!-- Bootstrap core CSS -->
-    <link href="assets/css/bootstrap.css" rel="stylesheet">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
     <link rel="canonical" href="https://davorbanovic.com" />
+    <meta name="description" content="Official home page of author Davor Banovic. Davor is an author of fiction and non-fiction, trying to contribute to the development of the fragile culture of dialogue.">
 
-    <!-- Custom styles for this template -->
-    <link href="assets/css/style.css" rel="stylesheet">
-    <link href="assets/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+    <style>
+        /* CSS Variables for an elegant, literary theme */
+        :root {
+            --bg-color: #F8F5F2; /* A warm, paper-like off-white */
+            --text-color: #3D3D3D;
+            --heading-color: #1A1A1A;
+            --accent-color: #008080; /* A sophisticated teal */
+            --accent-color-hover: #006666;
+            --border-color: #E0DCD7;
+            --heading-font: 'Playfair Display', serif;
+            --body-font: 'Lato', sans-serif;
+        }
 
-    <!-- Just for debugging purposes. Don't actually copy this line! -->
-    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+        /* Basic Reset & Setup */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    <![endif]-->
+        html {
+            scroll-behavior: smooth;
+        }
 
-  </head>
+        body {
+            font-family: var(--body-font);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            font-size: 17px;
+        }
 
-  <body>
+        /* Global Styles */
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
 
-    <!-- Static navbar -->
-    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="index.html"></a>
+        section {
+            padding: 6rem 0;
+        }
+        
+        section:nth-of-type(even) {
+            background-color: #FFFFFF;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--heading-font);
+            color: var(--heading-color);
+            font-weight: 700;
+        }
+
+        h2.section-title {
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+
+        h2.section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background: var(--accent-color);
+            margin: 1rem auto 0;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+        }
+
+        /* Header & Navigation */
+        .main-header {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: background-color 0.3s ease;
+        }
+
+        .main-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .main-nav .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: var(--heading-font);
+            color: var(--heading-color);
+            text-decoration: none;
+            /* Placeholder for a text logo if image is not used */
+            content: "Davor Banovic"; 
+        }
+
+        .main-nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        .main-nav ul li {
+            margin-left: 2.5rem;
+        }
+
+        .main-nav ul li a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+
+        .main-nav ul li a:hover {
+            color: var(--accent-color);
+        }
+
+        /* Hero Section */
+        #hero {
+            height: 80vh;
+            min-height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #fff;
+            position: relative;
+            overflow: hidden; /* For the zoom effect */
+        }
+
+        .hero-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://davorbanovic.com/assets/img/back.jpg'); /* Teal Typewriter Image */
+            background-size: cover;
+            background-position: center;
+            z-index: -2;
+            animation: zoom-in 20s ease-out forwards;
+        }
+        
+        @keyframes zoom-in {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        #hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: -1;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            padding: 2rem;
+        }
+        
+        .hero-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            color: #fff;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        }
+        
+        .hero-content h4 {
+            font-size: 1.2rem;
+            font-family: var(--body-font);
+            font-weight: 400;
+            margin-bottom: 2.5rem;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: #fff;
+            padding: 1rem 2.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-color-hover);
+            transform: translateY(-3px);
+        }
+
+        /* About Section */
+        .about-content {
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+        }
+
+        .about-content img {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        /* Books Section */
+        .book-item {
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+            margin-bottom: 5rem;
+        }
+
+        .book-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .book-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .book-image {
+            flex: 1;
+            max-width: 300px;
+            flex-shrink: 0;
+        }
+        
+        .book-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        .book-description {
+            flex: 2;
+        }
+
+        .book-description h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .book-description .btn {
+            margin-top: 1.5rem;
+        }
+        
+        /* Free Stories Section */
+        #stories .container {
+            max-width: 700px;
+        }
+
+        .embedly-card {
+            margin-bottom: 2rem !important; /* Overriding embedly styles */
+        }
+        
+        /* Footer */
+        .main-footer {
+            background-color: var(--heading-color);
+            color: rgba(255, 255, 255, 0.7);
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .footer-socials {
+            margin-bottom: 2rem;
+        }
+
+        .footer-socials a {
+            color: #fff;
+            margin: 0 1rem;
+            font-size: 1.5rem;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-socials a:hover {
+            color: var(--accent-color);
+        }
+
+        .footer-credits p {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .footer-credits a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+        }
+        
+        .footer-credits a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body { font-size: 16px; }
+            h2.section-title { font-size: 2.2rem; }
+            .hero-content h1 { font-size: 2.5rem; }
+            
+            .main-nav {
+                justify-content: center;
+                position: relative;
+            }
+            .main-nav .logo {
+                display: none; /* Hide logo on mobile nav */
+            }
+            .main-nav ul li { margin: 0 1rem; }
+            
+            .about-content, .book-item, .book-item:nth-child(even) {
+                flex-direction: column;
+                text-align: center;
+            }
+            .book-item {
+                gap: 2rem;
+            }
+            .book-description {
+                flex-basis: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="main-header">
+        <nav class="main-nav container">
+            <a href="#hero" class="logo">Davor Banović</a>
+            <ul>
+                <li><a href="#hero">Home</a></li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#books">Books</a></li>
+                <li><a href="#stories">Free stories</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="hero">
+            <div class="hero-background"></div>
+            <div class="hero-content">
+                <h1>WRITING THROUGH THE REPUBLIC OF LETTERS</h1>
+                <h4>Official home page of author Davor Banovic</h4>
+                <a href="https://www.hocuknjigu.hr/proizvodi/knjige/knjizevnost/drama/juzni-krajevi/" class="btn">TO THE BOOK</a>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about">
+            <div class="container">
+                <h2 class="section-title">About Me</h2>
+                <div class="about-content">
+                    <img src="https://davorbanovic.com/assets/img/banovotx_new.jpg" alt="Davor Banovic">
+                    <div class="about-text">
+                        <p><strong>Davor Banovic</strong> started writing reasonably early in his life as probably most writers did. He wrote several short stories and poems. Most of it got published somewhere in mid nineties. However, with the dawn of 21st century he almost completely stopped writing.</p>
+                        <p>But, fortunately or not, he is back. In both his fiction and non fiction works he is trying to contribute to the development of the fragile culture of dialogue. Davor is holdig a masters degree in theology. He is employed with a software start-up so he knows to appreciate that little free time he has. He is happily married.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Books Section -->
+        <section id="books">
+            <div class="container">
+                <h2 class="section-title">Books</h2>
+                
+                <article class="book-item">
+                    <div class="book-image">
+                        <a href="https://www.hocuknjigu.hr/proizvodi/knjige/knjizevnost/drama/juzni-krajevi">
+                            <img src="https://www.davorbanovic.com/assets/img/Juzni-krajevi.jpg" alt="Book cover of Južni krajevi">
+                        </a>
+                    </div>
+                    <div class="book-description">
+                        <h3>Južni krajevi</h3>
+                        <p>The accidental discovery of World War II writing on the wall of a ruined forester's house on the Baranja mountain sets off a chain reaction of events that span centuries, crossing sometimes invisible boundaries between people and politics, reality and narrative, reason and madness... We follow the plot through the intertwined threads of history, technology and the mysteries of the human mind.</p>
+                        <p>With its unique mix of historical fiction, adventure and social commentary, this novel is a must-read for fans of authors such as Umberto Eco and Predrag Raos.</p>
+                        <a href="https://www.hocuknjigu.hr/proizvodi/knjige/knjizevnost/drama/juzni-krajevi/" class="btn">TO THE BOOK</a>
+                    </div>
+                </article>
+
+                <article class="book-item">
+                    <div class="book-image">
+                        <a href="http://www.brokenumbrella.eu/">
+                            <img src="http://www.brokenumbrella.eu/img/demo-screen-1.jpg" alt="Book cover of Girl with Broken Umbrella">
+                        </a>
+                    </div>
+                    <div class="book-description">
+                        <h3>Girl with Broken Umbrella</h3>
+                        <p><b>What do art and terrorism have in common? In what kind of trouble a creative mind can take you?</b></p>
+                        <p>Ana is a journalist who discovers an important manuscript and a gifted cartoonist whose life is in danger. David is a philosopher and an author of a story collection about the war in Bosnia. Boris is an innovative artist. Fabian – a future cleric. Pierre is a friend. Their stories are not ordinary. Everything about their lives is mysteriously connected with other people, and distant times and places. Every detail has many meanings, and their paths are defined by those meanings.</p>
+                        <p>Disguised as the main characters’ journey through the time and places, this actually is a fascinating semantic journey. Things around you will never look the same again.</p>
+                        <a href="http://www.brokenumbrella.eu/" class="btn">TO THE BOOK</a>
+                    </div>
+                </article>
+
+            </div>
+        </section>
+
+        <!-- Free Stories Section -->
+        <section id="stories">
+            <div class="container">
+                <h2 class="section-title">Free Stories</h2>
+                
+                <blockquote class="embedly-card" data-card-key="7e5e81b130c14b398884125dc75a4b08" data-card-type="article" data-card-controls="0"><h4><a href="https://medium.com/@banovotz/better-things-to-do-973577313d96#.nalqla72p">Better things to do</a></h4><p>They were strolling down the capital sidewalks. The city was unusually crowded for this time of year; Midsummer. Walking in groups is funny; impossible to engage in conversation with all in the same time, David thought while trying to decide whether to talk to Jakov and the other Jakov about the weather or to Mihael and Denis about perils of work in the fashion industry.</p></blockquote>
+                
+                <blockquote class="embedly-card" data-card-key="7e5e81b130c14b398884125dc75a4b08" data-card-type="article" data-card-controls="0"><h4><a href="https://medium.com/@banovotz/broken-chair-4cfb33d15400#.t2axrn1gk">Broken chair</a></h4><p>"I was not always a soldier, you know," said the soldier while slowing down to accommodate the traffic speed in the village they were passing through. "I am actually a carpenter." David, a seasoned hitchhiker, was sitting at the co-driver's seat. He nodded. Silent.</p></blockquote>
+
+                <blockquote class="embedly-card" data-card-key="7e5e81b130c14b398884125dc75a4b08" data-card-type="article" data-card-controls="0"><h4><a href="https://medium.com/@banovotz/the-last-page-84d392932701#.igkxphto6">The last page</a></h4><p>Ransacking through the books at book fairs was his hobby. You never know what gem you can dig and for a reasonable price too. However, books by this particular seller didn't look promising at all. They are mostly cheap fiction and books about knitting.</p></blockquote>
+                
+                <script async src="https://cdn.embedly.com/widgets/platform.js" charset="UTF-8"></script>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-socials">
+                <a href="https://www.facebook.com/banovotz" target="_blank" aria-label="Facebook">
+                    <!-- Inline SVG for Facebook Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg>
+                </a>
+                <a href="https://twitter.com/banovotz" target="_blank" aria-label="Twitter">
+                    <!-- Inline SVG for Twitter Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                </a>
+            </div>
+            <div class="footer-credits">
+                <p><b>WRITING THROUGH THE REPUBLIC OF LETTERS</b></p>
+                <p>Official home page of author Davor Banovic</p>
+                <p>Lead Photo: <i>teal typewriter</i> by <a href="https://www.flickr.com/photos/amandawoodward/97806450" target="_blank">Amanda Woodward</a>, used under <a href="https://creativecommons.org/licenses/by-nc/2.0/" target="_blank">CC BY-NC 2.0</a>.</p>
+            </div>
         </div>
-        <div class="navbar-collapse collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="/">Home</a></li>
-            <li><a href="#about">About</a></li>
-            <li><a href="#books">Books</a></li>
-            <li><a href="#stories">Free stories</a></li>
-          </ul>
-        </div><!--/.nav-collapse -->
-      </div>
-    </div>
+    </footer>
 
-
-	<div id="headerwrap">
-	    <div class="container">
-			<div class="row">
-				<div class="col-lg-9 col-lg-offset-3">
-					<h1>WRITING THROUGH THE REPUBLIC OF LETTERS</h1>
-					<h4>Official home page of author Davor Banovic</h4>
-				</div>
-<div class="mt">					
-								<a href="http://www.brokenumbrella.eu/"  class="btn btn-success btn-lg">TO THE BOOK</a>
-								</div>
-			</div><! --/row -->
-	    </div> <!-- /container -->
-	</div><! --/headerwrap -->
-	
-	<section id="about">	
-	<div class="container">
-				
-		<div class="row aligned-left mt mb">
-				<div class="centered"><h1><i class="fa fa-info-circle"></i> About</h1></div>
-						<div class="clientblock"> 
-			<div class="about-p">
-			<img class="img-circle" src="assets/img/banovotx_new.jpg" width="320" hspace="30" alt=".">
-			<p hspace="30">
-			
-<strong>Davor Banovic</strong>
-Davor started writing reasonably early in his life as probably most writers did. He wrote several short stories and poems. Most of it got published somewhere in mid nineties. However, with the dawn of 21st century he almost completely stopped writing. But, fortunately or not, he is back. In both his fiction and non fiction works he is trying to contribute to the development of the fragile culture of dialogue. Davor is holdig a masters degree in theology. He is employed with a software start-up so he knows to appreciate that little free time he has. He is happily married.
-							</p>
-						</div>
-							</div>
-							
-							</section>
-			
-				</div><! --/row -->				
-	
-	<section id="books">	
-	<div class="container">
-				<div class="centered"><h1><i class="fa fa-book"></i> Books</h1></div>
-
-		<div class="row aligned-left mt mb">						
-			<div class="bookblock"> 
-			<div class="book-p">
-<p>
-<a href="https://www.hocuknjigu.hr/proizvodi/knjige/knjizevnost/drama/juzni-krajevi"><img src="https://www.davorbanovic.com/assets/img/Juzni-krajevi.jpg" class="img-rounded" width="300" hspace="30"></a>
- <h1>Južni krajevi</h1>
-				<p>
-The accidental discovery of World War II writing on the wall of a ruined forester's house on the Baranja mountain sets off a chain reaction of events that span centuries, crossing sometimes invisible boundaries between people and politics, reality and narrative, reason and madness... We follow the plot through the intertwined threads of history, technology and the mysteries of the human mind. The main characters, led by theoretical physics professor Naum Špehar, are entangled in a complex web of knowledge, secrets and played-out ideals, and their paths all intersect on the enigmatic Glade, a hill shrouded in real legends and instant myths.</p><p> With its unique mix of historical fiction, adventure and social commentary, this novel is a must-read for fans of authors such as Umberto Eco and Predrag Raos.
-	</p>				
-</p>
-<br>
-				<div class="mt centered">					
-								<a href="https://www.hocuknjigu.hr/proizvodi/knjige/knjizevnost/drama/juzni-krajevi/"  class="btn btn-success btn-lg">TO THE BOOK</a>
-								</div>
-				
-			<p>
-		<a href="http://www.brokenumbrella.eu/"><img src="http://www.brokenumbrella.eu/img/demo-screen-1.jpg" class="img-rounded" hspace="30"></a>
- <h1>Girl with Broken Umbrella</h1>
- <p><b>What do art and terrorism have in common? In what kind of trouble acreative mind can take you?</b></p>
-                                    
-
-<p>Ana is a journalist who discovers an important manuscript and a gifted cartoonist whose
-
-life is in danger. David is a philosopher and an author of a story collection about the war
-
-in Bosnia. Boris is an innovative artist. Fabian – a future cleric. Pierre is a friend.
-
-
-Their stories are not ordinary. Everything about their lives is mysteriously connected
-
-with other people, and distant times and places. Every detail has many meanings, and
-
-their paths are defined by those meanings.
-
-
-They will take you to the streets of Zagreb, through the basements and art studios, to a
-
-book fair and an explosive factory. They will lead you into a secret society quarters, an
-
-interrogation room at the Russian border, and eventually to Paris.
-
-
-You’ll walk near the battlefield, through a gay parade, and into the target of a terrorist
-
-attack.</p>
-
-
-<p>Disguised as the main characters’ journey through the time and places, this actually is a
-
-fascinating semantic journey. Things around you will never look the same again.</p>							</p>
-							<div class="mt centered">					
-								<a href="http://www.brokenumbrella.eu/"  class="btn btn-success btn-lg">TO THE BOOK</a>
-								</div>
-
-						</div>
-						</div>
-						
-		</div><! --/row -->
-	</div><! --/container -->
-	
-     
-      
-    
-    
- 
-      </div>
-    </div>
-  </div>
-</div>
-
-<div id="stories">
-<div class="container">
-				<div class="centered"><h1><i class="fa fa-pencil-square"></i> Free stories</h1></div>
-
-		<div class="row aligned-left mt mb">						
-			<div class="bookblock"> 
-			<div class="book-p">
-			
-
-<blockquote class="embedly-card" data-card-key="7e5e81b130c14b398884125dc75a4b08" data-card-type="article" data-card-controls="0"><h4><a href="https://medium.com/@banovotz/better-things-to-do-973577313d96#.nalqla72p">Better things to do</a></h4><p>They were strolling down the capital sidewalks. The city was unusually crowded for this time of year; Midsummer. Walking in groups is funny; impossible to engage in conversation with all in the same time, David thought while trying to decide whether to talk to Jakov and the other Jakov about the weather or to Mihael and Denis about perils of work in the fashion industry.</p></blockquote>
-<script async src="http://cdn.embedly.com/widgets/platform.js" charset="UTF-8"></script>
-
-<blockquote class="embedly-card" data-card-key="7e5e81b130c14b398884125dc75a4b08" data-card-type="article" data-card-controls="0"><h4><a href="https://medium.com/@banovotz/broken-chair-4cfb33d15400#.t2axrn1gk">Broken chair</a></h4><p>"I was not always a soldier, you know," said the soldier while slowing down to accommodate the traffic speed in the village they were passing through. "I am actually a carpenter." David, a seasoned hitchhiker, was sitting at the co-driver's seat. He nodded. Silent.</p></blockquote>
-<script async src="http://cdn.embedly.com/widgets/platform.js" charset="UTF-8"></script>
-
-<blockquote class="embedly-card" data-card-key="7e5e81b130c14b398884125dc75a4b08" data-card-type="article" data-card-controls="0"><h4><a href="https://medium.com/@banovotz/the-last-page-84d392932701#.igkxphto6">The last page</a></h4><p>Ransacking through the books at book fairs was his hobby. You never know what gem you can dig and for a reasonable price too. However, books by this particular seller didn't look promising at all. They are mostly cheap fiction and books about knitting.</p></blockquote>
-<script async src="http://cdn.embedly.com/widgets/platform.js" charset="UTF-8"></script>
-
-
-</div>
-</div>
-</div>
-
-</div>
-
- 
-	<div id="social">
-		<div class="container">
-			<div class="row centered">
-
-				<div class="col-lg-6">
-					<a href="https://www.facebook.com/banovotz" target="_blank"><i class="fa fa-facebook"></i></a>
-				</div>
-				<div class="col-lg-6">
-					<a href="https://twitter.com/banovotz" target="_blank"><i class="fa fa-twitter"></i></a>
-				</div>
-				
-				</div>
-			
-			</div><! --/row -->
-		</div><! --/container -->
-	</div><! --/social -->
-
-	<div id="footerwrap">
-		<div class="container">
-			<div class="row centered">
-				<div class="col-lg-4">
-					<p><b>WRITING THROUGH THE REPUBLIC OF LETTERS</b></p>
-				</div>
-			
-				<div class="col-lg-4">
-					<p>Official home page of author Davor Banovic</p>
-				</div>
-				<div class="col-lg-4">
-					<p>Lead Photo: <i>teal typewriter</i> by Amanda Woodward <a href="https://www.flickr.com/photos/amandawoodward/97806450" target="_blank"><a href="https://creativecommons.org/licenses/by-nc/2.0/" target="_blank"><i class="fa fa-cc fa-fw"></i></a></p>
-				
-				</div>
-			</div>
-		</div>
-	</div><! --/footerwrap -->
-	
-
-
-    <!-- Bootstrap core JavaScript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    <script src="assets/js/bootstrap.min.js"></script>
-    
-     <!-- GA -->
-    <script>
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-38758949-3', 'auto');
-  ga('send', 'pageview');
-  </script>
-  </body>
+</body>
 </html>
