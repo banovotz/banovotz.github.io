@@ -341,8 +341,86 @@
             }
             .book-description {
                 flex-basis: auto;
-            }
-        }
+            }}
+
+/* Events Section */
+.events-grid {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.event-card {
+    background-color: #FFFFFF;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    flex: 1 1 300px; /* Flex properties for responsive columns */
+    max-width: 350px;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.event-image img {
+    width: 200px;
+    object-fit: cover;
+    display: block;
+}
+
+.event-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Allows content to fill space */
+}
+
+.event-date {
+    color: var(--accent-color);
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+}
+
+.event-content h3 {
+    font-family: var(--heading-font);
+    font-size: 1.4rem;
+    color: var(--heading-color);
+    margin-bottom: 0.5rem;
+}
+
+.event-venue {
+    font-size: 0.95rem;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.event-venue a {
+    color: var(--heading-color);
+    text-decoration: none;
+    font-weight: 700;
+    border-bottom: 2px solid var(--border-color);
+    transition: border-color 0.3s ease;
+}
+
+.event-venue a:hover {
+    border-bottom-color: var(--accent-color);
+}
+
+.event-description {
+    font-size: 0.95rem;
+    flex-grow: 1; /* Pushes content below to the bottom if needed */
+    margin-bottom: 0;
+}
+        
     </style>
 </head>
 <body>
@@ -352,10 +430,11 @@
         <nav class="main-nav container">
             <a href="#hero" class="logo">Davor Banović</a>
             <ul>
-                <li><a href="#hero">Home</a></li>
+          
                 <li><a href="#about">About</a></li>
                 <li><a href="#books">Books</a></li>
-                <li><a href="#stories">Free stories</a></li>
+                <li><a href="#events">Events</a></li>
+                <li><a href="#stories">Stories</a></li>
             </ul>
         </nav>
     </header>
@@ -422,6 +501,43 @@
             </div>
         </section>
 
+        <!-- Events Section -->
+<section id="events">
+    <div class="container">
+        <h2 class="section-title">Događaji</h2>
+        <div class="events-grid">
+            <!-- Event Card 2 -->
+            <article class="event-card">
+                <div class="event-image">
+                    <img class="event-image" src="https://davorbanovic.com/assets/img/gisko1.png" width="100px" alt="Promotivna slika za književnu tribinu">
+                </div>
+                <div class="event-content">
+                    <p class="event-date">Listopad 2025.</p>
+                    <h3>Književna tribina u GISKO-u</h3>
+                    <p class="event-venue">u <a href="#" target="_blank">GISKO, Osijek</a></p>
+                    <p class="event-description">Najavljujemo druženje s autorom u GISKO-u. Više informacija uskoro.</p>
+                </div>
+            </article>
+            
+            <!-- Event Card 1 -->
+            <article class="event-card">
+                <div class="event-image">
+                    <img class="event-image" src="https://davorbanovic.com/assets/img/gkbm1.jpg"  alt="Promotivna slika za predstavljanje knjige u Belom Manastiru">
+                </div>
+                <div class="event-content">
+                    <p class="event-date">12. lipnja 2025.</p>
+                    <h3>Predstavljanje romana "Južni krajevi"</h3>
+                    <p class="event-venue">u <a href="https://www.gkbm.hr/2025/06/11/promocija-knjige-i-druzenje-s-autorom-davorom-banovicem/" target="_blank">Gradska knjižnica Beli Manastir</a></p>
+                    <p class="event-description">Pridružite nam se na večeri s autorom gdje ćemo razgovarati o inspiraciji i temama romana "Južni krajevi". Slijedi potpisivanje knjiga.</p>
+                </div>
+            </article>
+
+      
+
+
+        </div>
+    </div>
+</section>
         <!-- Free Stories Section -->
         <section id="stories">
             <div class="container">
