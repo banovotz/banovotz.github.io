@@ -126,7 +126,7 @@
 
             
             <!-- Event Card 1 -->
-            <article class="event-card">
+            <article class="event-card is-hidden">
                 <div class="event-image">
                     <img class="event-image" src="https://davorbanovic.com/assets/img/gkbm1.jpg"  alt="Promotivna slika za predstavljanje knjige u Belom Manastiru">
                 </div>
@@ -141,6 +141,10 @@
       
 
 
+        </div>
+         <!-- Load More Button Container -->
+         <div class="load-more-container" id="load-more-container">
+            <button class="btn" id="load-more-btn">Učitaj još događaja</button>
         </div>
     </div>
 </section>
@@ -179,6 +183,29 @@
             </div>
         </div>
     </footer>
-
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            const container = document.getElementById('load-more-container');
+            
+            // Find all hidden event cards
+            const hiddenEvents = document.querySelectorAll('.event-card.is-hidden');
+    
+            // If there are no hidden events, hide the button container
+            if (hiddenEvents.length === 0) {
+                container.style.display = 'none';
+            }
+    
+            loadMoreBtn.addEventListener('click', function() {
+                // Show all hidden events
+                hiddenEvents.forEach(function(eventCard) {
+                    eventCard.classList.remove('is-hidden');
+                });
+    
+                // Hide the "Load More" button after it's been clicked
+                container.style.display = 'none';
+            });
+        });
+    </script>
 </body>
 </html>
