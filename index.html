@@ -351,26 +351,21 @@
     flex-wrap: wrap;
 }
 
-.event-card {
-    background-color: #FFFFFF;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    flex: 1 1 300px; /* Flex properties for responsive columns */
-    max-width: 350px;
-    display: flex;
-    flex-direction: column;
+#events { background-color: #FFFFFF; }
+.events-grid { display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; }
+.event-card { background-color: #FFFFFF; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s ease, box-shadow 0.3s ease; flex: 1 1 300px; max-width: 350px; display: flex; flex-direction: column; }
+.event-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+
+.event-card--featured {
+    border: 2px solid var(--accent-color);
+    box-shadow: 0 8px 25px rgba(0, 128, 128, 0.15); /* A subtle teal glow */
 }
 
-.event-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-}
+.event-image img { width: 100%; height: 200px; object-fit: cover; display: block; }
+.event-content { padding: 1.5rem; display: flex; flex-direction: column; flex-grow: 1; }
 
 .event-image img {
-    width: 200px;
+    
     object-fit: cover;
     display: block;
 }
@@ -388,7 +383,27 @@
     font-size: 0.85rem;
     margin-bottom: 0.5rem;
     text-transform: uppercase;
+    display: flex;
+    align-items: center; /* This will vertically align the date text and the badge */
 }
+
+.featured-badge {
+    display: inline-block;
+    background-color: var(--accent-color);
+    color: #fff;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-left: 0.75rem;
+    line-height: 1.4;
+}
+
+.event-content h3 { font-family: var(--heading-font); font-size: 1.4rem; color: var(--heading-color); margin-bottom: 0.5rem; }
+.event-venue { font-size: 0.95rem; color: var(--text-color); margin-bottom: 1rem; }
+.event-venue a { color: var(--heading-color); text-decoration: none; font-weight: 700; border-bottom: 2px solid var(--border-color); transition: border-color 0.3s ease; }
+.event-venue a:hover { border-bottom-color: var(--accent-color); }
+.event-description { font-size: 0.95rem; flex-grow: 1; margin-bottom: 0; }
 
 .event-content h3 {
     font-family: var(--heading-font);
@@ -507,12 +522,13 @@
         <h2 class="section-title">Događaji</h2>
         <div class="events-grid">
             <!-- Event Card 2 -->
-            <article class="event-card">
+            <article class="event-card event-card--featured">
                 <div class="event-image">
                     <img class="event-image" src="https://davorbanovic.com/assets/img/gisko1.png" width="100px" alt="Promotivna slika za književnu tribinu">
                 </div>
                 <div class="event-content">
                     <p class="event-date">Listopad 2025.</p>
+                    <span class="featured-badge">ISTAKNUTO</span>
                     <h3>Književna tribina u GISKO-u</h3>
                     <p class="event-venue">u <a href="#" target="_blank">GISKO, Osijek</a></p>
                     <p class="event-description">Najavljujemo druženje s autorom u GISKO-u. Više informacija uskoro.</p>
