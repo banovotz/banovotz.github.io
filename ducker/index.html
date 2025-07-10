@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Duck Crossing</title>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.js"></script>
+  <style>
+    body { margin: 0; }
+    canvas { display: block; margin: 0 auto; }
+  </style>
+</head>
+<body>
+<script>
+const config = {
+  type: Phaser.AUTO,
+  width: 800,
+  height: 600,
+  backgroundColor: '#87CEEB', // light blue lake
+  physics: {
+    default: 'arcade',
+    arcade: {
+      debug: false
+    }
+  },
+  scene: {
+    preload,
+    create,
+    update
+  }
+};
+
+let player;
+let cursors;
+let enemies;
+let winText;
+let gameOver = false;
+
+const game = new Phaser.Game(config);
+
+function preload() {
+  this.load.image('duck', 'duck.png');
+  this.load.image('alien', 'https://coimages.sciencemuseumgroup.org.uk/285/395/medium_y1990_0151_0002__0003_.jpg');
+}
+
+function create() {
+  // Create duck
+  player = this.physics.add.sprite(400, 550, 'duck');
+  player.setCollideWorldBounds(true);
+  player.setScale(0.5);
+
+  // Create alien alligators (enemies)
+  enemies = this.physics.add.group();
+
+  for (let y = 100; y <= 400; y += 100) {
+    for (let i = 0; i < 3; i++) {
+      let x = Phaser.Math.Between(0, 800);
+      let alien = enemies.create(x, y, 'alien');
+      alien.setVelocityX(Phaser.Math.Between(100, 200) * (Math.random() > 0.5 ? 1 : -1));
+      alien.setCollideWorldBounds(true);
+      alien.setBounce(1);
+      alien.setScale(0.5);
+    }
+  }
+
+  // Input
+  cursors = this.input.keyboard.createCursorKeys();
+
+  // Collision detection
+  this.physics.add.overlap(player, enemies, hitEnemy, null, this);
+
+  // Win text
+  winText = this.add.text(400, 300, '', {
+    fontSize: '32px',
+    fill: '#000',
+    fontStyle: 'bold'
+  }).setOrigin(0.5);
+}
+
+function update() {
+  if (gameOver) return;
+
+  // Movement
+  player.setVelocity(0);
+  if (cursors.left.isDown) player.setVelocityX(-200);
+  if (cursors.right.isDown) player.setVelocityX(200);
+  if (cursors.up.isDown) player.setVelocityY(-200);
+  if (cursors.down.isDown) player.setVelocityY(200);
+
+  // Win condition
+  if (player.y < 50) {
+    winText.setText('You made it across!');
+    gameOver = true;
+  }
+}
+
+function hitEnemy(player, enemy) {
+  this.physics.pause();
+  player.setTint(0xff0000);
+  winText.setText('You got eaten!');
+  gameOver = true;
+}
+</script>
+</body>
+</html>
