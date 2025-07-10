@@ -88,7 +88,7 @@ function update() {
 
   // Win condition
   if (player.y < 50) {
-    winText.setText('You made it across!');
+    winText.setText('Prešao si. Bravo!');
     gameOver = true;
   }
 }
@@ -96,7 +96,7 @@ function update() {
 function hitEnemy(player, enemy) {
   this.physics.pause();
   player.setTint(0xff0000);
-  winText.setText('You got eaten!');
+  winText.setText('Pojeli te alieni! Pokušaj ponovno!');
   gameOver = true;
 }
 </script>
