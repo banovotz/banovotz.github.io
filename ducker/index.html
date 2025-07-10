@@ -5,11 +5,16 @@
   <title>Duck Crossing</title>
   <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.js"></script>
   <style>
-    body { margin: 0; }
+    body { 
+      background-image: url(sand.png);
+      background-repeat: repeat;
+      margin: 0; }
+    h1 { text-align: center;}
     canvas { display: block; margin: 0 auto; }
   </style>
 </head>
 <body>
+  <h1>Pomozi patkici da prijeđe Bundek</h1>
 <script>
 const config = {
   type: Phaser.AUTO,
@@ -88,7 +93,7 @@ function update() {
 
   // Win condition
   if (player.y < 50) {
-    winText.setText('Prešao si. Bravo!');
+    winText.setText('You made it across!');
     gameOver = true;
   }
 }
@@ -96,7 +101,7 @@ function update() {
 function hitEnemy(player, enemy) {
   this.physics.pause();
   player.setTint(0xff0000);
-  winText.setText('Pojeli te alieni! Pokušaj ponovno!');
+  winText.setText('You got eaten!');
   gameOver = true;
 }
 </script>
