@@ -295,3 +295,27 @@ header {
         height: 40px;
     }
 }
+
+/* Dodatak za indikator učitavanja */
+.loading-indicator {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 1.2em;
+    z-index: 20;
+    pointer-events: none; /* Da ne blokira klikove ako je proziran */
+    opacity: 1;
+    transition: opacity 0.5s ease;
+}
+
+.loading-indicator.hidden {
+    opacity: 0;
+}
+
