@@ -7,12 +7,12 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23FF6B6B' d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v-2h-2v2zm0-4h2V7h-2v6z'/%3E%3C/svg%3E" type="image/svg+xml">
-
 </head>
 <body>
 
     <!-- Landing Page Sekcija -->
     <section id="landing-page" class="landing-page">
+        <!-- ... (Sadržaj landing stranice ostaje isti kao prije) ... -->
         <div class="overlay"></div>
         <div class="content">
             <header>
@@ -40,9 +40,12 @@
         <div class="camera-container">
             <video id="video" autoplay playsinline></video>
             <canvas id="canvas" class="ar-overlay"></canvas>
+            <div id="loading-indicator" class="loading-indicator">
+                <p>Učitavam AI model...</p>
+            </div>
             <div class="palette-container">
-                <!-- Ovdje će biti paleta boja -->
-                <div class="color-swatch active" data-color="#FF6B6B"></div> <!-- Crvena -->
+                <!-- ... (Paleta boja ostaje ista) ... -->
+                 <div class="color-swatch active" data-color="#FF6B6B"></div> <!-- Crvena -->
                 <div class="color-swatch" data-color="#FFD166"></div> <!-- Žuta -->
                 <div class="color-swatch" data-color="#06D6A0"></div> <!-- Zelena -->
                 <div class="color-swatch" data-color="#1B9AAA"></div> <!-- Plava -->
@@ -62,7 +65,6 @@
                 <div class="color-swatch" data-color="#FFCAD4"></div> <!-- Blijeda Ružičasta -->
                 <div class="color-swatch" data-color="#80FFDB"></div> <!-- Mint Zelena -->
                 <div class="color-swatch" data-color="#64DFDF"></div> <!-- Tirkizna -->
-                <!-- Dodaj još boja po želji -->
             </div>
         </div>
         <div class="camera-instructions">
@@ -70,6 +72,7 @@
         </div>
     </section>
 
-    <script src="script.js"></script>
+    <!-- Važno: script.js je sada type="module" -->
+    <script type="module" src="script.js"></script>
 </body>
 </html>
