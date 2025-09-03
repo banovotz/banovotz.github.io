@@ -1,18 +1,66 @@
+import {
+  HandLandmarker,
+  FilesetResolver
+} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0";
+
 document.addEventListener('DOMContentLoaded', () => {
+    // DOM Elementi
     const landingPage = document.getElementById('landing-page');
     const arCameraPage = document.getElementById('ar-camera-page');
     const tryOnButton = document.getElementById('try-on-button');
     const bookButton = document.getElementById('book-button');
     const backToLandingButton = document.getElementById('back-to-landing');
+    const loadingIndicator = document.getElementById('loading-indicator');
 
     const videoElement = document.getElementById('video');
     const canvasElement = document.getElementById('canvas');
-    const ctx = canvasElement.getContext('2d');
+    const ctx = canvasElement.getContext('2d', { willReadFrequently: true });
     const colorSwatches = document.querySelectorAll('.color-swatch');
 
-    let currentNailColor = '#FF6B6B'; // Početna boja
+    // Varijable stanja
+    let handLandmarker;
+    let runningMode = "VIDEO";
+    let animationFrameId;
+    let currentNailColor = '#FF6B6B';
 
-    // --- Funkcije za navigaciju ---
+    // Konstante za indekse točaka na prstima
+    const NAIL_LANDMARKS_INDICES = {
+        thumb: [4, 3, 2],
+        index: [8, 7, 6],
+        middle: [12, 11, 10],
+        ring: [16, 15, 14],
+        pinky: [20, 19, 18],
+    };
+
+    // --- Inicijalizacija MediaPipe HandLandmarker-a ---
+    const createHandLandmarker = async () => {
+        const vision = await FilesetResolver.forVisionTasks(
+            "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm"
+        );
+        handLandmarker = await HandLandmarker.createFromOptions(vision, {
+            baseOptions: {
+                modelAssetPath: `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`,
+                delegate: "GPU"
+            },
+            runningMode: runningMode,
+            numHands: 2,
+            minHandDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5,
+        });
+        console.log("HandLandmarker je spreman.");
+        // Sakrij indikator učitavanja i omogući gumb
+        loadingIndicator.classList.add('hidden');
+        tryOnButton.disabled = false;
+        tryOnButton.innerText = "Pogledaj kako ti stoji";
+    };
+
+    // Pozovi inicijalizaciju čim se skripta učita
+    tryOnButton.disabled = true;
+    tryOnButton.innerText = "Učitavanje...";
+    createHandLandmarker();
+
+
+    // --- Funkcije za navigaciju i kontrolu kamere ---
     tryOnButton.addEventListener('click', () => {
         landingPage.classList.add('hidden');
         arCameraPage.classList.remove('hidden');
@@ -20,126 +68,105 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     bookButton.addEventListener('click', () => {
-        // Ovdje bi se integrirao Google Calendar appointment schedule
         alert('Otvori Google Calendar za narudžbe! (Funkcionalnost narudžbe uskoro dostupna)');
-        // Primjer: window.open('LINK_ZA_GOOGLE_CALENDAR_SCHEDULE', '_blank');
     });
 
     backToLandingButton.addEventListener('click', () => {
-        stopCamera();
+        stopCameraAndPredictions();
         arCameraPage.classList.add('hidden');
         landingPage.classList.remove('hidden');
     });
 
-    // --- Logika za AR kameru ---
     async function startCamera() {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } }); // Koristi prednju kameru
+            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
             videoElement.srcObject = stream;
-            videoElement.onloadedmetadata = () => {
-                videoElement.play();
-                // Postavi veličinu platna prema videu
-                canvasElement.width = videoElement.videoWidth;
-                canvasElement.height = videoElement.videoHeight;
-                requestAnimationFrame(drawLoop); // Pokreni renderiranje
-            };
+            videoElement.addEventListener('loadeddata', predictWebcam);
         } catch (err) {
             console.error("Greška pri pristupu kameri: ", err);
             alert("Nismo uspjeli pristupiti kameri. Molimo provjerite dopuštenja.");
         }
     }
 
-    function stopCamera() {
+    function stopCameraAndPredictions() {
+        cancelAnimationFrame(animationFrameId); // Zaustavi petlju predikcija
         if (videoElement.srcObject) {
             videoElement.srcObject.getTracks().forEach(track => track.stop());
             videoElement.srcObject = null;
         }
+        ctx.clearRect(0, 0, canvasElement.width, canvasElement.height); // Očisti platno
     }
 
-    // AR simulacija (placeholder)
-    function drawLoop() {
-        if (videoElement.paused || videoElement.ended) {
-            return;
+    // --- Glavna petlja za detekciju i iscrtavanje ---
+    let lastVideoTime = -1;
+    async function predictWebcam() {
+        // Postavi veličinu platna prema videu (samo jednom)
+        if (canvasElement.width !== videoElement.videoWidth) {
+            canvasElement.width = videoElement.videoWidth;
+            canvasElement.height = videoElement.videoHeight;
         }
 
-        ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+        // Pokreni detekciju ako je video spreman
+        if (videoElement.currentTime !== lastVideoTime) {
+            lastVideoTime = videoElement.currentTime;
+            const results = handLandmarker.detectForVideo(videoElement, performance.now());
+            
+            // Očisti prethodni frame
+            ctx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            
+            // Iscrtaj nokte ako su ruke detektirane
+            if (results.landmarks && results.landmarks.length > 0) {
+                for (const landmarks of results.landmarks) {
+                    drawNails(landmarks);
+                }
+            }
+        }
         
-        // Crtanje video streama na canvas (opcionalno, ako želiš dodatne efekte na videu)
-        // ctx.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+        // Nastavi petlju
+        animationFrameId = requestAnimationFrame(predictWebcam);
+    }
 
-        // --- OVDJE IDE LOGIKA ZA DETEKCIJU NOKTIJU I AR PREKLAPANJE ---
-        //
-        // Ovdje bi se koristile biblioteke poput TensorFlow.js i predtrenirani modeli
-        // za detekciju ruku i noktiju. Nakon što se detektiraju obrisi noktiju,
-        // popunili bi se odabranom bojom.
-        //
-        // Primjer (Vrlo pojednostavljen, ne pravi AR):
-        // Za demonstraciju, simulirat ćemo crtanje oblika noktiju.
-        // U stvarnosti, ovo bi dolazilo iz rezultata modela strojnog učenja.
-        
+    // --- Funkcije za iscrtavanje noktiju ---
+    function drawNails(landmarks) {
         ctx.fillStyle = currentNailColor;
-        ctx.globalAlpha = 0.7; // Malo prozirnosti za "lak" efekt
+        ctx.globalAlpha = 0.8; // Malo prozirnosti za "lak" efekt
 
-        // Simulacija oblika nokta (trebalo bi biti dinamično, iz modela)
-        // Ovo je samo primjer, ne detektira stvarno nokte
-        // Očekivali bismo da ovdje imate koordinate i obrise svakog nokta
-        // iz modela za detekciju ruku/prstiju.
-        
-        // Simulacija za 5 prstiju na sredini ekrana
-        const centerX = canvasElement.width / 2;
-        const centerY = canvasElement.height / 2;
-        const nailWidth = canvasElement.width * 0.08;
-        const nailHeight = canvasElement.height * 0.12;
+        for (const finger in NAIL_LANDMARKS_INDICES) {
+            const indices = NAIL_LANDMARKS_INDICES[finger];
+            const tip = landmarks[indices[0]];
+            const dip = landmarks[indices[1]];
+            const pip = landmarks[indices[2]];
 
-        // Crtanje pravokutnika kao placeholder za nokte
-        // U stvarnosti, bio bi to složeniji put (Path2D) koji prati obris nokta
-        
-        // Palac
-        drawSimulatedNail(centerX - nailWidth * 2.5, centerY + nailHeight * 0.5, nailWidth * 0.8, nailHeight * 0.8, -20);
-        // Kažiprst
-        drawSimulatedNail(centerX - nailWidth * 1.2, centerY - nailHeight * 0.8, nailWidth, nailHeight, -10);
-        // Srednji prst
-        drawSimulatedNail(centerX, centerY - nailHeight * 1.2, nailWidth, nailHeight, 0);
-        // Prstenjak
-        drawSimulatedNail(centerX + nailWidth * 1.2, centerY - nailHeight * 0.8, nailWidth, nailHeight, 10);
-        // Mali prst
-        drawSimulatedNail(centerX + nailWidth * 2.5, centerY + nailHeight * 0.5, nailWidth * 0.8, nailHeight * 0.8, 20);
+            if (tip && dip && pip) {
+                // Konvertiraj normalizirane koordinate u koordinate platna
+                const tip_canvas = { x: tip.x * canvasElement.width, y: tip.y * canvasElement.height };
+                const dip_canvas = { x: dip.x * canvasElement.width, y: dip.y * canvasElement.height };
+                const pip_canvas = { x: pip.x * canvasElement.width, y: pip.y * canvasElement.height };
 
-        ctx.globalAlpha = 1.0; // Resetiraj transparentnost
-
-        requestAnimationFrame(drawLoop); // Nastavi crtanje
+                // Izračunaj parametre za iscrtavanje
+                const nailLength = Math.hypot(tip_canvas.x - dip_canvas.x, tip_canvas.y - dip_canvas.y);
+                const nailWidth = nailLength * 1.1; // Procjena širine
+                const angle = Math.atan2(tip_canvas.y - pip_canvas.y, tip_canvas.x - pip_canvas.x) + Math.PI / 2;
+                
+                // Crtaj elipsu koja predstavlja nokat
+                ctx.beginPath();
+                ctx.ellipse(tip_canvas.x, tip_canvas.y, nailWidth / 2, nailLength / 2, angle, 0, 2 * Math.PI);
+                ctx.fill();
+            }
+        }
+        ctx.globalAlpha = 1.0; // Resetiraj prozirnost
     }
-
-    // Pomoćna funkcija za simuliranje crtanja nokta
-    function drawSimulatedNail(x, y, width, height, rotationDeg) {
-        ctx.save();
-        ctx.translate(x, y);
-        ctx.rotate(rotationDeg * Math.PI / 180);
-        ctx.beginPath();
-        // Simulacija zaobljenog vrha nokta
-        ctx.ellipse(0, 0, width / 2, height / 2, 0, Math.PI, 0, false);
-        ctx.lineTo(width / 2, height / 2 - height);
-        ctx.lineTo(-width / 2, height / 2 - height);
-        ctx.closePath();
-        ctx.fill();
-        ctx.restore();
-    }
-
 
     // --- Logika za odabir boje ---
     colorSwatches.forEach(swatch => {
-        swatch.style.backgroundColor = swatch.dataset.color; // Postavi boju
+        swatch.style.backgroundColor = swatch.dataset.color;
         swatch.addEventListener('click', () => {
-            // Ukloni 'active' klasu sa svih
             colorSwatches.forEach(s => s.classList.remove('active'));
-            // Dodaj 'active' klasu trenutnom
             swatch.classList.add('active');
             currentNailColor = swatch.dataset.color;
-            // Nije potrebno ponovno pokretati loop, samo će u sljedećem frameu biti nova boja
         });
     });
 
-    // Postavi prvu boju kao aktivnu inicijalno
     if (colorSwatches.length > 0) {
         colorSwatches[0].classList.add('active');
     }
