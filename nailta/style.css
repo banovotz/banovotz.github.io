@@ -226,8 +226,8 @@ header {
 
 .palette-container {
     position: absolute;
-    bottom: 10px; /* Pomakni malo iznad dna */
-    left: 0%;
+    bottom: 0px; /* Pomakni malo iznad dna */
+    left: 3%;
     transform: translateX(-50%);
     display: inline-block;
     /*flex-wrap: wrap; /* Omogućuje prelamanje u više redova */
