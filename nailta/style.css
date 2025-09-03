@@ -230,7 +230,7 @@ header {
     left: 0%;
     transform: translateX(-50%);
     display: flex;
-    /*flex-wrap: wrap; /* Omogućuje prelamanje u više redova */
+    flex-wrap: wrap; /* Omogućuje prelamanje u više redova */
     justify-content: center;
     gap: 10px;
     padding: 10px;
