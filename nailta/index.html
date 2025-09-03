@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nailta - Tvoji nokti, tvoja boja, tvoj stil</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23FF6B6B' d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v-2h-2v2zm0-4h2V7h-2v6z'/%3E%3C/svg%3E" type="image/svg+xml">
+
+</head>
+<body>
+
+    <!-- Landing Page Sekcija -->
+    <section id="landing-page" class="landing-page">
+        <div class="overlay"></div>
+        <div class="content">
+            <header>
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='white' d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15h2v-2h-2v2zm0-4h2V7h-2v6z'/%3E%3C/svg%3E" alt="Nailta Logo" class="logo">
+                <h1>Nailta</h1>
+            </header>
+            
+            <div class="hero-text">
+                <h2>Otkrij savršenstvo na dohvat ruke!</h2>
+                <h3>Eksperimentiraj s bojama, pronađi svoj stil, naruči tretman.</h3>
+            </div>
+
+            <div class="cta-buttons">
+                <button id="try-on-button" class="btn primary">Pogledaj kako ti stoji</button>
+                <button id="book-button" class="btn secondary">Naruči</button>
+            </div>
+
+            <p class="service-area">Dolazimo do vas - **Osijek i okolica.**</p>
+        </div>
+    </section>
+
+    <!-- AR Kamera Sekcija (inicijalno skrivena) -->
+    <section id="ar-camera-page" class="ar-camera-page hidden">
+        <button id="back-to-landing" class="btn back-btn">&larr; Natrag</button>
+        <div class="camera-container">
+            <video id="video" autoplay playsinline></video>
+            <canvas id="canvas" class="ar-overlay"></canvas>
+            <div class="palette-container">
+                <!-- Ovdje će biti paleta boja -->
+                <div class="color-swatch active" data-color="#FF6B6B"></div> <!-- Crvena -->
+                <div class="color-swatch" data-color="#FFD166"></div> <!-- Žuta -->
+                <div class="color-swatch" data-color="#06D6A0"></div> <!-- Zelena -->
+                <div class="color-swatch" data-color="#1B9AAA"></div> <!-- Plava -->
+                <div class="color-swatch" data-color="#C70039"></div> <!-- Tamno Crvena -->
+                <div class="color-swatch" data-color="#9A031E"></div> <!-- Bordo -->
+                <div class="color-swatch" data-color="#FB8B24"></div> <!-- Narančasta -->
+                <div class="color-swatch" data-color="#E36414"></div> <!-- Tamno Narančasta -->
+                <div class="color-swatch" data-color="#0F4C5C"></div> <!-- Tamno Plava -->
+                <div class="color-swatch" data-color="#5F0F40"></div> <!-- Ljubičasta -->
+                <div class="color-swatch" data-color="#9A031E"></div> <!-- Tamno Ljubičasta -->
+                <div class="color-swatch" data-color="#2D3A3A"></div> <!-- Tamno Siva -->
+                <div class="color-swatch" data-color="#F2F2F2"></div> <!-- Svijetlo Siva -->
+                <div class="color-swatch" data-color="#E0BBE4"></div> <!-- Pastelna Ljubičasta -->
+                <div class="color-swatch" data-color="#957DAD"></div> <!-- Lavanda -->
+                <div class="color-swatch" data-color="#D291BC"></div> <!-- Ružičasta -->
+                <div class="color-swatch" data-color="#FFC1F3"></div> <!-- Svijetla Ružičasta -->
+                <div class="color-swatch" data-color="#FFCAD4"></div> <!-- Blijeda Ružičasta -->
+                <div class="color-swatch" data-color="#80FFDB"></div> <!-- Mint Zelena -->
+                <div class="color-swatch" data-color="#64DFDF"></div> <!-- Tirkizna -->
+                <!-- Dodaj još boja po želji -->
+            </div>
+        </div>
+        <div class="camera-instructions">
+            <p>Držite ruku mirno pred kamerom kako biste isprobali boje.</p>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+</html>

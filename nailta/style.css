@@ -1,0 +1,297 @@
+/* Opći stilovi */
+:root {
+    --primary-color: #FF6B6B; /* Svjetlija crvena/koraljna */
+    --secondary-color: #4ECDC4; /* Tirkizna */
+    --accent-color: #FFE66D; /* Žuta */
+    --dark-text: #2c3e50; /* Tamno siva za tekst */
+    --light-text: #ecf0f1; /* Svijetlo siva za tekst */
+    --background-light: #f4f7f6;
+    --background-dark: #34495e;
+    --button-hover: #e05a5a;
+}
+
+body {
+    margin: 0;
+    font-family: 'Montserrat', sans-serif;
+    color: var(--dark-text);
+    line-height: 1.6;
+    overflow-x: hidden; /* Spriječi horizontalno skrolanje */
+    background-color: var(--background-light);
+}
+
+h1, h2, h3 {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+h1 {
+    font-size: 2.5em; /* Za mobilne */
+    color: white;
+}
+h2 {
+    font-size: 2em;
+    color: var(--light-text);
+}
+h3 {
+    font-size: 1.3em;
+    color: var(--light-text);
+    font-weight: 400;
+}
+
+p {
+    font-size: 1em;
+}
+
+/* Landing Page Stilovi */
+.landing-page {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: white;
+    background: url('https://images.unsplash.com/photo-1555986161-12f5e1351111?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80') no-repeat center center/cover;
+    overflow: hidden;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* Tamniji overlay za bolju čitljivost teksta */
+    z-index: 1;
+}
+
+.content {
+    position: relative;
+    z-index: 2;
+    max-width: 90%; /* Prilagodba za mobilne */
+}
+
+header {
+    margin-bottom: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.logo {
+    width: 40px;
+    height: 40px;
+}
+
+.hero-text {
+    margin-bottom: 40px;
+}
+
+.cta-buttons {
+    display: flex;
+    flex-direction: column; /* Gumbi jedan ispod drugog na mobilnim */
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.btn {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.1em;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    width: 100%; /* Puni širina na mobilnim */
+    max-width: 300px; /* Maksimalna širina */
+    margin: 0 auto; /* Centriranje */
+}
+
+.btn.primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn.primary:hover {
+    background-color: var(--button-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+}
+
+.btn.secondary {
+    background-color: transparent;
+    color: var(--accent-color);
+    border: 2px solid var(--accent-color);
+}
+
+.btn.secondary:hover {
+    background-color: rgba(255, 230, 109, 0.1);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+}
+
+.service-area {
+    font-size: 1.1em;
+    font-weight: 500;
+    color: var(--light-text);
+    margin-top: 30px;
+}
+
+/* AR Kamera Stranica Stilovi */
+.ar-camera-page {
+    position: fixed; /* Ostaje na vrhu */
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--background-dark);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    z-index: 100; /* Iznad svega ostalog */
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.back-btn {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 50px;
+    font-size: 1em;
+    font-weight: 500;
+    z-index: 10; /* Iznad kamere */
+    width: auto;
+    max-width: fit-content;
+    box-shadow: none;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+.back-btn:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+
+.camera-container {
+    position: relative;
+    width: 100%;
+    max-width: 600px; /* Maksimalna širina za bolji prikaz */
+    height: auto;
+    aspect-ratio: 4/3; /* Standardni omjer slike kamere */
+    background-color: black;
+    border-radius: 15px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+
+#video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Pokriva cijeli container */
+    transform: scaleX(-1); /* Zrcalni prikaz za selfi kameru */
+}
+
+.ar-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none; /* Omogućuje klikanje ispod platna */
+}
+
+.palette-container {
+    position: absolute;
+    bottom: 10px; /* Pomakni malo iznad dna */
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-wrap: wrap; /* Omogućuje prelamanje u više redova */
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.4); /* Poluprozirna pozadina */
+    border-radius: 10px;
+    max-width: 90%;
+}
+
+.color-swatch {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
+
+.color-swatch:hover,
+.color-swatch.active {
+    border-color: white;
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(255,255,255,0.4);
+}
+
+.camera-instructions {
+    font-size: 0.9em;
+    color: rgba(255, 255, 255, 0.7);
+    text-align: center;
+    margin-top: 10px;
+}
+
+/* Prilagodba za veće ekrane (tableti, desktopi) */
+@media (min-width: 768px) {
+    h1 {
+        font-size: 3.5em;
+    }
+    h2 {
+        font-size: 2.8em;
+    }
+    h3 {
+        font-size: 1.6em;
+    }
+    .cta-buttons {
+        flex-direction: row; /* Gumbi jedan pored drugog */
+        gap: 30px;
+    }
+    .btn {
+        width: auto;
+        padding: 18px 40px;
+        font-size: 1.2em;
+    }
+    .service-area {
+        font-size: 1.2em;
+    }
+    .palette-container {
+        bottom: 20px; /* Malo više od dna */
+        max-width: 80%;
+    }
+    .color-swatch {
+        width: 40px;
+        height: 40px;
+    }
+}
