@@ -77,17 +77,17 @@ document.addEventListener('DOMContentLoaded', () => {
         landingPage.classList.remove('hidden');
     });
 
-    async function startCamera() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } });
-            videoElement.srcObject = stream;
-            videoElement.addEventListener('loadeddata', predictWebcam);
-        } catch (err) {
-            console.error("Greška pri pristupu kameri: ", err);
-            alert("Nismo uspjeli pristupiti kameri. Molimo provjerite dopuštenja.");
-        }
+async function startCamera() {
+    try {
+        // Promjena 'user' u 'environment' za stražnju kameru
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }); 
+        videoElement.srcObject = stream;
+        videoElement.addEventListener('loadeddata', predictWebcam);
+    } catch (err) {
+        console.error("Greška pri pristupu kameri: ", err);
+        alert("Nismo uspjeli pristupiti kameri. Molimo provjerite dopuštenja.");
     }
-
+}
     function stopCameraAndPredictions() {
         cancelAnimationFrame(animationFrameId); // Zaustavi petlju predikcija
         if (videoElement.srcObject) {
