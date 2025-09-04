@@ -1,1 +1,330 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FretMaster</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #121212;
+            color: #E0E0E0;
+            overflow: hidden;
+        }
+        #landing {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin-bottom: 2rem;
+        }
+        .cta-button {
+            padding: 15px 30px;
+            font-size: 1.5rem;
+            color: #FFFFFF;
+            background-color: #007BFF;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .cta-button:hover {
+            background-color: #0056b3;
+        }
+        #app {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        #videoContainer {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1); /* Ogledalo za lakšu upotrebu */
+        }
+        #canvasOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        #tunerDisplay {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 20px 40px;
+            border-radius: 15px;
+            font-size: 4rem;
+            font-weight: bold;
+            color: #4CAF50;
+            min-width: 150px;
+            text-align: center;
+            border: 2px solid #4CAF50;
+        }
+        #noteName {
+            min-width: 100px;
+            display: inline-block;
+        }
+        #sharpSymbol {
+            font-size: 2rem;
+            vertical-align: top;
+        }
+        #loading {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            display: none;
+            background: rgba(0,0,0,0.8);
+            padding: 20px;
+            border-radius: 10px;
+        }
 
+    </style>
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+    <!-- Pitch detection library -->
+    <script src="https://cdn.jsdelivr.net/npm/ml5@0.12.2/dist/ml5.min.js"></script>
+</head>
+<body>
+
+    <div id="landing">
+        <h1>Dobrodošli u FretMaster</h1>
+        <p>Vaš osobni asistent za učenje gitare. Postavite kameru da vidi vašu ruku na vratu gitare i počnite svirati. FretMaster će pratiti vaše prste i pokazivati vam tonove koje svirate.</p>
+        <button id="startAppButton" class="cta-button">Pokreni FretMaster</button>
+    </div>
+
+    <div id="app">
+        <div id="loading">Učitavanje modela...</div>
+        <div id="videoContainer">
+            <video id="video" playsinline></video>
+            <canvas id="canvasOverlay"></canvas>
+        </div>
+        <div id="tunerDisplay">
+            <span id="noteName">--</span>
+        </div>
+    </div>
+
+    <script>
+        const startAppButton = document.getElementById('startAppButton');
+        const landingPage = document.getElementById('landing');
+        const appPage = document.getElementById('app');
+        const loadingDiv = document.getElementById('loading');
+        
+        const videoElement = document.getElementById('video');
+        const canvasElement = document.getElementById('canvasOverlay');
+        const canvasCtx = canvasElement.getContext('2d');
+
+        const noteDisplay = document.getElementById('noteName');
+
+        // --- Glavna logika ---
+
+        startAppButton.addEventListener('click', () => {
+            landingPage.style.display = 'none';
+            appPage.style.display = 'block';
+            loadingDiv.style.display = 'block';
+            startFretMaster();
+        });
+
+        async function startFretMaster() {
+            // Postavljanje veličine platna prema videu
+            const setupCanvas = () => {
+                const videoWidth = videoElement.videoWidth;
+                const videoHeight = videoElement.videoHeight;
+                videoElement.width = videoWidth;
+                videoElement.height = videoHeight;
+                canvasElement.width = videoWidth;
+                canvasElement.height = videoHeight;
+            };
+
+            // Inicijalizacija MediaPipe Hands
+            const hands = new Hands({
+                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
+            });
+            hands.setOptions({
+                maxNumHands: 1,
+                modelComplexity: 1,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5
+            });
+            hands.onResults(onResults);
+
+            // Inicijalizacija kamere
+            const camera = new Camera(videoElement, {
+                onFrame: async () => {
+                    await hands.send({ image: videoElement });
+                },
+                width: 1280,
+                height: 720
+            });
+            camera.start().then(() => {
+                setupCanvas();
+                loadingDiv.style.display = 'none';
+                 // Pokreni detekciju zvuka nakon što je kamera spremna
+                startPitchDetection();
+            }).catch(err => {
+                 console.error("Greška pri pokretanju kamere:", err);
+                 loadingDiv.innerText = "Greška: Kamera nije dostupna.";
+            });
+            
+            videoElement.addEventListener('loadedmetadata', setupCanvas);
+            window.addEventListener('resize', setupCanvas);
+
+             // Inicijalizacija Pitch Detekcije (Tuner)
+            let audioContext;
+            let pitch;
+            
+            const noteStrings = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+
+            function modelLoaded() {
+                console.log('Pitch detection model loaded');
+            }
+
+            function startPitchDetection() {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+                    .then(stream => {
+                        pitch = ml5.pitchDetection('./model/', audioContext, stream, modelLoaded);
+                        getPitch();
+                    })
+                    .catch(err => {
+                        console.error('Greška pri pristupu mikrofonu', err);
+                        noteDisplay.innerText = "Mic err";
+                    });
+            }
+
+            function getPitch() {
+                pitch.getPitch((err, frequency) => {
+                    if (frequency) {
+                        let midiNum = freqToMidi(frequency);
+                        let noteIndex = midiNum % 12;
+                        let note = noteStrings[noteIndex];
+                        let octave = Math.floor(midiNum / 12) - 1;
+                        
+                        // Razdvajanje povisilice za bolji prikaz
+                        if (note.includes("#")) {
+                            noteDisplay.innerHTML = `${note.charAt(0)}<sup id="sharpSymbol">#</sup>`;
+                        } else {
+                            noteDisplay.innerText = note;
+                        }
+                    } else {
+                        noteDisplay.innerText = '--';
+                    }
+                    requestAnimationFrame(getPitch);
+                });
+            }
+             // Pomoćna funkcija za konverziju frekvencije u MIDI notu
+            function freqToMidi(frequency) {
+                return Math.round(12 * (Math.log2(frequency / 440.0)) + 69);
+            }
+        }
+
+
+        // --- Crtanje na platnu (AR) ---
+
+        function onResults(results) {
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+
+            // Simulacija pragova
+            drawFrets(results.multiHandLandmarks);
+
+            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+                const landmarks = results.multiHandLandmarks[0];
+                
+                // Crtanje linija šake
+                drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: '#FFFFFF', lineWidth: 3 });
+
+                // Crtanje točaka na zglobovima i vrhovima prstiju
+                 for (let i = 0; i < landmarks.length; i++) {
+                    const landmark = landmarks[i];
+                    const x = landmark.x * canvasElement.width;
+                    const y = landmark.y * canvasElement.height;
+                    
+                    // Posebno istakni vrhove prstiju
+                    if ([4, 8, 12, 16, 20].includes(i)) { 
+                        canvasCtx.beginPath();
+                        canvasCtx.arc(x, y, 12, 0, 2 * Math.PI);
+                        canvasCtx.fillStyle = '#007BFF';
+                        canvasCtx.fill();
+                        canvasCtx.lineWidth = 3;
+                        canvasCtx.strokeStyle = '#FFFFFF';
+                        canvasCtx.stroke();
+                    } else {
+                        canvasCtx.beginPath();
+                        canvasCtx.arc(x, y, 5, 0, 2 * Math.PI);
+                        canvasCtx.fillStyle = '#FFFFFF';
+                        canvasCtx.fill();
+                    }
+                }
+            }
+            canvasCtx.restore();
+        }
+
+        function drawFrets(handLandmarks) {
+            if (!handLandmarks || handLandmarks.length === 0) {
+                return; // Ne crtaj ako nema ruke
+            }
+
+            const wrist = handLandmarks[0][0]; // Zglob kao referentna točka
+            const wristX = wrist.x * canvasElement.width;
+            
+            canvasCtx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+            canvasCtx.lineWidth = 2;
+
+            const FRET_SPACING = 0.1 * canvasElement.width; // Fiksni razmak za simulaciju
+
+            for (let i = -5; i < 5; i++) {
+                const fretX = wristX + i * FRET_SPACING;
+                
+                // Pojačaj pragove koji su blizu ruke
+                const handCenterX = (handLandmarks[0][5].x + handLandmarks[0][17].x) / 2 * canvasElement.width;
+                const distance = Math.abs(fretX - handCenterX);
+                
+                if (distance < FRET_SPACING * 1.5) {
+                    canvasCtx.strokeStyle = "rgba(0, 123, 255, 1)";
+                    canvasCtx.lineWidth = 5;
+                } else {
+                    canvasCtx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+                    canvasCtx.lineWidth = 2;
+                }
+                
+                canvasCtx.beginPath();
+                canvasCtx.moveTo(fretX, 0);
+                canvasCtx.lineTo(fretX, canvasElement.height);
+                canvasCtx.stroke();
+            }
+        }
+    </script>
+</body>
+</html>
