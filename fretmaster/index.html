@@ -113,16 +113,15 @@
         }
 
     </style>
-    <!-- MediaPipe Hands -->
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+  <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@medipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@medipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@medipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@medipe/hands/hands.js" crossorigin="anonymous"></script>
     <!-- Pitch detection library -->
     <script src="https://cdn.jsdelivr.net/npm/ml5@0.12.2/dist/ml5.min.js"></script>
 </head>
 <body>
-
     <div id="landing">
         <h1>Dobrodošli u FretMaster</h1>
         <p>Vaš osobni asistent za učenje gitare. Postavite kameru da vidi vašu ruku na vratu gitare i počnite svirati. FretMaster će pratiti vaše prste i pokazivati vam tonove koje svirate.</p>
@@ -130,7 +129,7 @@
     </div>
 
     <div id="app">
-        <div id="loading">Učitavanje modela...</div>
+        <div id="loading">Učitavanje...</div>
         <div id="videoContainer">
             <video id="video" playsinline></video>
             <canvas id="canvasOverlay"></canvas>
@@ -149,149 +148,125 @@
         const videoElement = document.getElementById('video');
         const canvasElement = document.getElementById('canvasOverlay');
         const canvasCtx = canvasElement.getContext('2d');
-
         const noteDisplay = document.getElementById('noteName');
 
-        // --- Varijable za audio ---
         let audioContext;
         let pitch;
         const noteStrings = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
-
-        // --- Glavna logika pokretanja ---
-
-        startAppButton.addEventListener('click', () => {
+        startAppButton.addEventListener('click', async () => {
             landingPage.style.display = 'none';
             appPage.style.display = 'block';
             loadingDiv.style.display = 'block';
-            
-            // Inicijaliziraj audio i video
-            startAudioAndVideo();
+
+            // --- KORAK 1: Inicijalizacija AudioContext-a ODMAH unutar klika ---
+            // Ovo je ključno za iOS
+            try {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioContext.state === 'suspended') {
+                    await audioContext.resume();
+                }
+            } catch (e) {
+                console.error("Audio Context se ne može pokrenuti", e);
+                loadingDiv.innerText = "Greška: Audio nije podržan.";
+                return;
+            }
+
+            // --- KORAK 2: Pokušaj pristupa mikrofonu i kameri ---
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+                const audioStream = new MediaStream(stream.getAudioTracks());
+                const videoStream = new MediaStream(stream.getVideoTracks());
+
+                // Postavi video stream
+                videoElement.srcObject = videoStream;
+                videoElement.play();
+
+                // Nakon uspješnog dobivanja streama, pokreni detekciju
+                startPitchDetection(audioStream);
+                startVideoProcessing();
+
+            } catch (err) {
+                console.error("Greška pri pristupu kameri/mikrofonu:", err);
+                loadingDiv.innerText = "Greška: Provjerite dozvole i HTTPS vezu.";
+                noteDisplay.innerText = "Mic/Cam err";
+            }
         });
 
-        async function startAudioAndVideo() {
-            // ODMAH POKRENI AUDIO INICIJALIZACIJU ZBOG iOS-a
-            try {
-                await startPitchDetection();
-            } catch (err) {
-                console.error("Greška pri inicijalizaciji mikrofona:", err);
-                noteDisplay.innerText = "Mic err";
-            }
-            
-            // Pokreni video i vizualnu detekciju
-            startVideoProcessing();
-        }
-
-        // --- Logika za detekciju zvuka (Tuner) ---
-        async function startPitchDetection() {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            // Važno za iOS: resume context ako je suspendiran
-            if (audioContext.state === 'suspended') {
-                await audioContext.resume();
-            }
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
-            pitch = ml5.pitchDetection('./model/', audioContext, stream, () => console.log('Pitch detection model loaded'));
-            getPitch();
+        function startPitchDetection(stream) {
+            pitch = ml5.pitchDetection('./model/', audioContext, stream, () => {
+                console.log('Pitch detection model loaded');
+                getPitch();
+            });
         }
         
         function getPitch() {
             if (!pitch) return;
             pitch.getPitch((err, frequency) => {
-                if (frequency && frequency > 60) { // Filtriranje niske buke
-                    let midiNum = freqToMidi(frequency);
-                    let noteIndex = midiNum % 12;
-                    let note = noteStrings[noteIndex];
-                    
-                    if (note.includes("#")) {
-                        noteDisplay.innerHTML = `${note.charAt(0)}<sup id="sharpSymbol">#</sup>`;
-                    } else {
-                        noteDisplay.innerText = note;
-                    }
+                if (frequency && frequency > 60) {
+                    let midiNum = Math.round(12 * (Math.log2(frequency / 440.0)) + 69);
+                    let note = noteStrings[midiNum % 12];
+                    noteDisplay.innerHTML = note.includes("#") ? `${note.charAt(0)}<sup id="sharpSymbol">#</sup>` : note;
                 } else {
                     noteDisplay.innerText = '--';
                 }
                 requestAnimationFrame(getPitch);
             });
         }
-        
-        function freqToMidi(frequency) {
-            return Math.round(12 * (Math.log2(frequency / 440.0)) + 69);
-        }
 
-        // --- Logika za video i detekciju ruku ---
         function startVideoProcessing() {
             const setupCanvas = () => {
-                const videoWidth = videoElement.videoWidth;
-                const videoHeight = videoElement.videoHeight;
-                videoElement.width = videoWidth;
-                videoElement.height = videoHeight;
-                canvasElement.width = videoWidth;
-                canvasElement.height = videoHeight;
+                videoElement.width = videoElement.videoWidth;
+                videoElement.height = videoElement.videoHeight;
+                canvasElement.width = videoElement.videoWidth;
+                canvasElement.height = videoElement.videoHeight;
             };
 
-            const hands = new Hands({
-                locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-            });
-            hands.setOptions({
-                maxNumHands: 1,
-                modelComplexity: 1,
-                minDetectionConfidence: 0.5,
-                minTrackingConfidence: 0.5
-            });
+            const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
+            hands.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
             hands.onResults(onResults);
 
-            const camera = new Camera(videoElement, {
-                onFrame: async () => {
-                    if (videoElement.readyState >= 3) {
-                        await hands.send({ image: videoElement });
-                    }
-                },
-                facingMode: 'user',
-                width: 1280,
-                height: 720
-            });
-            camera.start().then(() => {
-                setupCanvas();
+            videoElement.addEventListener('loadeddata', () => {
+                hands.send({ image: videoElement });
                 loadingDiv.style.display = 'none';
-            }).catch(err => {
-                 console.error("Greška pri pokretanju kamere:", err);
-                 loadingDiv.innerText = "Greška: Kamera nije dostupna.";
             });
             
-            videoElement.addEventListener('loadedmetadata', setupCanvas);
+            videoElement.addEventListener('play', () => {
+                setupCanvas();
+                const processVideo = async () => {
+                    if (!videoElement.paused && !videoElement.ended) {
+                        await hands.send({ image: videoElement });
+                    }
+                    requestAnimationFrame(processVideo);
+                };
+                processVideo();
+            });
+
             window.addEventListener('resize', setupCanvas);
         }
 
-        // --- Crtanje na platnu (AR) ---
         function onResults(results) {
             canvasCtx.save();
             canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-
             drawFrets(results.multiHandLandmarks);
-
             if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
                 const landmarks = results.multiHandLandmarks[0];
-                
                 drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: '#FFFFFF', lineWidth: 3 });
-
                 for (let i = 0; i < landmarks.length; i++) {
-                    const landmark = landmarks[i];
-                    const x = landmark.x * canvasElement.width;
-                    const y = landmark.y * canvasElement.height;
-                    
-                    if ([4, 8, 12, 16, 20].includes(i)) { 
-                        canvasCtx.beginPath();
-                        canvasCtx.arc(x, y, 12, 0, 2 * Math.PI);
-                        canvasCtx.fillStyle = '#007BFF';
-                        canvasCtx.fill();
+                    const lm = landmarks[i];
+                    const x = lm.x * canvasElement.width;
+                    const y = lm.y * canvasElement.height;
+                    const isFingerTip = [4, 8, 12, 16, 20].includes(i);
+                    canvasCtx.beginPath();
+                    canvasCtx.arc(x, y, isFingerTip ? 12 : 5, 0, 2 * Math.PI);
+                    canvasCtx.fillStyle = isFingerTip ? '#007BFF' : '#FFFFFF';
+                    canvasCtx.fill();
+                    if(isFingerTip) {
                         canvasCtx.lineWidth = 3;
                         canvasCtx.strokeStyle = '#FFFFFF';
                         canvasCtx.stroke();
-                    } else {
-                        canvasCtx.beginPath();
-                        canvasCtx.arc(x, y, 5, 0, 2 * Math.PI);
-                        canvasCtx.fillStyle = '#FFFFFF';
-                        canvasCtx.fill();
                     }
                 }
             }
@@ -300,26 +275,16 @@
 
         function drawFrets(handLandmarks) {
             if (!handLandmarks || handLandmarks.length === 0) return;
-
             const wrist = handLandmarks[0][0];
             const wristX = wrist.x * canvasElement.width;
-            
             const FRET_SPACING = 0.1 * canvasElement.width;
-
+            const handCenterX = (handLandmarks[0][5].x + handLandmarks[0][17].x) / 2 * canvasElement.width;
             for (let i = -5; i < 5; i++) {
                 const fretX = wristX + i * FRET_SPACING;
-                
-                const handCenterX = (handLandmarks[0][5].x + handLandmarks[0][17].x) / 2 * canvasElement.width;
                 const distance = Math.abs(fretX - handCenterX);
-                
-                if (distance < FRET_SPACING * 1.5) {
-                    canvasCtx.strokeStyle = "rgba(0, 123, 255, 1)";
-                    canvasCtx.lineWidth = 5;
-                } else {
-                    canvasCtx.strokeStyle = "rgba(255, 255, 255, 0.4)";
-                    canvasCtx.lineWidth = 2;
-                }
-                
+                const isNear = distance < FRET_SPACING * 1.5;
+                canvasCtx.strokeStyle = isNear ? "rgba(0, 123, 255, 1)" : "rgba(255, 255, 255, 0.4)";
+                canvasCtx.lineWidth = isNear ? 5 : 2;
                 canvasCtx.beginPath();
                 canvasCtx.moveTo(fretX, 0);
                 canvasCtx.lineTo(fretX, canvasElement.height);
