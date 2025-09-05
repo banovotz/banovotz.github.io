@@ -263,69 +263,38 @@
         }
 
         // --- Crtanje na platnu (AR) ---
-        function onResults(results) {
-            canvasCtx.save();
-            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+   function onResults(results) {
+    canvasCtx.save();
+    canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+    
+    // Provjeri jesu li ruke detektirane
+    if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+        const landmarks = results.multiHandLandmarks[0];
+        
+        // Landmark za vrh kažiprsta je uvijek na indeksu 8
+        const INDEX_FINGER_TIP = 8;
+        const indexFingerTip = landmarks[INDEX_FINGER_TIP];
 
-            drawFrets(results.multiHandLandmarks);
+        // Ako je kažiprst detektiran, iscrtaj samo njega
+        if (indexFingerTip) {
+            const x = indexFingerTip.x * canvasElement.width;
+            const y = indexFingerTip.y * canvasElement.height;
 
-            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-                const landmarks = results.multiHandLandmarks[0];
-                
-                drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: '#FFFFFF', lineWidth: 3 });
-
-                for (let i = 0; i < landmarks.length; i++) {
-                    const landmark = landmarks[i];
-                    const x = landmark.x * canvasElement.width;
-                    const y = landmark.y * canvasElement.height;
-                    
-                    if ([4, 8, 12, 16, 20].includes(i)) { 
-                        canvasCtx.beginPath();
-                        canvasCtx.arc(x, y, 12, 0, 2 * Math.PI);
-                        canvasCtx.fillStyle = '#007BFF';
-                        canvasCtx.fill();
-                        canvasCtx.lineWidth = 3;
-                        canvasCtx.strokeStyle = '#FFFFFF';
-                        canvasCtx.stroke();
-                    } else {
-                        canvasCtx.beginPath();
-                        canvasCtx.arc(x, y, 5, 0, 2 * Math.PI);
-                        canvasCtx.fillStyle = '#FFFFFF';
-                        canvasCtx.fill();
-                    }
-                }
-            }
-            canvasCtx.restore();
+            // Iscrtaj veći, istaknuti krug na vrhu kažiprsta
+            canvasCtx.beginPath();
+            canvasCtx.arc(x, y, 15, 0, 2 * Math.PI);
+            canvasCtx.fillStyle = '#007BFF';
+            canvasCtx.fill();
+            canvasCtx.lineWidth = 3;
+            canvasCtx.strokeStyle = '#FFFFFF';
+            canvasCtx.stroke();
         }
+    }
+    canvasCtx.restore();
+}
 
-        function drawFrets(handLandmarks) {
-            if (!handLandmarks || handLandmarks.length === 0) return;
 
-            const wrist = handLandmarks[0][0];
-            const wristX = wrist.x * canvasElement.width;
-            
-            const FRET_SPACING = 0.1 * canvasElement.width;
-
-            for (let i = -5; i < 5; i++) {
-                const fretX = wristX + i * FRET_SPACING;
-                
-                const handCenterX = (handLandmarks[0][5].x + handLandmarks[0][17].x) / 2 * canvasElement.width;
-                const distance = Math.abs(fretX - handCenterX);
-                
-                if (distance < FRET_SPACING * 1.5) {
-                    canvasCtx.strokeStyle = "rgba(0, 123, 255, 1)";
-                    canvasCtx.lineWidth = 5;
-                } else {
-                    canvasCtx.strokeStyle = "rgba(255, 255, 255, 0.4)";
-                    canvasCtx.lineWidth = 2;
-                }
-                
-                canvasCtx.beginPath();
-                canvasCtx.moveTo(fretX, 0);
-                canvasCtx.lineTo(fretX, canvasElement.height);
-                canvasCtx.stroke();
-            }
-        }
+        
     </script>
 </body>
 </html>
