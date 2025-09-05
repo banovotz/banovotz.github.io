@@ -1,296 +1,238 @@
 <!DOCTYPE html>
-<html lang="hr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FretMaster</title>
-    <style>
-        body, html {
-            margin-top: 25%;
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #121212;
-            color: #333230;
-            overflow: hidden;
-            background: url('hero.jpg') no-repeat center center/cover;
-        }
-        #landing {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            text-align: center;
-            padding: 0 20px;
-        }
-        h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-        p {
-            font-size: 1.2rem;
-            max-width: 600px;
-            margin-bottom: 2rem;
-            line-height: 1.5;
-        }
-        .cta-button {
-            padding: 15px 30px;
-            font-size: 1.5rem;
-            color: #FFFFFF;
-            background-color: #007BFF;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .cta-button:hover {
-            background-color: #0056b3;
-        }
-        #app {
-            display: none;
-            width: 100%;
-            height: 100%;
-            position: relative;
-        }
-        #videoContainer {
-            width: 100%;
-            height: 100%;
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        #video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transform: scaleX(-1); /* Ogledalo za lakšu upotrebu */
-        }
-        #canvasOverlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            transform: scaleX(-1); /* ISPRAVAK: Ogledalo i za canvas */
-        }
-        #tunerDisplay {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(0, 0, 0, 0.7);
-            padding: 20px 40px;
-            border-radius: 15px;
-            font-size: 4rem;
-            font-weight: bold;
-            color: #4CAF50;
-            min-width: 150px;
-            text-align: center;
-            border: 2px solid #4CAF50;
-        }
-        #noteName {
-            min-width: 100px;
-            display: inline-block;
-        }
-        #sharpSymbol {
-            font-size: 2rem;
-            vertical-align: top;
-        }
-        #loading {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 1.5rem;
-            display: none;
-            background: rgba(0,0,0,0.8);
-            padding: 20px;
-            border-radius: 10px;
-        }
-
-    </style>
-  <!-- MediaPipe Hands -->
-    <script src="https://cdn.jsdelivr.net/npm/@medipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@medipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@medipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@medipe/hands/hands.js" crossorigin="anonymous"></script>
-    <!-- Pitch detection library -->
-    <script src="https://cdn.jsdelivr.net/npm/ml5@0.12.2/dist/ml5.min.js"></script>
+    <title>Davor Banovic - Official home page of author Davor Banovic</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="canonical" href="https://davorbanovic.com" />
+    <meta name="description" content="Official home page of author Davor Banovic. Davor is an author of fiction and non-fiction, trying to contribute to the development of the fragile culture of dialogue.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" type="text/css" href="assets/style.css">
 </head>
 <body>
-    <div id="landing">
-        <h1>Dobrodošli u FretMaster</h1>
-        <p>Vaš osobni asistent za učenje gitare. Postavite kameru da vidi vašu ruku na vratu gitare i počnite svirati. FretMaster će pratiti vaše prste i pokazivati vam tonove koje svirate.</p>
-        <button id="startAppButton" class="cta-button">Pokreni FretMaster</button>
-    </div>
 
-    <div id="app">
-        <div id="loading">Učitavanje...</div>
-        <div id="videoContainer">
-            <video id="video" playsinline></video>
-            <canvas id="canvasOverlay"></canvas>
-        </div>
-        <div id="tunerDisplay">
-            <span id="noteName">--</span>
-        </div>
-    </div>
+    <!-- Header -->
+    <header class="main-header">
+        <nav class="main-nav container">
+            <a href="#hero" class="logo">Davor Banović</a>
+            <ul>
+          
+                <li><a href="#about">About</a></li>
+                <li><a href="#books">Books</a></li>
+                <li><a href="#events">Events</a></li>
+                <li><a href="#stories">Stories</a></li>
+            </ul>
+        </nav>
+    </header>
 
-    <script>
-        const startAppButton = document.getElementById('startAppButton');
-        const landingPage = document.getElementById('landing');
-        const appPage = document.getElementById('app');
-        const loadingDiv = document.getElementById('loading');
-        
-        const videoElement = document.getElementById('video');
-        const canvasElement = document.getElementById('canvasOverlay');
-        const canvasCtx = canvasElement.getContext('2d');
-        const noteDisplay = document.getElementById('noteName');
+    <main>
+        <!-- Hero Section -->
+        <section id="hero">
+            <div class="hero-background"></div>
+            <div class="hero-content">
+                <h1>WRITING THROUGH THE REPUBLIC OF LETTERS</h1>
+                <h4>Official home page of author Davor Banovic</h4>
+                <a href="https://www.hocuknjigu.hr/proizvodi/knjige/knjizevnost/drama/juzni-krajevi/" class="btn">TO THE BOOK</a>
+            </div>
+        </section>
 
-        let audioContext;
-        let pitch;
-        const noteStrings = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
+        <!-- About Section -->
+        <section id="about">
+            <div class="container">
+                <h2 class="section-title">About Me</h2>
+                <div class="about-content">
+                    <img src="https://davorbanovic.com/assets/img/banovotx_new.jpg" alt="Davor Banovic">
+                    <div class="about-text">
+                        <p><strong>Davor Banovic</strong> started writing reasonably early in his life as probably most writers did. He wrote several short stories and poems. Most of it got published somewhere in mid nineties. However, with the dawn of 21st century he almost completely stopped writing.</p>
+                        <p>But, fortunately or not, he is back. In both his fiction and non fiction works he is trying to contribute to the development of the fragile culture of dialogue. Davor is holdig a masters degree in theology. He is employed with a software start-up so he knows to appreciate that little free time he has. He is happily married.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-        startAppButton.addEventListener('click', async () => {
-            landingPage.style.display = 'none';
-            appPage.style.display = 'block';
-            loadingDiv.style.display = 'block';
+        <!-- Books Section -->
+        <section id="books">
+            <div class="container">
+                <h2 class="section-title">Books</h2>
+                
+                <article class="book-item">
+                    <div class="book-image">
+                        <a href="https://www.hocuknjigu.hr/proizvodi/knjige/knjizevnost/drama/juzni-krajevi">
+                            <img src="https://www.davorbanovic.com/assets/img/Juzni-krajevi.jpg" alt="Book cover of Južni krajevi">
+                        </a>
+                    </div>
+                    <div class="book-description">
+                        <h3>Južni krajevi</h3>
+                        <p>The accidental discovery of World War II writing on the wall of a ruined forester's house on the Baranja mountain sets off a chain reaction of events that span centuries, crossing sometimes invisible boundaries between people and politics, reality and narrative, reason and madness... We follow the plot through the intertwined threads of history, technology and the mysteries of the human mind.</p>
+                        <p>With its unique mix of historical fiction, adventure and social commentary, this novel is a must-read for fans of authors such as Umberto Eco and Predrag Raos.</p>
+                        <a href="https://www.hocuknjigu.hr/proizvodi/knjige/knjizevnost/drama/juzni-krajevi/" class="btn">TO THE BOOK</a>
+                    </div>
+                </article>
 
-            // --- KORAK 1: Inicijalizacija AudioContext-a ODMAH unutar klika ---
-            // Ovo je ključno za iOS
-            try {
-                if (!audioContext) {
-                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                }
-                if (audioContext.state === 'suspended') {
-                    await audioContext.resume();
-                }
-            } catch (e) {
-                console.error("Audio Context se ne može pokrenuti", e);
-                loadingDiv.innerText = "Greška: Audio nije podržan.";
-                return;
-            }
+                <article class="book-item">
+                    <div class="book-image">
+                        <a href="http://www.brokenumbrella.eu/">
+                            <img src="https://www.davorbanovic.com/assets/img/brumbrella.jpg" alt="Book cover of Girl with Broken Umbrella">
+                        </a>
+                    </div>
+                    <div class="book-description">
+                        <h3>Girl with Broken Umbrella</h3>
+                        <p><b>What do art and terrorism have in common? In what kind of trouble a creative mind can take you?</b></p>
+                        <p>Ana is a journalist who discovers an important manuscript and a gifted cartoonist whose life is in danger. David is a philosopher and an author of a story collection about the war in Bosnia. Boris is an innovative artist. Fabian – a future cleric. Pierre is a friend. Their stories are not ordinary. Everything about their lives is mysteriously connected with other people, and distant times and places. Every detail has many meanings, and their paths are defined by those meanings.</p>
+                        <p>Disguised as the main characters’ journey through the time and places, this actually is a fascinating semantic journey. Things around you will never look the same again.</p>
+                        <a href="http://www.brokenumbrella.eu/" class="btn">TO THE BOOK</a>
+                    </div>
+                </article>
 
-            // --- KORAK 2: Pokušaj pristupa mikrofonu i kameri ---
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-                const audioStream = new MediaStream(stream.getAudioTracks());
-                const videoStream = new MediaStream(stream.getVideoTracks());
+            </div>
+        </section>
 
-                // Postavi video stream
-                videoElement.srcObject = videoStream;
-                videoElement.play();
-
-                // Nakon uspješnog dobivanja streama, pokreni detekciju
-                startPitchDetection(audioStream);
-                startVideoProcessing();
-
-            } catch (err) {
-                console.error("Greška pri pristupu kameri/mikrofonu:", err);
-                loadingDiv.innerText = "Greška: Provjerite dozvole i HTTPS vezu.";
-                noteDisplay.innerText = "Mic/Cam err";
-            }
-        });
-
-        function startPitchDetection(stream) {
-            pitch = ml5.pitchDetection('./model/', audioContext, stream, () => {
-                console.log('Pitch detection model loaded');
-                getPitch();
-            });
-        }
-        
-        function getPitch() {
-            if (!pitch) return;
-            pitch.getPitch((err, frequency) => {
-                if (frequency && frequency > 60) {
-                    let midiNum = Math.round(12 * (Math.log2(frequency / 440.0)) + 69);
-                    let note = noteStrings[midiNum % 12];
-                    noteDisplay.innerHTML = note.includes("#") ? `${note.charAt(0)}<sup id="sharpSymbol">#</sup>` : note;
-                } else {
-                    noteDisplay.innerText = '--';
-                }
-                requestAnimationFrame(getPitch);
-            });
-        }
-
-        function startVideoProcessing() {
-            const setupCanvas = () => {
-                videoElement.width = videoElement.videoWidth;
-                videoElement.height = videoElement.videoHeight;
-                canvasElement.width = videoElement.videoWidth;
-                canvasElement.height = videoElement.videoHeight;
-            };
-
-            const hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
-            hands.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
-            hands.onResults(onResults);
-
-            videoElement.addEventListener('loadeddata', () => {
-                hands.send({ image: videoElement });
-                loadingDiv.style.display = 'none';
-            });
+        <!-- Events Section -->
+<section id="events">
+    <div class="container">
+        <h2 class="section-title">Događaji</h2>
+        <div class="events-grid">
+            <!-- Event Card 3 -->
+            <article class="event-card event-card--featured">
+                <div class="event-image">
+                    <img class="event-image" src="https://davorbanovic.com/assets/img/gisko1.png" width="100px" alt="Promotivna slika za književnu tribinu">
+                </div>
+                <div class="event-content">
+                    <p class="event-date">Listopad 2025.</p>
+                    <span class="featured-badge">ISTAKNUTO</span>
+                    <h3>Književna tribina</h3>
+                    <p class="event-venue">u <a href="#" target="_blank">GISKO, Osijek</a></p>
+                    <p class="event-description">Najavljujemo druženje s autorom u GISKO-u. Više informacija uskoro.</p>
+                </div>
+            </article>
             
-            videoElement.addEventListener('play', () => {
-                setupCanvas();
-                const processVideo = async () => {
-                    if (!videoElement.paused && !videoElement.ended) {
-                        await hands.send({ image: videoElement });
-                    }
-                    requestAnimationFrame(processVideo);
-                };
-                processVideo();
+             <!-- Event Card 2 -->
+             <article class="event-card event-card--featured">
+                <div class="event-image">
+                    <img class="event-image" src="https://davorbanovic.com/assets/img/ogrizovic.jpeg" width="100px" alt="Promotivna slika za književnu tribinu">
+                </div>
+                <div class="event-content">
+                    <p class="event-date">Jesen 2025.</p>
+                    <span class="featured-badge">ISTAKNUTO</span>
+                    <h3>Književna tribina</h3>
+                    <p class="event-venue">u <a href="#" target="_blank">Knjižnica i čitaonica Bogdana Ogrizovića, Zagreb</a></p>
+                    <p class="event-description">Najavljujemo druženje s autorom u Knjižnici i čitaonici Bogdana Ogrizovića u Zagrebu. Više informacija uskoro.</p>
+                </div>
+            </article>
+
+             <!-- Event Card 4 -->
+             <article class="event-card event-card--featured">
+                <div class="event-image">
+                    <img class="event-image" src="https://davorbanovic.com/assets/img/plantaza1.jpg" width="100px" alt="Promotivna slika za književnu tribinu">
+                </div>
+                <div class="event-content">
+                    <p class="event-date">14. listopada 2025. u 19h</p>
+                    <span class="featured-badge">ISTAKNUTO</span>
+                    <h3>Kultura na asfaltu</h3>
+                    <p class="event-venue">u <a href="#" target="_blank">Mjesto održavanja bit će objavljeno kasnije</a></p>
+                    <p class="event-description">Najavljujemo druženje s autorom u sklopu projekta Kultura na asfaltu udruge Plantaža iz Osijeka. Više informacija uskoro.</p>
+                </div>
+            </article>
+
+            
+            <!-- Event Card 1 -->
+            <article class="event-card is-hidden">
+                <div class="event-image">
+                    <img class="event-image" src="https://davorbanovic.com/assets/img/gkbm1.jpg"  alt="Promotivna slika za predstavljanje knjige u Belom Manastiru">
+                </div>
+                <div class="event-content">
+                    <p class="event-date">12. lipnja 2025.</p>
+                    <h3>Predstavljanje romana "Južni krajevi"</h3>
+                    <p class="event-venue">u <a href="https://www.gkbm.hr/2025/06/11/promocija-knjige-i-druzenje-s-autorom-davorom-banovicem/" target="_blank">Gradska knjižnica Beli Manastir</a></p>
+                    <p class="event-description">Pridružite nam se na večeri s autorom gdje ćemo razgovarati o inspiraciji i temama romana "Južni krajevi". Slijedi potpisivanje knjiga.</p>
+                </div>
+            </article>
+
+      
+
+
+        </div>
+         <!-- Load More Button Container -->
+         <div class="load-more-container" id="load-more-container">
+            <button class="btn" id="load-more-btn">Učitaj još događaja</button>
+        </div>
+    </div>
+</section>
+        <!-- Free Stories Section -->
+        <section id="stories">
+            <div class="container">
+                <h2 class="section-title">Free Stories</h2>
+                
+                <blockquote class="embedly-card" data-card-key="7e5e81b130c14b398884125dc75a4b08" data-card-type="article" data-card-controls="0"><h4><a href="https://medium.com/@banovotz/better-things-to-do-973577313d96#.nalqla72p">Better things to do</a></h4><p>They were strolling down the capital sidewalks. The city was unusually crowded for this time of year; Midsummer. Walking in groups is funny; impossible to engage in conversation with all in the same time, David thought while trying to decide whether to talk to Jakov and the other Jakov about the weather or to Mihael and Denis about perils of work in the fashion industry.</p></blockquote>
+                
+                <blockquote class="embedly-card" data-card-key="7e5e81b130c14b398884125dc75a4b08" data-card-type="article" data-card-controls="0"><h4><a href="https://medium.com/@banovotz/broken-chair-4cfb33d15400#.t2axrn1gk">Broken chair</a></h4><p>"I was not always a soldier, you know," said the soldier while slowing down to accommodate the traffic speed in the village they were passing through. "I am actually a carpenter." David, a seasoned hitchhiker, was sitting at the co-driver's seat. He nodded. Silent.</p></blockquote>
+
+                <blockquote class="embedly-card" data-card-key="7e5e81b130c14b398884125dc75a4b08" data-card-type="article" data-card-controls="0"><h4><a href="https://medium.com/@banovotz/the-last-page-84d392932701#.igkxphto6">The last page</a></h4><p>Ransacking through the books at book fairs was his hobby. You never know what gem you can dig and for a reasonable price too. However, books by this particular seller didn't look promising at all. They are mostly cheap fiction and books about knitting.</p></blockquote>
+                
+                <script async src="https://cdn.embedly.com/widgets/platform.js" charset="UTF-8"></script>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-socials">
+                <a href="https://www.facebook.com/davor.banovitz" target="_blank" aria-label="Facebook">
+                    <!-- Inline SVG for Facebook Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M9 8h-3v4h3v12h5v-12h3.642l.358-4h-4v-1.667c0-.955.192-1.333 1.115-1.333h2.885v-5h-3.808c-3.596 0-5.192 1.583-5.192 4.615v3.385z"/></svg>
+                </a>
+                <a href="https://www.instagram.com/banovotz" target="_blank" aria-label="Instagram">
+                    <!-- Inline SVG for Instagram Icon -->
+                    <i class="fa fa-instagram" style="font-size:26px" fill="currentColor"></a></i>
+            </div>
+            <div class="footer-credits">
+                <p><b>WRITING THROUGH THE REPUBLIC OF LETTERS</b></p>
+                <p>Official home page of author Davor Banovic</p>
+                <p>Lead Photo: <i>teal typewriter</i> by <a href="https://www.flickr.com/photos/amandawoodward/97806450" target="_blank">Amanda Woodward</a>, used under <a href="https://creativecommons.org/licenses/by-nc/2.0/" target="_blank">CC BY-NC 2.0</a>.</p>
+            </div>
+        </div>
+    </footer>
+        
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            const container = document.getElementById('load-more-container');
+            
+            // Find all hidden event cards
+            const hiddenEvents = document.querySelectorAll('.event-card.is-hidden');
+    
+            // If there are no hidden events, hide the button container
+            if (hiddenEvents.length === 0) {
+                container.style.display = 'none';
+            }
+    
+            loadMoreBtn.addEventListener('click', function() {
+                // Show all hidden events
+                hiddenEvents.forEach(function(eventCard) {
+                    eventCard.classList.remove('is-hidden');
+                });
+    
+                // Hide the "Load More" button after it's been clicked
+                container.style.display = 'none';
             });
-
-            window.addEventListener('resize', setupCanvas);
-        }
-
-        function onResults(results) {
-            canvasCtx.save();
-            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-            drawFrets(results.multiHandLandmarks);
-            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-                const landmarks = results.multiHandLandmarks[0];
-                drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: '#FFFFFF', lineWidth: 3 });
-                for (let i = 0; i < landmarks.length; i++) {
-                    const lm = landmarks[i];
-                    const x = lm.x * canvasElement.width;
-                    const y = lm.y * canvasElement.height;
-                    const isFingerTip = [4, 8, 12, 16, 20].includes(i);
-                    canvasCtx.beginPath();
-                    canvasCtx.arc(x, y, isFingerTip ? 12 : 5, 0, 2 * Math.PI);
-                    canvasCtx.fillStyle = isFingerTip ? '#007BFF' : '#FFFFFF';
-                    canvasCtx.fill();
-                    if(isFingerTip) {
-                        canvasCtx.lineWidth = 3;
-                        canvasCtx.strokeStyle = '#FFFFFF';
-                        canvasCtx.stroke();
-                    }
-                }
-            }
-            canvasCtx.restore();
-        }
-
-        function drawFrets(handLandmarks) {
-            if (!handLandmarks || handLandmarks.length === 0) return;
-            const wrist = handLandmarks[0][0];
-            const wristX = wrist.x * canvasElement.width;
-            const FRET_SPACING = 0.1 * canvasElement.width;
-            const handCenterX = (handLandmarks[0][5].x + handLandmarks[0][17].x) / 2 * canvasElement.width;
-            for (let i = -5; i < 5; i++) {
-                const fretX = wristX + i * FRET_SPACING;
-                const distance = Math.abs(fretX - handCenterX);
-                const isNear = distance < FRET_SPACING * 1.5;
-                canvasCtx.strokeStyle = isNear ? "rgba(0, 123, 255, 1)" : "rgba(255, 255, 255, 0.4)";
-                canvasCtx.lineWidth = isNear ? 5 : 2;
-                canvasCtx.beginPath();
-                canvasCtx.moveTo(fretX, 0);
-                canvasCtx.lineTo(fretX, canvasElement.height);
-                canvasCtx.stroke();
-            }
-        }
+        });
     </script>
+    
+    <!-- GA -->
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+        ga('create', 'UA-38758949-3', 'auto');
+        ga('send', 'pageview');
+    </script>
+    
+    
 </body>
 </html>
