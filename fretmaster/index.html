@@ -186,7 +186,7 @@
         async function startPitchDetection() {
             audioContext = new (window.AudioContext || window.webkitAudioContext)();
             // Važno za iOS: resume context ako je suspendiran
-            if (audioContext.state === 'suspended') {
+            if (audioContext.state === 'interrupted') {
                 await audioContext.resume();
             }
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
