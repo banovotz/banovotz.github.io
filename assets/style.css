@@ -487,27 +487,4 @@
 .swiper-pagination-bullet-active {
     background: var(--accent-color);
 }
-/* --- NEW: Instagram Section CSS --- */
-#instagram {
-    background-color: #FFFFFF; /* White background to stand out */
-    text-align: center;
-}
-
-.instagram-handle {
-    font-size: 1.2rem;
-    color: var(--text-color);
-    margin-top: -3rem;
-    margin-bottom: 2rem;
-}
-
-.instagram-widget-container {
-    margin-bottom: 2.5rem;
-    /* Lightwidget iframe styles are mostly handled inline, this is a wrapper */
-}
-
-/* Optional: to make the placeholder look good */
-.instagram-widget-container img {
-    max-width: 100%;
-    height: auto;
-}
 
