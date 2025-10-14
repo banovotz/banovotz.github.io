@@ -11,6 +11,7 @@
     <link rel="canonical" href="https://davorbanovic.com" />
     <meta name="description" content="Official home page of author Davor Banovic. Davor is an author of fiction and non-fiction, trying to contribute to the development of the fragile culture of dialogue.">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" type="text/css" href="assets/style.css">
 
 <!-- Hotjar Tracking Code for https://davorbanovic.com/ -->
@@ -36,6 +37,7 @@
                 <li><a href="#about">About</a></li>
                 <li><a href="#books">Books</a></li>
                 <li><a href="#events">Events</a></li>
+                <li><a href="#gallery">Gallery</a></li>
                 <li><a href="#stories">Stories</a></li>
             </ul>
         </nav>
@@ -187,6 +189,32 @@
         </div>
     </div>
 </section>
+<section id="gallery">
+    <div class="container">
+        <h2 class="section-title">Galerija</h2>
+        <div class="gallery-container">
+            <!-- Slider main container -->
+            <div class="swiper">
+                <!-- Additional required wrapper -->
+                <div class="swiper-wrapper">
+                    <!-- Slides -->
+                    <div class="swiper-slide"><img src="https://davorbanovic.com/assets/img/magis2.jpg" alt="Magis - promocija></div>
+                    <div class="swiper-slide"><img src="https://davorbanovic.com/assets/img/magis3.jpg" alt="Magis - promocija"></div>
+                    <div class="swiper-slide"><img src="https://davorbanovic.com/assets/img/magis4.jpg" alt="Magis - promocija"></div>
+                    <div class="swiper-slide"><img src="https://davorbanovic.com/assets/img/gkbm2.jpg" alt="GKBM - promocija"></div>
+                    <div class="swiper-slide"><img src="https://davorbanovic.com/assets/img/gkbm3.jpg"" alt="GKBM - promocija"></div>
+                    <div class="swiper-slide"><img src="https://davorbanovic.com/assets/img/gkbm4.jpg"" alt="GKBM - promocija"></div>
+                </div>
+                <!-- If we need pagination -->
+                <div class="swiper-pagination"></div>
+
+                <!-- If we need navigation buttons -->
+                <div class="swiper-button-prev"></div>
+                <div class="swiper-button-next"></div>
+            </div>
+        </div>
+    </div>
+</section>
         <!-- Free Stories Section -->
         <section id="stories">
             <div class="container">
@@ -247,6 +275,44 @@
             });
         });
     </script>
+    <script>
+    const swiper = new Swiper('.swiper', {
+        // Optional parameters
+        loop: true,
+        spaceBetween: 20,
+        
+        // Navigation arrows
+        navigation: {
+            nextEl: '.swiper-button-next',
+            prevEl: '.swiper-button-prev',
+        },
+
+        // Pagination
+        pagination: {
+            el: '.swiper-pagination',
+            clickable: true,
+        },
+        
+        // Responsive breakpoints
+        breakpoints: {
+            // when window width is >= 640px
+            640: {
+                slidesPerView: 1,
+                spaceBetween: 20
+            },
+            // when window width is >= 768px
+            768: {
+                slidesPerView: 2,
+                spaceBetween: 30
+            },
+            // when window width is >= 1024px
+            1024: {
+                slidesPerView: 3,
+                spaceBetween: 30
+            }
+        }
+    });
+</script>
     
     <!-- GA -->
     <script>
