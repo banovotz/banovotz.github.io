@@ -1,41 +1,72 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset="utf-8">
-    <title>AR Plane in the Sky</title>
-    <meta name="description" content="AR Plane in the Sky">
-    <!-- A-Frame library for WebAR -->
+    <title>AR Plane Viewer</title>
+    <meta name="description" content="View a 3D plane in AR through your camera.">
+    
+    <!-- A-Frame Core Library -->
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <!-- Basic AR features for A-Frame -->
-    <script src="https://unpkg.com/aframe-ar/dist/aframe-ar.min.js"></script>
-  </head>
-  <body>
-    <!-- The AR Scene -->
-    <!-- ar-mode-ui: shows a button to enter AR -->
-    <!-- renderer="colorManagement: true": for better color accuracy -->
-    <a-scene ar-mode-ui="enabled: true" renderer="colorManagement: true">
+    
+    <!-- 
+      A-Frame's AR.js component for basic AR functionality.
+      It helps anchor the content in the real world.
+    -->
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+</head>
 
-      <!-- 
-        This is your 3D plane model.
-        I've used the placeholder URL you would provide.
-        - position: Places it 50 meters in front of you and 30 meters up.
-        - scale: Makes it a reasonable size.
-        - animation: Makes it fly in a circle.
-      -->
-      <a-entity 
-        gltf-model="url(https://davorbanovic.com/airplane/supermarine_spitfire.glb)"
-        position="0 30 -50" 
-        scale="5 5 5"
-        animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear;">
-      </a-entity>
+<body style="margin : 0px; overflow: hidden;">
+    <!-- 
+      The AR Scene.
+      - `embedded`: Helps the scene blend with the webpage.
+      - `arjs`: Configures the AR tracking system. sourceType: webcam means it uses the phone camera.
+      - `renderer`: Improves color and lighting.
+    -->
+    <a-scene embedded arjs="sourceType: webcam; debugUIEnabled: false;" renderer="colorManagement: true;">
 
-      <!-- The AR Camera -->
-      <a-camera position="0 1.6 0"></a-camera>
+        <!-- 
+        =====================================================================
+        YOUR 3D PLANE MODEL
+        This is the entity that loads and displays your GLB file.
+        =====================================================================
+        -->
+        <a-entity
+            id="plane"
+            
+            <!-- 
+              IMPORTANT: Replace this URL with the public URL of your own GLB file.
+            -->
+            gltf-model="url(https://davorbanovic.com/airplane/supermarine_spitfire.glb)"
+            
+            <!-- 
+              Position: x y z
+              Moves the plane 5 meters in front of the camera (-5 on z-axis).
+            -->
+            position="0 0 -5"
+            
+            <!-- 
+              Scale: x y z
+              Adjust these values to make your plane bigger or smaller.
+            -->
+            scale="0.01 0.01 0.01"
 
-      <!-- Basic lighting for the scene -->
-      <a-light type="ambient" color="#FFF"></a-light>
-      <a-light type="directional" color="#FFF" intensity="0.5" position="-1 1 2"></a-light>
+            <!--
+              Animation: Makes the plane fly in a circle.
+              - property: what to animate (rotation).
+              - to: the end state of the rotation (a full 360-degree spin).
+              - loop: true makes it repeat forever.
+              - dur: duration in milliseconds (10 seconds).
+              - easing: linear makes the speed constant.
+            -->
+            animation="property: rotation; to: 0 360 0; loop: true; dur: 10000; easing: linear;">
+        </a-entity>
+
+        <!-- 
+          The AR Camera. 
+          It's what allows you to see through your device's camera.
+        -->
+        <a-camera gps-camera rotation-reader></a-camera>
 
     </a-scene>
-  </body>
+</body>
 </html>
