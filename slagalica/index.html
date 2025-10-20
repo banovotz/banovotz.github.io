@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale-1.0">
+    <meta name="description" content="Slagalica. Složi sliku i pročitaj knjigu!">
+    <meta property="og:image" content="https://davorbanovic.com/slagalica/slagalica.png" />
+    <meta property="og:description" content="Slagalica. Složi sliku i pročitaj knjigu!" />
+
+    <title>Sliding Puzzle - Južni Krajevi</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Varijable stila preuzete s vaše stranice */
+        :root {
+            --bg-color: #F8F5F2;
+            --text-color: #3D3D3D;
+            --heading-color: #1A1A1A;
+            --accent-color: #008080;
+            --accent-color-hover: #006666;
+            --border-color: #E0DCD7;
+            --heading-font: 'Playfair Display', serif;
+            --body-font: 'Lato', sans-serif;
+        }
+
+        body {
+            font-family: var(--body-font);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        .game-container {
+            text-align: center;
+            padding: 2rem;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-family: var(--heading-font);
+            color: var(--heading-color);
+            margin-bottom: 0.5rem;
+        }
+
+        #status-message {
+            margin-bottom: 1.5rem;
+            min-height: 24px;
+            font-size: 1.1rem;
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+
+        #puzzle-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            gap: 5px;
+            border: 5px solid var(--heading-color);
+            border-radius: 5px;
+            width: 300px;
+            height: 400px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .puzzle-piece {
+            width: 100%;
+            height: 100%;
+            background-image: url('https://davorbanovic.com/assets/img/Juzni-krajevi.jpg');
+            background-size: 300px 400px; /* Mora odgovarati dimenzijama grida */
+            cursor: pointer;
+            transition: transform 0.2s ease-in-out;
+            border-radius: 3px;
+        }
+
+        .puzzle-piece:hover {
+            transform: scale(0.97);
+            opacity: 0.9;
+        }
+
+        .puzzle-piece.empty {
+            background-image: none;
+            background-color: var(--border-color);
+            cursor: default;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .puzzle-piece.empty:hover {
+            transform: none;
+            opacity: 1;
+        }
+        
+        .game-container.win #puzzle-grid {
+            border-color: #f9d71c; /* Zlatna boja za pobjedu */
+        }
+        
+        .game-container.win .empty {
+            /* Vraćamo sliku na prazno polje nakon pobjede */
+            background-image: url('https://davorbanovic.com/assets/img/Juzni-krajevi.jpg');
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: #fff;
+            padding: 0.8rem 2rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+            border: none;
+            cursor: pointer;
+            margin-top: 1.5rem;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-color-hover);
+        }
+
+        @media (max-width: 400px) {
+            #puzzle-grid {
+                width: 240px;
+                height: 320px;
+            }
+            .puzzle-piece {
+                background-size: 240px 320px;
+            }
+        
+        }
+        #status-message a {
+           color: var(--accent-color-hover); /* Malo tamnija nijansa za bolji kontrast */
+          text-decoration: underline;
+        font-weight: 700;
+}
+    </style>
+</head>
+<body>
+
+    <div class="game-container" id="game-container">
+        <h1>Slagalica</h1>
+        <div id="status-message">Složite naslovnicu!</div>
+        <div id="puzzle-grid"></div>
+        <button id="shuffle-button" class="btn">Promiješaj i kreni</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const grid = document.getElementById('puzzle-grid');
+            const shuffleButton = document.getElementById('shuffle-button');
+            const statusMessage = document.getElementById('status-message');
+            const gameContainer = document.getElementById('game-container');
+
+            const ROWS = 4;
+            const COLS = 3;
+            const PIECE_COUNT = ROWS * COLS;
+            const EMPTY_PIECE_INDEX = PIECE_COUNT - 1;
+
+            let puzzleState = [];
+
+            // Inicijalizacija igre
+            function init() {
+                // Stvara riješeno stanje
+                puzzleState = Array.from({ length: PIECE_COUNT }, (_, i) => i);
+                render();
+                shuffleButton.addEventListener('click', shuffle);
+                grid.addEventListener('click', handlePieceClick);
+            }
+
+            // Prikazuje pločice na temelju trenutnog stanja
+            function render() {
+                grid.innerHTML = '';
+                puzzleState.forEach((pieceId, index) => {
+                    const piece = document.createElement('div');
+                    piece.classList.add('puzzle-piece');
+                    piece.dataset.id = pieceId;
+                    piece.dataset.index = index;
+
+                    if (pieceId === EMPTY_PIECE_INDEX) {
+                        piece.classList.add('empty');
+                    } else {
+                        const row = Math.floor(pieceId / COLS);
+                        const col = pieceId % COLS;
+                        const xPos = -col * (100); // 100% širine pločice
+                        const yPos = -row * (100); // 100% visine pločice
+                        piece.style.backgroundPosition = `${xPos}% ${yPos}%`;
+                    }
+                    grid.appendChild(piece);
+                });
+            }
+            
+            // Miješa pločice radeći puno nasumičnih, ali valjanih poteza
+            function shuffle() {
+                gameContainer.classList.remove('win');
+                statusMessage.textContent = 'Složi sliku!';
+                
+                let shuffleCount = 200; // Broj nasumičnih poteza
+                for (let i = 0; i < shuffleCount; i++) {
+                    const emptyIndex = puzzleState.indexOf(EMPTY_PIECE_INDEX);
+                    const neighbors = getNeighbors(emptyIndex);
+                    const randomNeighborIndex = neighbors[Math.floor(Math.random() * neighbors.length)];
+                    swap(emptyIndex, randomNeighborIndex);
+                }
+                render();
+            }
+
+            // Handler za klik na pločicu
+            function handlePieceClick(event) {
+                if (gameContainer.classList.contains('win')) return; // Ne dozvoljava igru nakon pobjede
+
+                const clickedPiece = event.target.closest('.puzzle-piece');
+                if (!clickedPiece || clickedPiece.classList.contains('empty')) return;
+                
+                const clickedIndex = parseInt(clickedPiece.dataset.index);
+                const emptyIndex = puzzleState.indexOf(EMPTY_PIECE_INDEX);
+
+                if (areNeighbors(clickedIndex, emptyIndex)) {
+                    swap(clickedIndex, emptyIndex);
+                    render();
+                    checkWin();
+                }
+            }
+
+            // Funkcija za zamjenu dvije pločice u stanju
+            function swap(index1, index2) {
+                [puzzleState[index1], puzzleState[index2]] = [puzzleState[index2], puzzleState[index1]];
+            }
+
+            // Provjerava jesu li dva indeksa susjedna u gridu
+            function areNeighbors(index1, index2) {
+                const row1 = Math.floor(index1 / COLS);
+                const col1 = index1 % COLS;
+                const row2 = Math.floor(index2 / COLS);
+                const col2 = index2 % COLS;
+
+                return (row1 === row2 && Math.abs(col1 - col2) === 1) || (col1 === col2 && Math.abs(row1 - row2) === 1);
+            }
+            
+            // Vraća listu valjanih susjednih indeksa za zadani indeks
+            function getNeighbors(index) {
+                const neighbors = [];
+                const row = Math.floor(index / COLS);
+                const col = index % COLS;
+
+                // Susjed gore
+                if (row > 0) neighbors.push(index - COLS);
+                // Susjed dolje
+                if (row < ROWS - 1) neighbors.push(index + COLS);
+                // Susjed lijevo
+                if (col > 0) neighbors.push(index - 1);
+                // Susjed desno
+                if (col < COLS - 1) neighbors.push(index + 1);
+
+                return neighbors;
+            }
+
+            // Provjerava je li puzzle složen
+            function checkWin() {
+                const isSolved = puzzleState.every((pieceId, index) => pieceId === index);
+                if (isSolved) {
+                    statusMessage.innerHTML = 'Čestitamo, uspio si! Za još više zabave, <a href="https://www.superknjizara.hr/hr/juzni-krajevi-granice-su-blize-nego-sto-mislis-2025-davor-banovic" target="_blank" rel="noopener noreferrer">nabavi knjigu!</a>';
+                    gameContainer.classList.add('win');
+                }
+            }
+            
+            init();
+        });
+    </script>
+</body>
+</html>
