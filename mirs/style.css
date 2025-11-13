@@ -10,6 +10,9 @@
     --font-heading: 'Playfair Display', serif;
     --font-body: 'Montserrat', sans-serif;
 }
+html {
+    scroll-behavior: smooth;
+}
 
 * {
     margin: 0;
@@ -310,7 +313,7 @@ a {
 }
 
 .contact-form .btn {
-    align-self: flex-start; /* Gumb za submit na lijevo */
+    align-self: center; 
 }
 /* Stilovi za "O nama" sekciju */
 .about-us-section {
