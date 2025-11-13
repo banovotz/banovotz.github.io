@@ -312,6 +312,25 @@ a {
 .contact-form .btn {
     align-self: flex-start; /* Gumb za submit na lijevo */
 }
+/* Stilovi za "O nama" sekciju */
+.about-us-section {
+    background-color: var(--bg-light); /* Ili bijela, ovisno o željenom kontrastu */
+    text-align: center;
+    padding: 80px 0;
+}
+
+.about-us-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 30px;
+}
+
+.about-us-section p {
+    max-width: 800px;
+    margin: 0 auto 15px auto; /* Centrirajte paragraf */
+    font-size: 1.1em;
+    line-height: 1.8;
+    color: var(--text-color);
+}
 
 /* Footer */
 footer {
