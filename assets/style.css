@@ -660,13 +660,14 @@
 
 .btn-contact-cta {
     display: inline-block;
-    padding: 12px 32px;
     background-color: #780c00;
     color: #fff;
+    padding: 1rem 2.5rem;
+    border-radius: 5px;
     text-decoration: none;
-    border-radius: 4px;
-    font-weight: 600;
-    transition: background 0.2s;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .btn-contact-cta:hover {
