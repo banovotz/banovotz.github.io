@@ -197,6 +197,22 @@
             background-color: var(--accent-color-hover);
             transform: translateY(-3px);
         }
+         .btn-hot {
+            display: inline-block;
+            background-color: #780c00;
+            color: #fff;
+            padding: 1rem 2.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-hot:hover {
+            background-color: #781f20;
+            transform: translateY(-3px);
+        }
 
         /* About Section */
         .about-content {
