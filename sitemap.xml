@@ -1,63 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-
-  <url>
-    <loc>https://www.davorbanovic.com</loc>
-    <lastmod>2024-10-14</lastmod>  </url>
-
-    <url>
-    <loc>http://www.davorbanovic.com</loc>
-    <lastmod>2024-11-12</lastmod>  </url>
-
-    <url>
-    <loc>https://davorbanovic.com/</loc>
-    <lastmod>2024-11-12</lastmod>  </url>
-    
-    <url>
-    <loc>http://davorbanovic.com/</loc>
-    <lastmod>2024-11-12</lastmod>  </url>
-
-    <url>
-    <loc>https://davorbanovic.com</loc>
-    <lastmod>2024-11-12</lastmod>  </url>
-     
-    <url>
-    <loc>http://davorbanovic.com</loc>
-    <lastmod>2024-11-12</lastmod>  </url>
-
-    <url>
-    <loc>https://davorbanovic.com/juznikrajevi</loc>
-    <lastmod>2024-10-14</lastmod>  </url>
-
-    <url>
-    <loc>http://davorbanovic.com/juznikrajevi</loc>
-    <lastmod>2024-10-14</lastmod>  </url>
-
-    <url>
-    <loc>https://davorbanovic.com/juznikrajevi/</loc>
-    <lastmod>2024-10-14</lastmod>  </url>
-
-    <url>
-    <loc>http://davorbanovic.com/juznikrajevi</loc>
-    <lastmod>2024-10-14</lastmod>  </url>
-
-
-    <url>
-    <loc>https://www.davorbanovic.com/juznikrajevi</loc>
-    <lastmod>2024-10-14</lastmod>  </url>
-
-    <url>
-    <loc>http://www.davorbanovic.com/juznikrajevi</loc>
-    <lastmod>2024-10-14</lastmod>  </url>
-
-    <url>
-    <loc>https://www.davorbanovic.com/juznikrajevi/</loc>
-    <lastmod>2024-10-14</lastmod>  </url>
-
-    <url>
-    <loc>http://www.davorbanovic.com/juznikrajevi</loc>
-    <lastmod>2024-10-14</lastmod>  </url>
-
-
   
+  <!-- Main Homepage (Including Bio, Writing, and Literary Translation sections) -->
+  <url>
+    <loc>https://davorbanovic.com/</loc>
+    <lastmod>2026-07-11</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>1.0</priority>
+  </url>
+
 </urlset>
