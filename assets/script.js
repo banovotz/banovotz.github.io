@@ -56,23 +56,26 @@ document.addEventListener('DOMContentLoaded', () => {
     updateSlider();
 });
 
+
+
 document.addEventListener('DOMContentLoaded', () => {
-    const mailBtn = document.querySelector('.dynamic-mail');
+    // Select all protected email elements on the page
+    const mailButtons = document.querySelectorAll('.dynamic-mail');
     
-    if (mailBtn) {
+    mailButtons.forEach(btn => {
         function revealEmail() {
-            const user = mailBtn.getAttribute('data-user');
-            const domain = mailBtn.getAttribute('data-domain');
+            const user = btn.getAttribute('data-user');
+            const domain = btn.getAttribute('data-domain');
             
             // Reconstruct link on the fly only when interacting
-            if (user && domain && !mailBtn.href.startsWith('mailto:')) {
-                mailBtn.href = `mailto:${user}@${domain}`;
+            if (user && domain && !btn.href.startsWith('mailto:')) {
+                btn.href = `mailto:${user}@${domain}`;
             }
         }
 
         // Trigger assembly when the user shows intent to interact
-        mailBtn.addEventListener('mouseenter', revealEmail);
-        mailBtn.addEventListener('focus', revealEmail);
-        mailBtn.addEventListener('touchstart', revealEmail);
-    }
+        btn.addEventListener('mouseenter', revealEmail);
+        btn.addEventListener('focus', revealEmail);
+        btn.addEventListener('touchstart', revealEmail);
+    });
 });

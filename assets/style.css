@@ -709,3 +709,52 @@
     .prev-btn { left: 0px; }
     .next-btn { right: 0px; }
 }
+/* Floating Contact Button */
+.floating-contact-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    background-color: var(--accent-color); /* Sleek charcoal black; change to match your site's exact accent accent color */
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    z-index: 9999; /* Ensures it stays on top of carousels, text, and images */
+    transition: transform 0.3s ease, background-color 0.2s ease, box-shadow 0.3s ease;
+}
+
+/* Elegant hover state interaction tracking */
+.floating-contact-btn:hover {
+    transform: translateY(-4px);
+    background-color: var(--accent-color-hover);
+    box-shadow: 0 6px 20px var(--accent-color-hover);
+}
+
+/* Ensure the SVG icon scales correctly inside the circle */
+.floating-contact-btn svg {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.3s ease;
+}
+
+.floating-contact-btn:hover svg {
+    transform: scale(1.05);
+}
+
+/* Responsive adjustment for small phone viewports so it doesn't block layout edges */
+@media (max-width: 480px) {
+    .floating-contact-btn {
+        bottom: 16px;
+        right: 16px;
+        width: 48px;
+        height: 48px;
+    }
+    .floating-contact-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+}
