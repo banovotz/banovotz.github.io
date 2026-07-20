@@ -1,0 +1,760 @@
+/* CSS Variables for an elegant, literary theme */
+        :root {
+            --bg-color: #F8F5F2; /* A warm, paper-like off-white */
+            --text-color: #3D3D3D;
+            --heading-color: #1A1A1A;
+            --accent-color: #008080; /* A sophisticated teal */
+            --accent-color-hover: #006666;
+            --border-color: #E0DCD7;
+            --heading-font: 'Playfair Display', serif;
+            --body-font: 'Lato', sans-serif;
+        }
+
+        /* Basic Reset & Setup */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--body-font);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.7;
+            font-size: 17px;
+        }
+
+        /* Global Styles */
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        section {
+            padding: 6rem 0;
+        }
+        
+        section:nth-of-type(even) {
+            background-color: #FFFFFF;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--heading-font);
+            color: var(--heading-color);
+            font-weight: 700;
+        }
+
+        h2.section-title {
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 4rem;
+            position: relative;
+        }
+
+        h2.section-title::after {
+            content: '';
+            display: block;
+            width: 80px;
+            height: 3px;
+            background: var(--accent-color);
+            margin: 1rem auto 0;
+        }
+        
+        p {
+            margin-bottom: 1rem;
+        }
+
+        /* Header & Navigation */
+        .main-header {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            transition: background-color 0.3s ease;
+        }
+
+        .main-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .main-nav .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: var(--heading-font);
+            color: var(--heading-color);
+            text-decoration: none;
+            /* Placeholder for a text logo if image is not used */
+            content: "Davor Banovic"; 
+        }
+
+        .main-nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        .main-nav ul li {
+            margin-left: 2.5rem;
+        }
+
+        .main-nav ul li a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 700;
+            transition: color 0.3s ease;
+        }
+
+        .main-nav ul li a:hover {
+            color: var(--accent-color);
+        }
+
+        /* Hero Section */
+        #hero {
+            height: 80vh;
+            min-height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: #fff;
+            position: relative;
+            overflow: hidden; /* For the zoom effect */
+        }
+
+        .hero-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://davorbanovic.com/assets/img/back.jpg'); /* Teal Typewriter Image */
+            background-size: cover;
+            background-position: center;
+            z-index: -2;
+            animation: zoom-in 20s ease-out forwards;
+        }
+        
+        @keyframes zoom-in {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
+
+        #hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: -1;
+        }
+
+        .hero-content {
+            max-width: 800px;
+            padding: 2rem;
+        }
+        
+        .hero-content h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            color: #fff;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+        }
+        
+        .hero-content h4 {
+            font-size: 1.2rem;
+            font-family: var(--body-font);
+            font-weight: 400;
+            margin-bottom: 2.5rem;
+            color: rgba(255,255,255,0.9);
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: var(--accent-color);
+            color: #fff;
+            padding: 1rem 2.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn:hover {
+            background-color: var(--accent-color-hover);
+            transform: translateY(-3px);
+        }
+         .btn-hot {
+            display: inline-block;
+            background-color: #780c00;
+            color: #fff;
+            padding: 1rem 2.5rem;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1rem;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-hot:hover {
+            background-color: #781f20;
+            transform: translateY(-3px);
+        }
+
+        /* About Section */
+        .about-content {
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+        }
+
+        .about-content img {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        /* Books Section */
+        .book-item {
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+            margin-bottom: 5rem;
+        }
+
+        .book-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .book-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .book-image {
+            flex: 1;
+            max-width: 300px;
+            flex-shrink: 0;
+        }
+        
+        .book-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 5px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        .book-description {
+            flex: 2;
+        }
+
+        .book-description h3 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .book-description .btn {
+            margin-top: 1.5rem;
+        }
+        
+        /* Free Stories Section */
+        #stories .container {
+            max-width: 700px;
+        }
+
+        .embedly-card {
+            margin-bottom: 2rem !important; /* Overriding embedly styles */
+        }
+        
+        /* Footer */
+        .main-footer {
+            background-color: var(--heading-color);
+            color: rgba(255, 255, 255, 0.7);
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .footer-socials {
+            margin-bottom: 2rem;
+        }
+
+        .footer-socials a {
+            color: #fff;
+            margin: 0 1rem;
+            font-size: 1.5rem;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-socials a:hover {
+            color: var(--accent-color);
+        }
+
+        .footer-credits p {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .footer-credits a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+        }
+        
+        .footer-credits a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body { font-size: 16px; }
+            h2.section-title { font-size: 2.2rem; }
+            .hero-content h1 { font-size: 2.5rem; }
+            
+            .main-nav {
+                justify-content: center;
+                position: relative;
+            }
+            .main-nav .logo {
+                display: none; /* Hide logo on mobile nav */
+            }
+            .main-nav ul li { margin: 0 1rem; }
+            
+            .about-content, .book-item, .book-item:nth-child(even) {
+                flex-direction: column;
+                text-align: center;
+            }
+            .book-item {
+                gap: 2rem;
+            }
+            .book-description {
+                flex-basis: auto;
+            }}
+
+/* Events Section */
+.events-grid {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+#events { background-color: #FFFFFF; }
+.events-grid { display: flex; gap: 2rem; justify-content: center; flex-wrap: wrap; }
+.event-card { background-color: #FFFFFF; border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); transition: transform 0.3s ease, box-shadow 0.3s ease; flex: 1 1 300px; max-width: 350px; display: flex; flex-direction: column; }
+.event-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+
+.event-card--featured {
+    border: 2px solid var(--accent-color);
+    box-shadow: 0 8px 25px rgba(0, 128, 128, 0.15); /* A subtle teal glow */
+}
+
+.event-card.is-hidden {
+    display: none;
+}
+
+.load-more-container {
+    text-align: center;
+    margin-top: 2.5rem;
+}
+
+.event-image img { width: 100%; height: 200px; object-fit: cover; display: block; }
+.event-content { padding: 1.5rem; display: flex; flex-direction: column; flex-grow: 1; }
+
+.event-image img {
+    
+    object-fit: cover;
+    display: block;
+}
+
+.event-content {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Allows content to fill space */
+}
+
+.event-date {
+    color: var(--accent-color);
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center; /* This will vertically align the date text and the badge */
+}
+
+.featured-badge {
+    display: inline-block;
+    background-color: var(--accent-color);
+    color: #fff;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-left: 0.75rem;
+    line-height: 1.4;
+}
+
+.event-content h3 { font-family: var(--heading-font); font-size: 1.4rem; color: var(--heading-color); margin-bottom: 0.5rem; }
+.event-venue { font-size: 0.95rem; color: var(--text-color); margin-bottom: 1rem; }
+.event-venue a { color: var(--heading-color); text-decoration: none; font-weight: 700; border-bottom: 2px solid var(--border-color); transition: border-color 0.3s ease; }
+.event-venue a:hover { border-bottom-color: var(--accent-color); }
+.event-description { font-size: 0.95rem; flex-grow: 1; margin-bottom: 0; }
+
+.event-content h3 {
+    font-family: var(--heading-font);
+    font-size: 1.4rem;
+    color: var(--heading-color);
+    margin-bottom: 0.5rem;
+}
+
+.event-venue {
+    font-size: 0.95rem;
+    color: var(--text-color);
+    margin-bottom: 1rem;
+}
+
+.event-venue a {
+    color: var(--heading-color);
+    text-decoration: none;
+    font-weight: 700;
+    border-bottom: 2px solid var(--border-color);
+    transition: border-color 0.3s ease;
+}
+
+.event-venue a:hover {
+    border-bottom-color: var(--accent-color);
+}
+
+.event-description {
+    font-size: 0.95rem;
+    flex-grow: 1; /* Pushes content below to the bottom if needed */
+    margin-bottom: 0;
+}
+/* --- NEW: Gallery Carousel Section CSS --- */
+#gallery {
+    background-color: var(--bg-color); /* Matches the main background */
+}
+
+.gallery-container {
+    padding: 0 40px; /* Add some padding so arrows don't stick to the edge */
+    position: relative;
+}
+
+.swiper-slide {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.swiper-slide img {
+    display: block;
+    width: 100%;
+    height: 300px; /* Fixed height for consistency */
+    object-fit: cover;
+    border-radius: 8px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+/* Custom Swiper Navigation Arrows */
+.swiper-button-next,
+.swiper-button-prev {
+    color: var(--accent-color);
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    transition: background-color 0.3s ease;
+}
+
+.swiper-button-next:hover,
+.swiper-button-prev:hover {
+    background-color: #fff;
+}
+
+.swiper-button-next::after,
+.swiper-button-prev::after {
+    font-size: 20px;
+    font-weight: 900;
+}
+
+/* Custom Swiper Pagination Dots */
+.swiper-pagination-bullet {
+    background: var(--border-color);
+    opacity: 1;
+}
+
+.swiper-pagination-bullet-active {
+    background: var(--accent-color);
+}
+
+/* Translation Section Base Styling */
+.translation-section {
+    padding: 80px 20px;
+    background-color: #f9f9f9; /* Change to match your site's dark/light theme */
+    color: #333;
+    font-family: inherit;
+}
+
+.translation-section .container {
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.section-header {
+    text-align: center;
+    max-width: 700px;
+    margin: 0 auto 50px auto;
+}
+
+.section-header h2 {
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.intro-text {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #666;
+}
+
+/* Sliding Cards Mechanism */
+.slider-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 50px;
+}
+
+.slider-container {
+    width: 100%;
+    overflow: hidden;
+    padding: 10px 0;
+}
+
+.slider-track {
+    display: flex;
+    gap: 24px;
+    transition: transform 0.4s ease-in-out;
+    will-change: transform;
+}
+
+/* Cards Design */
+.translation-card {
+    flex: 0 0 calc(33.333% - 16px); /* 3 cards on desktop views */
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #eee;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.translation-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Card Cover Image Styling */
+.card-cover {
+    height: 240px; /* Increased height to showcase actual book covers beautifully */
+    background: #eaeaea; 
+    overflow: hidden;
+    position: relative;
+    border-bottom: 1px solid #eee;
+}
+
+.card-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Forces image to scale perfectly without distorting aspect ratio */
+    object-position: top; /* Keeps book titles/tops of the covers perfectly visible */
+    transition: transform 0.5s ease; /* Adds a clean zoom effect on hover */
+}
+
+/* Subtle zoom effect on the image when a user hovers anywhere on the card */
+.translation-card:hover .card-cover img {
+    transform: scale(1.05);
+}
+
+.card-content {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.card-content h3 {
+    margin: 0 0 8px 0;
+    font-size: 1.3rem;
+    color: #111;
+}
+
+.card-content .author {
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 4px;
+}
+
+.card-content .meta {
+    font-size: 0.85rem;
+    color: #999;
+    margin-bottom: 15px;
+}
+
+.card-content .description {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #666;
+    margin-bottom: 20px;
+    flex-grow: 1;
+}
+
+.view-link {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0066cc;
+    text-decoration: none;
+}
+
+/* Slider Controls */
+.slider-arrow {
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+    position: absolute;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: background 0.2s;
+}
+
+.slider-arrow:hover {
+    background: #f0f0f0;
+}
+
+.prev-btn { left: -22px; }
+.next-btn { right: -22px; }
+
+/* Contact CTA Block */
+.translation-cta {
+    text-align: center;
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid #eee;
+}
+
+.translation-cta p {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+}
+
+.btn-contact-cta {
+    display: inline-block;
+    background-color: #780c00;
+    color: #fff;
+    padding: 1rem 2.5rem;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.btn-contact-cta:hover {
+    background-color: #333;
+}
+
+/* Responsive Media Queries */
+@media (max-width: 992px) {
+    .translation-card {
+        flex: 0 0 calc(50% - 12px); /* 2 cards on tablet views */
+    }
+    .prev-btn { left: -10px; }
+    .next-btn { right: -10px; }
+}
+
+@media (max-width: 600px) {
+    .translation-card {
+        flex: 0 0 100%; /* 1 card on mobile viewports */
+    }
+    .slider-wrapper {
+        padding: 0 10px;
+    }
+    .prev-btn { left: 0px; }
+    .next-btn { right: 0px; }
+}
+/* Floating Contact Button */
+.floating-contact-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    background-color: var(--accent-color); /* Sleek charcoal black; change to match your site's exact accent accent color */
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    z-index: 9999; /* Ensures it stays on top of carousels, text, and images */
+    transition: transform 0.3s ease, background-color 0.2s ease, box-shadow 0.3s ease;
+}
+
+/* Elegant hover state interaction tracking */
+.floating-contact-btn:hover {
+    transform: translateY(-4px);
+    background-color: var(--accent-color-hover);
+    box-shadow: 0 6px 20px var(--accent-color-hover);
+}
+
+/* Ensure the SVG icon scales correctly inside the circle */
+.floating-contact-btn svg {
+    width: 24px;
+    height: 24px;
+    transition: transform 0.3s ease;
+}
+
+.floating-contact-btn:hover svg {
+    transform: scale(1.05);
+}
+
+/* Responsive adjustment for small phone viewports so it doesn't block layout edges */
+@media (max-width: 480px) {
+    .floating-contact-btn {
+        bottom: 16px;
+        right: 16px;
+        width: 48px;
+        height: 48px;
+    }
+    .floating-contact-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+}

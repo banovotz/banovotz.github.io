@@ -1,0 +1,38 @@
+- date: '16. travnja 2026. u 19:30'
+  badge: ISTAKNUTO
+  title: Književna tribina
+  location: '<a href="https://maps.app.goo.gl/aLY322N5U2e9v7sG6" target="_blank">Knjižnica i čitaonica Bogdana Ogrizovića, Preradovićeva 5, Zagreb</a>'
+  description: >-
+    Najavljujemo <a href="https://www.kgz.hr/hr/dogadjanja/juzni-krajevi/73441" target="_blank">predstavljanje knjige Južni krajevi u Knjižnici i čitaonici
+    Bogdana Ogrizovića u Zagrebu</a>. Voditelj je Dario Hrupec, a izdavača će
+    predstaviti Sandra Filipčič.
+  image_path: /assets/images/ogrizovic.jpeg
+- date: '15. studenog 2025. u 18:00'
+  badge: ''
+  title: Od teksta do crteža
+  location: '<a href="https://maps.app.goo.gl/nQDJwXguZyQhK9pV8" target="_blank">Slamanje, Ul. Kamila Firingera 3, Osijek</a>'
+  description: >-
+    <a href="https://sib.net.hr/dogadjanja/1258166/udruga-plantaza-radionica-od-teksta-do-crteza-radionica-izrade-ilustracija/" target="_blank">Radionica izrade ilustracija u organizaciji udruge Plantaža</a> na kojoj će
+    polaznici kroz likovni rad istraživati motive i atmosferu knjige Južni
+    krajevi. Radionicu će voditi ilustrator Tin Ringsmuth, a razgovor s autorom
+    usmjeravati Leona Rous.
+  image_path: /assets/images/plantaza1.jpg
+- date: '10. listopada 2025. u 19:00'
+  badge: 'hidden'
+  title: Književna tribina
+  location: '<a href="https://maps.app.goo.gl/VWx6Zj5UucqbbTgf7" target="_blank">Poetry caffe Magis, Osijek</a>'
+  description: >-
+    <a href="https://nemo-casopis.com/objava/predstavljanje-knjige-juni-krajevi" target="_blank">Promocija knjige Južni krajevi</a>.  Poetry caffe
+    Magis, Europska avenija 6, 31000, Osijek. Tribinu organizira udruga Mali
+    Nemo i slavonski ogranak Hrvatskog društva pisaca. Voditelj je književni
+    kritičar Davor Ivankovac.
+  image_path: /assets/images/magis.jpg
+- date: '12. lipnja 2025. u 18.00'
+  badge: 'hidden'
+  title: Predstavljanje romana "Južni krajevi"
+  location: '<a href="https://maps.app.goo.gl/n1oJBHTd1x4FVxPGA" target="_blank">Gradska knjižnica Beli Manastir</a>'
+  description: >-
+    Pridružite nam se na <a href="https://www.gkbm.hr/2025/06/11/promocija-knjige-i-druzenje-s-autorom-davorom-banovicem/" target="_blank">večeri s autorom</a> gdje ćemo razgovarati o inspiraciji 
+    i temama romana "Južni krajevi". Slijedi potpisivanje knjiga.
+  image_path: /assets/images/gkbm1.jpg
+

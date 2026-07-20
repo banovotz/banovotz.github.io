@@ -1,0 +1,10 @@
+title: Davor Banović | Author & Literary Translator
+email: davor.banovic@gmail.com
+description: >-
+  Mrežna stranica Davora Banovića, pisca i prevoditelja s engleskog
+  BRIDGING WORLDS ACROSS THE REPUBLIC OF LETTERS.
+url: https://davorbanovic.com
+image: https://davorbanovic.com/assets/images/back.jpg
+
+plugins:
+  - jekyll-sitemap
