@@ -102,3 +102,67 @@ document.addEventListener("DOMContentLoaded", function() {
     // Pokreni efekt tipkanja
     typeWriter();
 });
+
+document.addEventListener("DOMContentLoaded", function() {
+  const openBtn = document.getElementById("open-translations-modal");
+  const closeBtn = document.getElementById("close-translations-modal");
+  const modal = document.getElementById("translations-modal");
+  const modalBody = document.getElementById("modal-body");
+  
+  let isLoaded = false; // Zastavica kako ne bismo ponovno dohvaćali sadržaj pri svakom otvaranju
+
+  if (openBtn && modal) {
+    // Otvaranje modala
+    openBtn.addEventListener("click", function() {
+      modal.classList.add("is-active");
+      modal.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden"; // Onemogući skrolanje pozadine
+
+      // Učitavanje sadržaja samo pri prvom kliku
+      if (!isLoaded) {
+        fetch('/prijevodi.html')
+          .then(response => {
+            if (!response.ok) throw new Error("Mrežna pogreška");
+            return response.text();
+          })
+          .then(htmlText => {
+            // Parsiramo dohvaćeni HTML kako bismo izvukli samo glavni sadržaj (opcionalno)
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlText, "text/html");
+            const content = doc.querySelector("main") || doc.body;
+
+            modalBody.innerHTML = content.innerHTML;
+            isLoaded = true;
+          })
+          .catch(error => {
+            modalBody.innerHTML = "<p>Došlo je do pogreške prilikom učitavanja kataloga.</p>";
+            console.error("Fetch error:", error);
+          });
+      }
+    });
+
+    // Funkcija za zatvaranje modala
+    const closeModal = () => {
+      modal.classList.remove("is-active");
+      modal.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = ""; // Vrati skrolanje pozadine
+    };
+
+    // Zatvaranje klikom na gumb X
+    closeBtn.addEventListener("click", closeModal);
+
+    // Zatvaranje klikom na tamnu pozadinu izvan modala
+    modal.addEventListener("click", function(event) {
+      if (event.target === modal) {
+        closeModal();
+      }
+    });
+
+    // Zatvaranje pritikom na tipku ESC
+    document.addEventListener("keydown", function(event) {
+      if (event.key === "Escape" && modal.classList.contains("is-active")) {
+        closeModal();
+      }
+    });
+  }
+});

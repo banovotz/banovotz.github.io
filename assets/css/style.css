@@ -758,3 +758,64 @@
         height: 20px;
     }
 }
+
+/* Centriranje gumba na dnu sekcije */
+.center-btn-wrapper {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+/* Modal Overlay (Pozadina) */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Aktivno stanje modala */
+.modal-overlay.is-active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Sadržaj Modala */
+.modal-content {
+  background: var(--bg-color, #ffffff);
+  width: 90%;
+  max-width: 900px;
+  max-height: 85vh;
+  padding: 2.5rem 2rem 2rem 2rem;
+  border-radius: 8px;
+  position: relative;
+  overflow-y: auto;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+/* Gumb za zatvaranje (X) */
+.modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1.2rem;
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  line-height: 1;
+  color: var(--text-color, #333);
+}
+
+.modal-loading {
+  text-align: center;
+  padding: 2rem;
+  font-style: italic;
+}

@@ -1,0 +1,49 @@
+---
+layout: default
+---
+
+<section id="translations" class="container">
+  <h2>Katalog književnih prijevoda</h2>
+  <p class="section-lead">Odabrani naslovi i radovi u prijevodu Davora Banovića s engleskog na hrvatski jezik.</p>
+
+  <div class="translations-grid">
+    {% for item in site.data.alltranslations %}
+    <article class="translation-card" itemscope itemtype="https://schema.org/Book">
+      <div class="translation-header">
+        <span class="genre-tag">{{ item.genre }}</span>
+        <span class="year-badge">{{ item.year }}</span>
+      </div>
+
+      <h3 itemprop="name">{{ item.title }}</h3>
+      
+      {% if item.original_title %}
+      <p class="original-title">Izvornik: <em>{{ item.original_title }}</em></p>
+      {% endif %}
+
+      <div class="translation-meta">
+        <p><strong>Autor:</strong> <span itemprop="author">{{ item.author }}</span></p>
+        <p><strong>Prevoditelj:</strong> <span itemprop="author">{{ item.translator }}</span></p>
+        <p><strong>Izdavač:</strong> <span itemprop="publisher">{{ item.publisher }}</span></p>
+        {% if item.isbn %}
+        <p><strong>ISBN:</strong> <span itemprop="isbn">{{ item.isbn }}</span></p>
+        {% endif %}
+      </div>
+
+      {% if item.notes %}
+      <p class="translation-notes">{{ item.notes }}</p>
+      {% endif %}
+      
+      <!-- Meta podaci za prevoditelja namijenjeni tražilicama -->
+      <meta itemprop="translator" content="Davor Banović" />
+    </article>
+    {% endfor %}
+  </div>
+</section>
+<!---Contact Section-->
+<section id="contact">
+<div class="translation-cta">
+      <p>Trebate iskusnog prevoditelja za vaš sljedeći nakladnički projekt?</p>
+      <a href="#" class="btn-contact-cta dynamic-mail" data-user="davor.banovic" data-domain="gmail.com">Pošalji upit</a>
+    </div>
+  </div>
+</section>

@@ -107,6 +107,22 @@ layout: default
         </div>
       </div>
     </div>
+    <!-- Centralno poravnati gumb za otvaranje modala -->
+  <div class="center-btn-wrapper">
+    <button id="open-translations-modal" class="btn btn-secondary">Pogledajte sve prijevode</button>
+  </div>
+</section>
+
+<!-- Modalni Prozor -->
+<div id="translations-modal" class="modal-overlay" aria-hidden="true">
+  <div class="modal-content">
+    <button id="close-translations-modal" class="modal-close" aria-label="Zatvori">&times;</button>
+    <div id="modal-body">
+      <!-- Sadržaj iz alltranslations.html će se učitati ovdje -->
+      <p class="modal-loading">Učitavanje kataloga...</p>
+    </div>
+  </div>
+</div>
 
 </section>
 <!---Contact Section-->
