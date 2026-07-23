@@ -109,24 +109,29 @@ document.addEventListener("DOMContentLoaded", function() {
   const modal = document.getElementById("translations-modal");
   const modalBody = document.getElementById("modal-body");
   
-  let isLoaded = false; // Zastavica kako ne bismo ponovno dohvaćali sadržaj pri svakom otvaranju
+  let isLoaded = false;
 
   if (openBtn && modal) {
     // Otvaranje modala
     openBtn.addEventListener("click", function() {
+      // 1. Prvo uklanjamo aria-hidden / inert prije nego modal postane vidljiv
+      modal.removeAttribute("aria-hidden");
+      modal.removeAttribute("inert");
       modal.classList.add("is-active");
-      modal.setAttribute("aria-hidden", "false");
+      
       document.body.style.overflow = "hidden"; // Onemogući skrolanje pozadine
 
-      // Učitavanje sadržaja samo pri prvom kliku
+      // 2. Preusmjeravanje fokusa na gumb za zatvaranje radi pristupačnosti
+      if (closeBtn) closeBtn.focus();
+
+      // 3. Dohvaćanje sadržaja s čistom putanjom
       if (!isLoaded) {
-        fetch('/prijevodi.html')
+        fetch("/prijevodi.html")
           .then(response => {
             if (!response.ok) throw new Error("Mrežna pogreška");
             return response.text();
           })
           .then(htmlText => {
-            // Parsiramo dohvaćeni HTML kako bismo izvukli samo glavni sadržaj (opcionalno)
             const parser = new DOMParser();
             const doc = parser.parseFromString(htmlText, "text/html");
             const content = doc.querySelector("main") || doc.body;
@@ -145,20 +150,19 @@ document.addEventListener("DOMContentLoaded", function() {
     const closeModal = () => {
       modal.classList.remove("is-active");
       modal.setAttribute("aria-hidden", "true");
+      modal.setAttribute("inert", ""); // Koristimo inert za potpuno skrivanje od interakcije
       document.body.style.overflow = ""; // Vrati skrolanje pozadine
+      openBtn.focus(); // Vrati fokus na gumb koji je otvorio modal
     };
 
-    // Zatvaranje klikom na gumb X
     closeBtn.addEventListener("click", closeModal);
 
-    // Zatvaranje klikom na tamnu pozadinu izvan modala
     modal.addEventListener("click", function(event) {
       if (event.target === modal) {
         closeModal();
       }
     });
 
-    // Zatvaranje pritikom na tipku ESC
     document.addEventListener("keydown", function(event) {
       if (event.key === "Escape" && modal.classList.contains("is-active")) {
         closeModal();
