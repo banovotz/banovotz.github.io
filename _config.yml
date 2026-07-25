@@ -6,5 +6,8 @@ description: >-
 url: https://davorbanovic.com
 image: https://davorbanovic.com/assets/images/back.jpg
 
+include:
+  - _pages
 plugins:
   - jekyll-sitemap
+

@@ -126,7 +126,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
       // 3. Dohvaćanje sadržaja s čistom putanjom
       if (!isLoaded) {
-        fetch("/prijevodi.html")
+        fetch("/prijevodi/")
           .then(response => {
             if (!response.ok) throw new Error("Mrežna pogreška");
             return response.text();
