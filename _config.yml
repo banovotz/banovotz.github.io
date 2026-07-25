@@ -8,6 +8,15 @@ image: https://davorbanovic.com/assets/images/back.jpg
 
 include:
   - _pages
+
 plugins:
   - jekyll-sitemap
+
+exclude :
+  - cards
+  - ducker
+  - fretmaster
+  - googlee1718026ca119ee1.html
+  - modes
+  - nailta
 

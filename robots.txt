@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Eksplicitno navođenje Sitemap i RSS feeda za sve crawlere
+Sitemap: https://davorbanovic.com/sitemap.xml
