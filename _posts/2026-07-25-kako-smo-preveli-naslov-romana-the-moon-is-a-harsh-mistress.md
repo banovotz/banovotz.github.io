@@ -30,7 +30,7 @@ Nakon višemjesečnog brusnog procesa, testiranja ritma izgovora i konzultacija 
 
 ### Zašto je ovo rješenje uspjelo?
 
-Olukom da englesku riječ *Moon* prevedemo kao **Luna** postigli smo dvoje: zadržali smo ženski rod neophodan za metriku metafore i ujedno odrazili specifičan sleng i terminologiju samih stanovnika Mjeseca u romanu. 
+Odlukom da englesku riječ *Moon* prevedemo kao **Luna** (naziv kojim mjesec u romanu naziva jedna od mjesečevih kolonija) postigli smo dvoje: zadržali smo ženski rod neophodan za metriku metafore i ujedno odrazili specifičan sleng i terminologiju samih stanovnika Mjeseca u romanu. 
 
 Spoj **"okrutna ljubavnica"** savršeno pogađa Heinleinovu bit — Mjesec je mjesto koje opčinjava, ali ne prašta ni najmanju pogrešku.
 
