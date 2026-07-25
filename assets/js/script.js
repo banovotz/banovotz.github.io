@@ -170,3 +170,45 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   }
 });
+
+document.addEventListener("DOMContentLoaded", function() {
+  const modal = document.getElementById("translations-modal");
+
+  // Pomoćna funkcija za zatvaranje modala (povežite s vašim postojećim kodom)
+  const closeModal = () => {
+    if (!modal) return;
+    modal.classList.remove("is-active");
+    modal.setAttribute("aria-hidden", "true");
+    modal.setAttribute("inert", "");
+    document.body.style.overflow = ""; // Vraća skrolanje stranice
+  };
+
+  // Slušamo klikove unutar modala
+  if (modal) {
+    modal.addEventListener("click", function(event) {
+      // Provjeravamo je li kliknut gumb koji vodi na #contact
+      const contactLink = event.target.closest('a[href*="#contact"]');
+      
+      if (contactLink) {
+        // 1. Ugasi modal
+        closeModal();
+
+        // 2. Ako smo već na početnoj stranici, napravi smooth scroll do sekcije
+        const targetId = "contact";
+        const targetSection = document.getElementById(targetId);
+
+        if (targetSection && (window.location.pathname === "/" || window.location.pathname.endsWith("/index.html"))) {
+          event.preventDefault(); // Spriječite nagli skok URL-a
+          
+          // Izvršavamo skrol nakon što se modal zatvori
+          setTimeout(() => {
+            targetSection.scrollIntoView({ behavior: "smooth" });
+            history.pushState(null, null, "#contact"); // Ažurira URL bez skakanja
+          }, 100);
+        }
+        // Ako je korisnik na nekoj drugoj podstranici (npr. /blog/), 
+        // pustit će ga da prirodno ode na /#contact
+      }
+    });
+  }
+});
