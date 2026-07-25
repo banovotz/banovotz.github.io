@@ -2,18 +2,6 @@
 layout: default
 ---
 
-<!-- Navigation Bar -->
-<header class="main-header">
-  <div class="container main-nav">
-    <a href="#" class="logo">Davor Banović</a>
-    <ul>
-      <li><a href="#books">Knjige</a></li>
-      <li><a href="#translations">Prijevodi</a></li>
-      <li><a href="#contact">Kontakt</a></li>
-
-       </ul>
-  </div>
-</header>
 
 <!-- Hero Section -->
 <section id="hero">
@@ -21,8 +9,8 @@ layout: default
   <div class="hero-content">
    <h1><span id="typewriter"></span><span id="typewriter-cursor" class="cursor">|</span></h1>
     <p class="subtitle">Mrežna stranica Davora Banovića, pisca i književnog prevoditelja s engleskog jezika.</p>
-    <a href="#books" class="btn">Vidi knjige</a>
-    <a href="#contact" class="btn-hot">Kontaktiraj me</a>
+    <a href="#books" class="btn">Pogledajte knjige</a>
+    <a href="#contact" class="btn-hot">Kontaktirajte me</a>
 
   </div>
 </section>
@@ -60,7 +48,7 @@ layout: default
         <h3>{{ book.title }}</h3>
         <p><strong>{{ book.tagline }}</strong></p>
         <p>{{ book.description }}</p>
-        <a href="{{ book.cta_link }}" class="btn" target="_blank">Saznaj više</a>
+        <a href="{{ book.cta_link }}" class="btn" target="_blank">Saznajte više</a>
       </div>
     </div>
     {% endfor %}
@@ -110,6 +98,7 @@ layout: default
     <!-- Centralno poravnati gumb za otvaranje modala -->
   <div class="center-btn-wrapper">
     <button id="open-translations-modal" class="btn btn-secondary">Pogledajte ostale prijevode</button>
+    <a href="/faq/" class="btn-hot">Za urednike</a>
   </div>
 </section>
 
@@ -129,7 +118,7 @@ layout: default
 <section id="contact">
 <div class="translation-cta">
       <p>Trebate iskusnog književnog prevoditelja za vaš sljedeći nakladnički projekt?</p>
-      <a href="#" class="btn-contact-cta dynamic-mail" data-user="davor.banovic" data-domain="gmail.com">Pošalji upit</a>
+      <a href="#" class="btn-contact-cta dynamic-mail" data-user="davor.banovic" data-domain="gmail.com">Pošaljite upit</a>
     </div>
   </div>
 </section>

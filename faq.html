@@ -1,0 +1,51 @@
+---
+layout: default
+title: "Često postavljena pitanja | Za urednike i nakladnike"
+permalink: /faq/
+---
+
+<section class="container page-section">
+  <div class="faq-header">
+    <h1 class="page-title">Često postavljena pitanja</h1>
+    <p class="section-lead">Informacije o prevoditeljskom pristupu, žanrovskoj specijalizaciji i uvjetima suradnje za urednike i izdavačke kuće.</p>
+  </div>
+
+  <div class="faq-list">
+    {% for item in site.data.faq %}
+    <details class="faq-item" {% if forloop.first %}open{% endif %}>
+      <summary class="faq-question">
+        <h3>{{ item.question }}</h3>
+        <span class="faq-icon">+</span>
+      </summary>
+      <div class="faq-answer">
+        <p>{{ item.answer }}</p>
+      </div>
+    </details>
+    {% endfor %}
+  </div>
+
+  <div class="faq-cta">
+    <h3>Imate dodatnih pitanja ili konkretan rukopis?</h3>
+    <a href="{{ '/#contact' | relative_url }}" class="btn">Pošaljite upit za suradnju</a>
+  </div>
+</section>
+
+<!-- JSON-LD za LLM / SEO (Schema.org FAQPage) -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {% for item in site.data.faq %}
+    {
+      "@type": "Question",
+      "name": {{ item.question | jsonify }},
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": {{ item.answer | jsonify }}
+      }
+    }{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  ]
+}
+</script>
