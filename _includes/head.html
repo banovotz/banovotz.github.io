@@ -4,8 +4,8 @@
 <meta name="description" content="{{ site.description }}">
 <meta property="og:title" content="{{ page.title | default: site.title  }}">
 <meta property="og:description" content="{{ site.description }}">
-<meta property="og:image" content="{{ page.image | default: site.image }}">
-<meta property="og:url" content="{{ site.url }}">
+<meta property="og:image" content="{{ page.image | default: site.image | relative_url  }}">
+<meta property="og:url" content="{{ page.url | relative_url | default: site.url }}">
 <meta property="og:type" content="website">
 
 <!-- Clean, absolute path injection using Jekyll filters -->
