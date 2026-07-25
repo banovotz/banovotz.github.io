@@ -6,7 +6,7 @@ layout: default
   <!-- Zaglavlje Posta -->
   <header class="post-header text-center">
     {% if page.category %}
-      <span class="post-category">{{ page.category }}</span>
+    <span class="note-category">{{ post.category | replace: "-", " " }}</span>
     {% endif %}
     
     <h1 class="post-title" itemprop="headline">{{ page.title }}</h1>

@@ -2,7 +2,7 @@
 title: 'Kako smo preveli ''The Moon Is a Harsh Mistress'': Evolucija jednog naslova'
 layout: post
 date: '2026-07-25 10:00:00 +0200'
-category: Case Study
+category: Case-Study
 ---
 
 Prijevod naslova često je najvidljiviji, ali i najzahtjevniji dio rada na književnom djelu. Kada se radi o kultnom SF klasiku Roberta A. Heinleina — *The Moon Is a Harsh Mistress* — naslov nije samo ime knjige; on je tematska okosnica čitavog romana, filozofija života na Mjesecu i stilska zagonetka u samo šest riječi.
@@ -18,7 +18,7 @@ Glavni izazovi s kojima smo se suočili bili su lingvističke i kulturološke pr
    * *Harsh* može označavati nešto surovo, nemilosrdno, strogo, okrutno ili opako.
    * *Mistress* istovremeno označava gospodaricu, vladaricu, ali i ljubavnicu (ženu u izvanbračnoj vezi).
 
-### Od "lošeg gospodara" do finalne verzije
+### Od "lošeg gospodara" do konačnog rješenja
 
 Na samom početku, jedna od prvih radnih ideja bila je pretvoriti izraz u opću poslovicu: *Mjesec je loš gospodar*. Iako je ta varijanta prenosila ideju o Mjesecu kao nemilosrdnom okruženju za život, gubila je svu emotivnu i poetsku komponentu izvornika. Mjesec u Heinleinovom svijetu nije samo "gospodar" koji vlada roditeljskom ili vojničkom stricom; on je hirovita, zahtjevna i opasna figura s kojom Mjesečani imaju duboko osoban, gotovo strastven i rizičan odnos.
 
@@ -30,7 +30,7 @@ Nakon višemjesečnog brusnog procesa, testiranja ritma izgovora i konzultacija 
 
 ### Zašto je ovo rješenje uspjelo?
 
-Odlukom da englesku riječ *Moon* prevedemo kao **Luna** (naziv kojim mjesec u romanu naziva jedna od mjesečevih kolonija) postigli smo dvoje: zadržali smo ženski rod neophodan za metriku metafore i ujedno odrazili specifičan sleng i terminologiju samih stanovnika Mjeseca u romanu. 
+Olukom da englesku riječ *Moon* prevedemo kao **Luna** postigli smo dvoje: zadržali smo ženski rod neophodan za metriku metafore i ujedno odrazili specifičan sleng i terminologiju samih stanovnika Mjeseca u romanu. 
 
 Spoj **"okrutna ljubavnica"** savršeno pogađa Heinleinovu bit — Mjesec je mjesto koje opčinjava, ali ne prašta ni najmanju pogrešku.
 

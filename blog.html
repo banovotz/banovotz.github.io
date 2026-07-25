@@ -18,7 +18,7 @@ permalink: /blog/
           {{ post.date | date: "%d.%m.%Y." }}
         </time>
         {% if post.category %}
-        <span class="note-category">{{ post.category }}</span>
+            <span class="note-category">{{ post.category | replace: "-", " " }}</span>
         {% endif %}
       </div>
 
