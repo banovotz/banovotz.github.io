@@ -120,14 +120,6 @@ layout: default
 </div>
 
 </section>
-<!---Contact Section-->
-<section id="contact">
-<div class="translation-cta">
-      <p>Trebate iskusnog književnog prevoditelja za vaš sljedeći nakladnički projekt?</p>
-      <a href="#" class="btn-contact-cta dynamic-mail" data-user="davor.banovic" data-domain="gmail.com">Pošaljite upit</a>
-    </div>
-  </div>
-</section>
 
 <!-- Sekcija: Prevoditeljske bilješke -->
 <section id="notes" class="notes-section container">
@@ -239,6 +231,40 @@ layout: default
          <a href="#contact" class="btn-hot">Kontaktirajte me</a> </div>
 </section>
 
+<!---Contact Section-->
+<section id="contact">
+  <section id="contact" class="contact-section container">
+  <div class="contact-header text-center">
+    <h2 class="section-title">Stupimo u kontakt</h2>
+    <p class="section-lead">Imate upit za prijevod, želite dogovoriti ogledni tekst ili imate pitanje? Pošaljite poruku.</p>
+  </div>
+
+  <form action="https://api.web3forms.com/submit" method="POST" class="web3form">
+    <!-- Web3Forms Access Key -->
+    <input type="hidden" name="access_key" value="b1f55229-2745-409b-99da-74a2a78c4192">
+    
+    <!-- Bot Spam Zaštita (Honeypot) -->
+    <input type="checkbox" name="botcheck" class="hidden" style="display: none;">
+
+    <div class="form-group">
+      <label for="name">Ime i prezime / Izdavač</label>
+      <input type="text" id="name" name="name" placeholder="npr. Marko Marković" required>
+    </div>
+
+    <div class="form-group">
+      <label for="email">E-mail adresa</label>
+      <input type="email" id="email" name="email" placeholder="vaš.email@domena.hr" required>
+    </div>
+
+    <div class="form-group">
+      <label for="message">Vaša poruka ili detalji projekta</label>
+      <textarea id="message" name="message" rows="5" placeholder="Napišite kratak opis rukopisa, okvirni rok ili pitanje..." required></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block">Pošaljite poruku &rarr;</button>
+  </form>
+</section>
+  
 
  
 
@@ -321,15 +347,4 @@ layout: default
 
 
 
-<!-- Floating Contact Action Button matching the custom `--accent-color` rule paths -->
-<a href="#" 
-   class="floating-contact-btn dynamic-mail" 
-   data-user="davor.banovic" 
-   data-domain="gmail.com"
-   aria-label="Kontaktirajte me putem e-pošte">
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-        <polyline points="22,6 12,13 2,6"></polyline>
-    </svg>
-</a>
 

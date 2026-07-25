@@ -1097,3 +1097,101 @@
 .nav-previous, .nav-next {
   max-width: 48%;
 }
+
+/* --- Contact Section & Web3Form Styles --- */
+.contact-section {
+  max-width: 680px; /* Optimalna širina za formu */
+  margin: 1rem auto;
+  padding: 0 1.5rem;
+}
+
+.contact-header {
+  margin-bottom: 2.5rem;
+}
+
+.web3form {
+  background-color: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 12px;
+  padding: 2.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--heading-color, #1a202c);
+  margin-bottom: 0.5rem;
+}
+
+/* Polja za unos (input & textarea) */
+.web3form input[type="text"],
+.web3form input[type="email"],
+.web3form textarea {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--text-color, #2d3748);
+  background-color: var(--input-bg, #f8fafc);
+  border: 1.5px solid var(--border-color, #cbd5e1);
+  border-radius: 6px;
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.web3form textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+/* Stanje pri fokusu (klik u polje) */
+.web3form input:focus,
+.web3form textarea:focus {
+  outline: none;
+  background-color: #ffffff;
+  border-color: var(--accent-color, #0066cc);
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.15);
+}
+
+/* Placeholder tekst */
+.web3form ::placeholder {
+  color: #a0aec0;
+  opacity: 1;
+}
+
+/* Gumb za slanje */
+.btn-block {
+  width: 100%;
+  padding: 0.95rem;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #ffffff;
+  background-color: var(--accent-color, #0066cc);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  margin-top: 0.5rem;
+}
+
+.btn-block:hover {
+  background-color: var(--accent-hover, #0052a3);
+}
+
+.btn-block:active {
+  transform: translateY(1px);
+}
+
+/* Responzivnost za manje ekrane */
+@media (max-width: 640px) {
+  .web3form {
+    padding: 1.5rem;
+  }
+}
