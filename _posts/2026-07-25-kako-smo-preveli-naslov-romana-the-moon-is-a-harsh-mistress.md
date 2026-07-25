@@ -18,7 +18,7 @@ Glavni izazovi s kojima smo se suočili bili su lingvističke i kulturološke pr
    * *Harsh* može označavati nešto surovo, nemilosrdno, strogo, okrutno ili opako.
    * *Mistress* istovremeno označava gospodaricu, vladaricu, ali i ljubavnicu (ženu u izvanbračnoj vezi).
 
-### Od "lošeg gospodara" do konačnog rješenja
+### Od "lošeg gospodara" do finalne verzije
 
 Na samom početku, jedna od prvih radnih ideja bila je pretvoriti izraz u opću poslovicu: *Mjesec je loš gospodar*. Iako je ta varijanta prenosila ideju o Mjesecu kao nemilosrdnom okruženju za život, gubila je svu emotivnu i poetsku komponentu izvornika. Mjesec u Heinleinovom svijetu nije samo "gospodar" koji vlada roditeljskom ili vojničkom stricom; on je hirovita, zahtjevna i opasna figura s kojom Mjesečani imaju duboko osoban, gotovo strastven i rizičan odnos.
 
