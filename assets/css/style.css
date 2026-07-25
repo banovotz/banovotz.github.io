@@ -890,3 +890,210 @@
   background-color: var(--card-bg, #f4f4f4);
   border-radius: 8px;
 }
+/* --- Prevoditeljske Bilješke (Notes / Blog) --- */
+.notes-section {
+  padding: 4rem 0;
+}
+
+.notes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-top: 2.5rem;
+  margin-bottom: 3rem;
+}
+
+.note-card {
+  background-color: var(--card-bg, #ffffff);
+  border: 1px solid var(--border-color, #e5e5e5);
+  border-radius: 8px;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.note-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+.note-card-meta {
+  font-size: 0.85rem;
+  color: var(--text-muted, #777);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.note-category {
+  background-color: var(--accent-light, #eef6ff);
+  color: var(--accent-color, #0066cc);
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.note-card-title {
+  font-size: 1.25rem;
+  line-height: 1.4;
+  margin: 0 0 0.75rem 0;
+}
+
+.note-card-title a {
+  color: var(--heading-color, #111);
+  text-decoration: none;
+}
+
+.note-card-title a:hover {
+  color: var(--accent-color, #0066cc);
+}
+
+.note-card-excerpt {
+  font-size: 0.95rem;
+  color: var(--text-color, #444);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  flex-grow: 1;
+}
+
+.note-read-more {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--accent-color, #0066cc);
+  text-decoration: none;
+}
+
+.note-read-more:hover {
+  text-decoration: underline;
+}
+
+.center-btn-wrapper {
+  text-align: center;
+}
+/* --- Single Post Layout --- */
+.post-container {
+  max-width: 780px; /* Optimalna širina za udobno čitanje teksta */
+  margin: 3rem auto 5rem auto;
+  padding: 0 1.5rem;
+}
+
+.post-header {
+  margin-bottom: 2.5rem;
+}
+
+.post-category {
+  display: inline-block;
+  background-color: var(--accent-light, #eef6ff);
+  color: var(--accent-color, #0066cc);
+  padding: 0.3rem 0.8rem;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.post-title {
+  font-size: 2.4rem;
+  line-height: 1.25;
+  color: var(--heading-color, #111);
+  margin-bottom: 0.75rem;
+}
+
+.post-meta {
+  font-size: 0.95rem;
+  color: var(--text-muted, #666);
+}
+
+/* Tipografija samog teksta unutar posta */
+.post-content {
+  font-size: 1.125rem; /* 18px za ugodno čitanje */
+  line-height: 1.8;
+  color: var(--text-color, #2b2b2b);
+}
+
+.post-content p {
+  margin-bottom: 1.5rem;
+}
+
+.post-content h2 {
+  font-size: 1.75rem;
+  margin: 2.5rem 0 1rem 0;
+  color: var(--heading-color, #111);
+}
+
+.post-content h3 {
+  font-size: 1.35rem;
+  margin: 2rem 0 1rem 0;
+}
+
+.post-content blockquote {
+  border-left: 4px solid var(--accent-color, #0066cc);
+  padding-left: 1.25rem;
+  margin: 1.8rem 0;
+  font-style: italic;
+  color: #555;
+}
+
+.post-content ul, 
+.post-content ol {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.post-content li {
+  margin-bottom: 0.5rem;
+}
+
+/* Podnožje posta & CTA */
+.post-divider {
+  border: 0;
+  height: 1px;
+  background: var(--border-color, #e0e0e0);
+  margin: 3.5rem 0 2.5rem 0;
+}
+
+.post-cta {
+  background-color: var(--card-bg, #f9f9f9);
+  padding: 2rem;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.post-cta h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.post-cta p {
+  margin-bottom: 1.25rem;
+  color: #555;
+}
+
+/* Navigacija između postova */
+.post-navigation {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.post-navigation a {
+  color: var(--accent-color, #0066cc);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.post-navigation a:hover {
+  text-decoration: underline;
+}
+
+.nav-previous, .nav-next {
+  max-width: 48%;
+}

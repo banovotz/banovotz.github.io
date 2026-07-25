@@ -1,0 +1,60 @@
+---
+layout: default
+---
+
+<article class="post-container container" itemscope itemtype="https://schema.org/BlogPosting">
+  <!-- Zaglavlje Posta -->
+  <header class="post-header text-center">
+    {% if page.category %}
+      <span class="post-category">{{ page.category }}</span>
+    {% endif %}
+    
+    <h1 class="post-title" itemprop="headline">{{ page.title }}</h1>
+    
+    <div class="post-meta">
+      <time datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">
+        {{ page.date | date: "%d. %B %Y." }}
+      </time>
+      
+      {% if page.author %}
+        • <span itemprop="author">{{ page.author }}</span>
+      {% else %}
+        • <span itemprop="author">Davor Banović</span>
+      {% endif %}
+    </div>
+  </header>
+
+  <!-- Sadržaj Posta -->
+  <div class="post-content" itemprop="articleBody">
+    {{ content }}
+  </div>
+
+  <!-- Podnožje Posta (Poziv na akciju & Navigacija) -->
+  <footer class="post-footer">
+    <hr class="post-divider" />
+    
+    <div class="post-cta">
+      <h3>Planirate izdanje ili tražite ogledni prijevod?</h3>
+      <p>Otkrijte kako specifičan pristup tekstu i poštivanje rokova mogu unaprijediti vaš projekt.</p>
+      <a href="{{ '/#contact' | relative_url }}" class="btn">Stupite u kontakt</a>
+    </div>
+
+    <!-- Navigacija: Prethodni / Sljedeći post -->
+    <nav class="post-navigation">
+      <div class="nav-previous">
+        {% if page.previous.url %}
+          <a href="{{ page.previous.url | relative_url }}">
+            &larr; <span>{{ page.previous.title }}</span>
+          </a>
+        {% endif %}
+      </div>
+      <div class="nav-next">
+        {% if page.next.url %}
+          <a href="{{ page.next.url | relative_url }}">
+            <span>{{ page.next.title }}</span> &rarr;
+          </a>
+        {% endif %}
+      </div>
+    </nav>
+  </footer>
+</article>
