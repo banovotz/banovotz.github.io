@@ -3,6 +3,7 @@ title: 'Kako smo preveli ''The Moon Is a Harsh Mistress'': Evolucija jednog nasl
 layout: post
 date: '2026-07-25 10:00:00 +0200'
 category: Case-Study
+image: assets/images/luna.jpeg
 ---
 
 Prijevod naslova često je najvidljiviji, ali i najzahtjevniji dio rada na književnom djelu. Kada se radi o kultnom SF klasiku Roberta A. Heinleina — *The Moon Is a Harsh Mistress* — naslov nije samo ime knjige; on je tematska okosnica čitavog romana, filozofija života na Mjesecu i stilska zagonetka u samo šest riječi.
