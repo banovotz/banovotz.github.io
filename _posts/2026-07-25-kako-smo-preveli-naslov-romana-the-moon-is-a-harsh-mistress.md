@@ -8,7 +8,7 @@ image: assets/images/luna.jpeg
 
 Prijevod naslova često je najvidljiviji, ali i najzahtjevniji dio rada na književnom djelu. Kada se radi o kultnom SF klasiku Roberta A. Heinleina — *The Moon Is a Harsh Mistress* — naslov nije samo ime knjige; on je tematska okosnica čitavog romana, filozofija života na Mjesecu i stilska zagonetka u samo šest riječi.
 
-Proces traženja pravog rješenja na hrvatskom jeziku bio je trojni dijalog — urednik, lektorica i ja pretresali smo opcije i vagali nijanse gotovo tijekom cijelog perioda rada na rukopisu.
+Urednik, lektorica i ja pretresali smo opcije i vagali nijanse gotovo tijekom cijelog perioda rada na rukopisu.
 
 ### Problem roda i semantička višeznačnost
 
@@ -19,9 +19,9 @@ Glavni izazovi s kojima smo se suočili bili su lingvističke i kulturološke pr
    * *Harsh* može označavati nešto surovo, nemilosrdno, strogo, okrutno ili opako.
    * *Mistress* istovremeno označava gospodaricu, vladaricu, ali i ljubavnicu (ženu u izvanbračnoj vezi).
 
-### Od "lošeg gospodara" do konačnog rješenja
+### Od "lošeg gospodara" do finalne verzije
 
-Na samom početku, jedna od prvih radnih ideja bila je pretvoriti izraz u opću poslovicu: *Mjesec je loš gospodar*. Iako je ta varijanta prenosila ideju o Mjesecu kao nemilosrdnom okruženju za život, gubila je svu emotivnu i poetsku komponentu izvornika. Mjesec u Heinleinovom svijetu nije samo "gospodar" koji vlada roditeljskom ili vojničkom stricom; on je hirovita, zahtjevna i opasna figura s kojom Mjesečani imaju duboko osoban, gotovo strastven i rizičan odnos.
+Na samom početku, jedna od prvih radnih ideja bila je pretvoriti izraz u opću poslovicu: *Mjesec je loš gospodar*. Iako je ta varijanta prenosila ideju o Mjesecu kao nemilosrdnom okruženju za život, gubila je svu emotivnu i poetsku komponentu izvornika. Mjesec u Heinleinovom svijetu nije samo "gospodar" koji vlada roditeljskom ili vojničkom stegoom; on je hirovita, zahtjevna i opasna figura s kojom Mjesečani imaju duboko osoban, gotovo strastven i rizičan odnos.
 
 Premještanjem težišta s "gospodara" natrag na višeslojno značenje riječi *mistress*, shvatili smo da ključ leži u kontrastu između privlačnosti i opasnosti.
 
