@@ -1,0 +1,11 @@
+- slug: "case-study"
+  name: "Case Study"
+  description: "Detaljne analize i priče iza kulisa konkretnih prevodilačkih projekata."
+
+- slug: "prevoditeljske-biljeske"
+  name: "Prevoditeljske bilješke"
+  description: "Razmišljanja o jeziku, književnosti i izazovima prevođenja."
+
+- slug: "najave"
+  name: "Najave i vijesti"
+  description: "Novosti o novim izdanjima, radionicama i projektima."

@@ -2,7 +2,7 @@
 title: 'Kako smo preveli ''The Moon Is a Harsh Mistress'': Evolucija jednog naslova'
 layout: post
 date: '2026-07-25 10:00:00 +0200'
-category: Case-Study
+category: case-study
 image: assets/images/luna.jpeg
 ---
 

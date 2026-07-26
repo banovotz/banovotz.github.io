@@ -1,0 +1,23 @@
+<nav class="category-nav" aria-label="Kategorije članaka">
+  <span class="category-nav-label"></span>
+  <ul class="category-list">
+    <!-- Gumb za sve članke -->
+    <li class="category-item">
+      <a href="{{ '/blog/' | relative_url }}" 
+         class="category-link {% if page.url == '/blog/' %}is-active{% endif %}">
+        Sve
+      </a>
+    </li>
+    
+    <!-- Dinamičke kategorije iz _data/categories.yml -->
+    {% for cat in site.data.categories %}
+      {% assign cat_url = '/' | append: cat.slug | append: '/' %}
+      <li class="category-item">
+        <a href="{{ cat_url | relative_url }}" 
+           class="category-link {% if page.url == cat_url %}is-active{% endif %}">
+          {{ cat.name }}
+        </a>
+      </li>
+    {% endfor %}
+  </ul>
+</nav>
