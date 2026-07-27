@@ -3,7 +3,7 @@
   <ul class="category-list">
     <!-- Gumb za sve članke -->
     <li class="category-item">
-      <a href="{{ '/blog/' | relative_url }}" 
+      <a href="{{ '/blog/' | relative_url }}#posts" 
          class="category-link {% if page.url == '/blog/' %}is-active{% endif %}">
         Sve
       </a>
@@ -13,7 +13,7 @@
     {% for cat in site.data.categories %}
       {% assign cat_url = '/' | append: cat.slug | append: '/' %}
       <li class="category-item">
-        <a href="{{ cat_url | relative_url }}" 
+        <a href="{{ cat_url | relative_url }}#posts" 
            class="category-link {% if page.url == cat_url %}is-active{% endif %}">
           {{ cat.name }}
         </a>
