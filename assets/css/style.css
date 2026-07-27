@@ -895,23 +895,38 @@
   padding: 4rem 0;
 }
 
-.notes-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-  margin-top: 2.5rem;
-  margin-bottom: 3rem;
+/* Globalna zaštita za dimenzije */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
+/* Grid kontejner */
+.notes-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+/* Pojedinačna kartica */
 .note-card {
   background-color: var(--card-bg, #ffffff);
-  border: 1px solid var(--border-color, #e5e5e5);
-  border-radius: 8px;
+  width: 100%;
+  max-width: 100%;
   padding: 1.75rem;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-sizing: border-box;
+  overflow: hidden; /* Sijeca bilo kakav prelijevajući sadržaj */
+  overflow-wrap: break-word;
+}
+
+/* Responzivnost za veće ekrane */
+@media (min-width: 768px) {
+  .notes-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
 }
 
 .note-card:hover {
