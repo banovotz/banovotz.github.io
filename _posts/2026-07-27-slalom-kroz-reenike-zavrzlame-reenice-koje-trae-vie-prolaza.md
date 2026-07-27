@@ -6,7 +6,7 @@ date: '2026-07-27 08:24:00'
 image: assets/images/michael-starkie-d-LCEwE9H_A-unsplash.jpg
 ---
 
-Ako ste kojim slučajem i sami književni prevoditelj ili urednik i imate iskustva s prevođenjem književnih tekstova, možda vam je poznat onaj osjećaj kada prvi prijevod neke rečenice treba i nekoliko iteracija da zazvuči ne samo ispravno, nego i tečno, kao izvorna rečenica. 
+Ako ste kojim slučajem i sami književni prevoditelj ili urednik i imate iskustva s prevođenjem ili pak uređivanjem književnih tekstova, možda vam je poznat onaj osjećaj kada prvi prijevod neke rečenice treba i nekoliko iteracija da zazvuči ne samo ispravno, nego i tečno, kao izvorna rečenica. 
 
 Danas sam se upravo zatekao u takovom okršaju s ovom rečenicom iz romana Michaela Bishopa No Enemy but Time (sam naslov svakako daje temu za još jedan blog post 😊).
 
