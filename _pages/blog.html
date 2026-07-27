@@ -10,12 +10,13 @@ permalink: /blog/
     <p class="section-lead">Arhiva mojih razmišljanja o književnom prevođenju, filozofiji, tehnologiji i još ponečemu...</p>
   </div>
 <div>{% include category_menu.html %}</div>  
+
   <div class="notes-grid">
     {% for post in site.posts %}
     <article class="note-card">
       <div class="note-card-meta">
         <time datetime="{{ post.date | date_to_xmlschema }}">
-          {{ post.date | date: "%d.%m.%Y." }}
+   { post.date | date: "%d.%m.%Y." }
         </time>
         {% if post.category %}
             <span class="note-category">{{ post.category | replace: "-", " " }}</span>
