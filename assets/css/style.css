@@ -917,6 +917,8 @@
   max-width: 100%;
   padding: 1.75rem;
   display: flex;
+  flex-direction: column;
+
   box-sizing: border-box;
   overflow: hidden; /* Sijeca bilo kakav prelijevajući sadržaj */
   overflow-wrap: break-word;
