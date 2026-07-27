@@ -6,6 +6,8 @@ description: >-
 url: https://davorbanovic.com
 image: https://davorbanovic.com/assets/images/back.jpg
 
+timezone: Europe/Zagreb
+
 include:
   - _pages
   - prijevodi
