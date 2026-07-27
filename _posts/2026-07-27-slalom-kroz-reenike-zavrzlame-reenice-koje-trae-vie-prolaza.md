@@ -6,9 +6,9 @@ date: '2026-07-27 08:24:00'
 image: assets/images/michael-starkie-d-LCEwE9H_A-unsplash.jpg
 ---
 
-Svatko tko je ikada prevodio književni tekst zna onaj specifičan osjećaj kada pred sobom ima rečenicu koja na engleskom teče potpuno prirodno, ali se pri izravnom prenošenju na hrvatski pretvara u tromo, drveno štivo.
+Ako ste kojim slučajem i sami književni prevoditelj ili urednik i imate iskustva s prevođenjem književnih tekstova, možda vam je poznat onaj osjećaj kada prvi prijevod neke rečenice treba i nekoliko iteracija da zazvuči ne samo ispravno, nego i tečno, kao izvorna rečenica. 
 
-Uzmimo za primjer ovu englesku rečenicu iz romana Michaela Bishopa No Enemy but Time (sam naslov svakako daje temu za još jedan blog post 😊)
+Danas sam se upravo zatekao u takovom okršaju s ovom rečenicom iz romana Michaela Bishopa No Enemy but Time (sam naslov svakako daje temu za još jedan blog post 😊).
 
 > *„It was a long way to Joshua’s motor court, a distance complicated by campers, pickup trucks, and boat trailers, but, breezily negotiating this strung-out slalom, he got them there in less than an hour.”*
 
