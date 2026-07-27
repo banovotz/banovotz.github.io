@@ -18,20 +18,20 @@ Na prvo čitanje, intuicija i brzi ritam prevodilačkog rada povuku nas prema iz
 
 Na papiru, ovaj prijevod točno prenosi sve informacije. No, zvuči li prirodno? Ne baš. Rečenica štuca, konstrukcija *„stigao ih je tamo dovesti”* djeluje teško, a bezlični početak odaljuje čitatelja od likova i radnje.
 
-Da bismo došli do tečnog i ritmički točnog teksta, moramo proći kroz nekoliko poliranja. Pogledajmo kako izgleda taj put, korak po korak.
+Da bismo došli do tečnog i ritmički točnog teksta, moramo proći kroz nekoliko poliranja. Pogledajmo kako izgleda taj put, prolaz po prolaz.
 
----
 
-### 1. Korak: Prebacivanje iz bezličnog u aktivni subjekt
+
+### 1. prolaz: Prebacivanje iz bezličnog u aktivni subjekt
 
 * **Prvotno:** *„Bilo je daleko do Joshuina auto-kampa...”*
 * **Izmjena:** *„Bili su daleko od Joshuina auto-kampa, a put su im dodatno komplicirali...”*
 
 Engleska konstrukcija *„It was a long way...”* u hrvatskom često zvuči bezlično i hladno. Budući da se u automobilu nalaze likovi koji putuju, uvođenjem zamjenice (*„bili su daleko”*, *„put su im...”*) hvatamo perspektivu putnika. Rečenica odmah dobiva na dinamici i organski se veže uz likove.
 
----
 
-### 2. Korak: Doziranje pridjeva i glagolskih priloga (*strung-out slalom*)
+
+### 2. prolaz: Doziranje pridjeva i glagolskih priloga (*strung-out slalom*)
 
 * **Prvotno:** *„...poletno vozeći taj razvučeni slalom...”*
 * **Izmjena:** *„...s poletom svladavajući taj napeti slalom...”*
@@ -40,25 +40,25 @@ Izraz *„breezily negotiating”* sadrži finu dozu lakoće i vještine. Glagol
 
 Također, *strung-out* u kontekstu zgusnutog prometa i zaobilaženja vozila bolje odgovara predodžbi *napetog* ili *razvučenog* slaloma u kojem vlada dinamika. Prebacivanjem priloga *poletno* u imeničku konstrukciju *„s poletom”* i izborom glagola *svladavajući*, dobivamo eleganciju umjesto doslovnog gomilanja priloga uz glagol.
 
----
 
-### 3. Korak: Popravljanje glagolskih fraza (*got them there*)
+
+### 3. prolaz: Popravljanje glagolskih fraza (*got them there*)
 
 * **Prvotno:** *„...stigao ih je tamo dovesti...”*
 * **Izmjena:** *„...uspio ih je dovesti tamo...”*
 
 Engleska fraza *„he got them there”* nosi ideju uspjeha unatoč preprekama na putu. U prvom pokušaju, konstrukcija *„stigao ih je... dovesti”* stvara nespretnu i pleonastičnu vezu. Zamjenom glagola *stizati* glagolom *uspjeti* (*„uspio ih je dovesti”*), jasno naglašavamo da je vozač uspješno savladao sve te kampere i prikolice.
 
----
 
-### 4. Korak: Prirodni ritam i izričaj vremenskih jedinica
+
+### 4. prolaz: Prirodni ritam i izričaj vremenskih jedinica
 
 * **Prvotno:** *„...za manje od jednog sata.”*
 * **Izmjena:** *„...za manje od sat vremena.”*
 
 Završetak rečenice često nosi kadencu cijele misli. Izraz *„jednog sata”* zvuči administrativno i doslovno preslikano iz engleskog *„an hour”*. U hrvatskom svakodnevnom i književnom jeziku fraza *„sat vremena”* teče znatno prirodnije.
 
----
+
 
 ### Finalna rečenica
 
