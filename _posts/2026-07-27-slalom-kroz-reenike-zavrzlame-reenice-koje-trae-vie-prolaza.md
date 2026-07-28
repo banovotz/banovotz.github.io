@@ -27,7 +27,7 @@ Da bismo došli do tečnog i ritmički točnog teksta, moramo proći kroz nekoli
 * **Prvotno:** *„Bilo je daleko do Joshuina auto-kampa...”*
 * **Izmjena:** *„Bili su daleko od Joshuina auto-kampa, a put su im dodatno komplicirali...”*
 
-Engleska konstrukcija *„It was a long way...”* u hrvatskom često zvuči bezlično i hladno. Budući da se u automobilu nalaze likovi koji putuju, uvođenjem zamjenice (*„bili su daleko”*, *„put su im...”*) hvatamo perspektivu putnika. Rečenica odmah dobiva na dinamici i organski se veže uz likove.
+Engleska konstrukcija *„It was a long way...”* u hrvatskom često zvuči bezlično i hladno. Budući da naši likovi putuju motociklom, uvođenjem zamjenice (*„bili su daleko”*, *„put su im...”*) hvatamo perspektivu putnika. Rečenica odmah dobiva na dinamici i organski se veže uz likove.
 
 
 
