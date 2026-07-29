@@ -21,7 +21,7 @@ Glavni izazovi s kojima smo se suočili bili su lingvističke i kulturološke pr
 
 ### Od "lošeg gospodara" do finalne verzije
 
-Na samom početku, jedna od prvih radnih ideja bila je pretvoriti izraz u opću poslovicu: *Mjesec je loš gospodar*. Iako je ta varijanta prenosila ideju o Mjesecu kao nemilosrdnom okruženju za život, gubila je svu emotivnu i poetsku komponentu izvornika. Mjesec u Heinleinovom svijetu nije samo "gospodar" koji vlada roditeljskom ili vojničkom stegoom; on je hirovita, zahtjevna i opasna figura s kojom Mjesečani imaju duboko osoban, gotovo strastven i rizičan odnos.
+Na samom početku, jedna od prvih radnih ideja bila je pretvoriti izraz u opću poslovicu: *Mjesec je loš gospodar*. Iako je ta varijanta prenosila ideju o Mjesecu kao nemilosrdnom okruženju za život, gubila je svu emotivnu i poetsku komponentu izvornika. Mjesec u Heinleinovom svijetu nije samo "gospodar" koji vlada roditeljskom ili vojničkom stegom; on je hirovita, zahtjevna i opasna figura s kojom Mjesečani imaju duboko osoban, gotovo strastven i rizičan odnos.
 
 Premještanjem težišta s "gospodara" natrag na višeslojno značenje riječi *mistress*, shvatili smo da ključ leži u kontrastu između privlačnosti i opasnosti.
 
@@ -31,7 +31,7 @@ Nakon višemjesečnog brusnog procesa, testiranja ritma izgovora i konzultacija 
 
 ### Zašto je ovo rješenje uspjelo?
 
-Olukom da englesku riječ *Moon* prevedemo kao **Luna** postigli smo dvoje: zadržali smo ženski rod neophodan za metriku metafore i ujedno odrazili specifičan sleng i terminologiju samih stanovnika Mjeseca u romanu. 
+Odlukom da englesku riječ *Moon* prevedemo kao **Luna** postigli smo dvoje: zadržali smo ženski rod neophodan za metriku metafore i ujedno odrazili specifičan sleng i terminologiju samih stanovnika Mjeseca u romanu. 
 
 Spoj **"okrutna ljubavnica"** savršeno pogađa Heinleinovu bit — Mjesec je mjesto koje opčinjava, ali ne prašta ni najmanju pogrešku.
 
