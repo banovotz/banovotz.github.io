@@ -2,7 +2,7 @@
 title: Sudjelujem na natječaju CRAFT 2026 Flash Prose Prize
 layout: post
 category: najave
-date: '2026-07-29 17:17:34'
+date: '2026-07-29 08:17:34'
 ---
 
 Sudjelujem na natječaju za "flash" prozu na enleskom - CRAFT 2026 Flash Prose Prize - cijenjenog američkog online književnog časopisa posvećenog istraživanju umjetnosti proze s naglaskom na elemente spisateljskog zanata. 
