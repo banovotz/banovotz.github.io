@@ -3,7 +3,7 @@ title: 'Kriju li jednostavne rečenice zamku za prevoditelja?: Kako se othrvati 
   izvorniku'
 layout: post
 category: prevoditeljske-biljeske
-date: '2026-11-26 00:00:00'
+date: '2026-08-11 10:05:00'
 image: assets/images/martine-mussies-bumuBbsiavM-unsplash.jpg
 ---
 
