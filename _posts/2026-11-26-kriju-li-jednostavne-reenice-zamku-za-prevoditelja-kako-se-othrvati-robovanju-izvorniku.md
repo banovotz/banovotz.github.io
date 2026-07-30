@@ -21,10 +21,10 @@ Iako je ovaj prijevod točan i prenosi sve informacije iz izvornika, u njemu se 
 
 Raščlanimo proces rafiniranja korak po korak.
 
-### 1. Korak: Izbor prave riječi za izdavački format (paperbacks)
-* **Prvotno:**  "...najistaknutiji džepni romani...”
+### 1. Korak: Izbor riječi za izdavački format i mjesto izlaganja
+* **Prvotno:**  "...najistaknutiji džepni romani u otvorenom izlogu...”
 
- * **Izmjena:**  "...najistaknutija džepna edicija...”
+ * **Izmjena:**  "...najistaknutija džepna edicija u izlogu...”
 
 Pojam *paperbacks* u ovom se kontekstu odnosi na seriju romana -- što je i jasno iz konteksta izvorne rečenice. U nastavku rečenice slijedi dakle fraza "serija foto-romana”,  pa ponavljanje riječi romani (džepni romani ... serija foto-romana) stvara nepotrebnu tautologiju. Izborom pojma "džepna edicija” izbjegavamo ponavljanje i preciznije opisujemo izdavački format, ali isto tako ćemo, osobito starije čitateljstvo, podsjetiti na izraz koji se kod nas upotrebljavao za serije roto-romana u osamdesetima, upravo u vremenu kada se ova radnja i odvija.
 
