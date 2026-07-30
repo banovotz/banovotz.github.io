@@ -15,7 +15,7 @@ Pogledajmo ovu kompleksnu, ali narativno sjajno posloženu rečenicu iz izvornik
 
 Naš prvi prolaz i radna verzija prijevoda izgledali su ovako:
 
-> *„Pod izrazito neobičnim okolnostima, u spavaćoj sobi Petea i Lily Grier, bivših stanodavaca obitelji Monegal, Bill Rivenbark se srušio i zamalo izgubio svijest. Pete Grier u to je vrijeme bio izvan savezne države, gledajući utakmicu u New Orleansu s rođakom iz Teksasa, a Lily je u primjernoj panici nazvala Jeannette da dođe i spasi **joj** oca prije nego što Peggy, koja je spavala dolje u starom stanu Monegalovih, otkrije da joj je muž gore s Lily, a ne ispružen pokraj nje u bračnome miru.”*
+> *„Pod izrazito neobičnim okolnostima, u spavaćoj sobi Petea i Lily Grier, bivših stanodavaca obitelji Monegal, Bill Rivenbark se srušio i zamalo izgubio svijest. Pete Grier u to je vrijeme bio izvan savezne države, gledajući utakmicu u New Orleansu s rođakom iz Teksasa, a Lily je u primjernoj panici nazvala Jeannette da dođe i spasi **joj** oca prije nego što Peggy, koja je spavala dolje u starom stanu Monegalovih, otkrije da joj je muž gore s Lily, a ne ispružen pokraj nje u bračnome počinku.”*
 
 ### Zašto je prvi prijevod izvrstan, ali ga jedna riječ u potpunosti ruši?
 
