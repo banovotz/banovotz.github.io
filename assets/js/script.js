@@ -56,30 +56,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateSlider();
 });
 
-
-
-document.addEventListener('DOMContentLoaded', () => {
-    // Select all protected email elements on the page
-    const mailButtons = document.querySelectorAll('.dynamic-mail');
-    
-    mailButtons.forEach(btn => {
-        function revealEmail() {
-            const user = btn.getAttribute('data-user');
-            const domain = btn.getAttribute('data-domain');
-            
-            // Reconstruct link on the fly only when interacting
-            if (user && domain && !btn.href.startsWith('mailto:')) {
-                btn.href = `mailto:${user}@${domain}`;
-            }
-        }
-
-        // Trigger assembly when the user shows intent to interact
-        btn.addEventListener('mouseenter', revealEmail);
-        btn.addEventListener('focus', revealEmail);
-        btn.addEventListener('touchstart', revealEmail);
-    });
-});
-
 document.addEventListener("DOMContentLoaded", function() {
     const text = "BRIDGING WORLDS ACROSS THE REPUBLIC OF LETTERS";
     const speed = 50; // Brzina tipkanja
