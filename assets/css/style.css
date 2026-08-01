@@ -1330,7 +1330,7 @@
 
 /* Linkovi */
 .breadcrumb a {
-  color: #2b6cb0; /* Diskretna plava ili boja tvog brenda */
+  color: var(--accent-color);
   text-decoration: none;
   transition: color 0.2s ease;
 }
