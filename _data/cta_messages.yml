@@ -1,0 +1,14 @@
+- id: "izdanje_ogledni"
+  heading: "Planirate izdanje i tražite ogledni književni prijevod?"
+  text: "Javite se s tekstom! 📖"
+  button_text: "Stupite u kontakt"
+
+- id: "zanrovska_ekspertiza"
+  heading: "Trebate književni prijevod specifičnog žanra?"
+  text: "Bilo da je riječ o znanstvenoj fantastici, spekulativnoj fikciji ili zahtjevnoj prozi..."
+  button_text: "... zatražite ponudu"
+
+- id: "zvi_zauzeti"
+  heading: "Svi vaši stalni književni prevoditelji s engleskog su zauzeti?"
+  text: "Provjerite moju dostupnost! 😊"
+  button_text: "Javite se za suradnju"

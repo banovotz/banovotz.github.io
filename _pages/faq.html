@@ -24,10 +24,14 @@ permalink: /faq/
     {% endfor %}
   </div>
 
-  <div class="faq-cta">
-    <h3>Imate dodatnih pitanja ili konkretan rukopis?</h3>
-    <a href="{{ '/#contact' | relative_url }}" class="btn">Pošaljite upit za suradnju</a>
-  </div>
+{% assign random_cta = site.data.cta_messages | sample %}
+
+<div class="post-cta">
+  <h3>{{ random_cta.heading }}</h3>
+  <p>{{ random_cta.text }}</p>
+  <a href="{{ '/#contact' | relative_url }}" class="btn">{{ random_cta.button_text }}</a>
+</div>
+
 </section>
 
 <!-- JSON-LD za LLM / SEO (Schema.org FAQPage) -->
