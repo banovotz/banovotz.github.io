@@ -1340,19 +1340,7 @@
   text-decoration: underline;
 }
 
-/* Aktivni (posljednji) element — sam naslov posta */
-.breadcrumb li.active span {
-  color: #4a5568;
-  font-weight: 500;
-  /* Ako je naslov dugakak, možemo ga skratiti s tri točke na mobitelima: */
-  max-width: 250px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.breadcrumb a:focus {
+  outline: none;
 }
 
-@media (min-width: 768px) {
-  .breadcrumb li.active span {
-    max-width: none; /* Na računalu prikaži puni naslov */
-  }
-}

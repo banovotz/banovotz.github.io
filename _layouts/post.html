@@ -29,6 +29,7 @@ layout: default
         {% for cat in site.data.categories %}   
          <span itemprop="name">{% if page.category == cat.slug %} {{ cat.name }} {% break %}  {% endif %} </span>     
     {% endfor %} </a>
+      <meta itemprop="position" content="3" />
           </li>
    
     
