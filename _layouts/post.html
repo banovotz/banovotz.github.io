@@ -3,13 +3,51 @@ layout: default
 ---
 
 <article class="post-container container" itemscope itemtype="https://schema.org/BlogPosting">
+
+<!--Breadcrumbs-->
+  <nav class="breadcrumb-container" aria-label="Breadcrumb">
+  <ol class="breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList">
+    
+    <!-- 1. Home -->
+    <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+      <a itemprop="item" href="/">
+        <span itemprop="name">Početna</span>
+      </a>
+      <meta itemprop="position" content="1" />
+    </li>
+
+    <!-- 2. Blog -->
+    <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+      <a id="post" itemprop="item" href="/blog/">
+        <span itemprop="name">Blog</span>
+      </a>
+      <meta itemprop="position" content="2" />
+    </li>
+
+    <!-- 3. Kategorija (npr. Prevođenje ili SF) -->
+    <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+      <a itemprop="item" href="/blog/kategorija/knjizevno-prevodjenje/">
+        <span itemprop="name">Književno prevođenje</span>
+      </a>
+      <meta itemprop="position" content="3" />
+    </li>
+
+    <!-- 4. Aktualni Post (Neaktivni link/Current page) -->
+    <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" class="active" aria-current="page">
+      <span itemprop="name">Kako prevesti sf klasike bez gubitka ritma</span>
+      <meta itemprop="position" content="4" />
+    </li>
+
+  </ol>
+</nav>
+
   <!-- Zaglavlje Posta -->
   <header class="post-header text-center">
+
     {% if page.category %}
     <span class="note-category">{{ post.category | replace: "-", " " }}</span>
     {% endif %}
-    
-    <h1 class="post-title" itemprop="headline">{{ page.title }}</h1>
+    <h1  class="post-title" itemprop="headline">{{ page.title }}</h1>
     
     <div class="post-meta">
       <time datetime="{{ page.date | date_to_xmlschema }}" itemprop="datePublished">
@@ -23,6 +61,7 @@ layout: default
       {% endif %}
     </div>
   </header>
+
 
   <!-- Sadržaj Posta -->
   <div class="post-content" itemprop="articleBody">

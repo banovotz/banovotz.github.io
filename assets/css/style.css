@@ -1296,3 +1296,63 @@
     font-size: 0.85rem;
   }
 }
+/* Kontejner */
+.breadcrumb-container {
+  margin-bottom: 1.5rem;
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 0.9rem;
+}
+
+/* Lista */
+.breadcrumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Pojedinačni elementi */
+.breadcrumb li {
+  display: flex;
+  align-items: center;
+  color: #6c757d; /* Neutralna siva za tekst */
+}
+
+/* Separator (kosa crta) između elemenata */
+.breadcrumb li + li::before {
+  content: "/";
+  padding: 0 0.5rem;
+  color: #a0aec0;
+  font-weight: 400;
+}
+
+/* Linkovi */
+.breadcrumb a {
+  color: #2b6cb0; /* Diskretna plava ili boja tvog brenda */
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.breadcrumb a:hover {
+  color: #1a202c;
+  text-decoration: underline;
+}
+
+/* Aktivni (posljednji) element — sam naslov posta */
+.breadcrumb li.active span {
+  color: #4a5568;
+  font-weight: 500;
+  /* Ako je naslov dugakak, možemo ga skratiti s tri točke na mobitelima: */
+  max-width: 250px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 768px) {
+  .breadcrumb li.active span {
+    max-width: none; /* Na računalu prikaži puni naslov */
+  }
+}

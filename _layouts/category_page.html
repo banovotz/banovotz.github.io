@@ -50,7 +50,7 @@ layout: default
         {{ post.excerpt | strip_html | truncatewords: 30 }}
       </p>
 
-      <a href="{{ post.url | relative_url }}" class="note-read-more">
+      <a href="{{ post.url | relative_url }}#post" class="note-read-more">
         Pročitaj više &rarr;
       </a>
     </article>
