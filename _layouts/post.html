@@ -18,26 +18,20 @@ layout: default
 
     <!-- 2. Blog -->
     <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-      <a id="post" itemprop="item" href="/blog/">
+      <a id="post" itemprop="item" href="/blog/#posts">
         <span itemprop="name">Blog</span>
       </a>
       <meta itemprop="position" content="2" />
     </li>
-
-    <!-- 3. Kategorija (npr. Prevođenje ili SF) -->
-    <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-      <a itemprop="item" href="/blog/kategorija/knjizevno-prevodjenje/">
-        <span itemprop="name">Književno prevođenje</span>
-      </a>
-      <meta itemprop="position" content="3" />
-    </li>
-
-    <!-- 4. Aktualni Post (Neaktivni link/Current page) -->
-    <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem" class="active" aria-current="page">
-      <span itemprop="name">Kako prevesti sf klasike bez gubitka ritma</span>
-      <meta itemprop="position" content="4" />
-    </li>
-
+     <!-- 3. Kategorija  -->
+      <li itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+        <a itemprop="item"  href="{{ page.category | relative_url }}#posts">
+        {% for cat in site.data.categories %}   
+         <span itemprop="name">{% if page.category == cat.slug %} {{ cat.name }} {% break %}  {% endif %} </span>     
+    {% endfor %} </a>
+          </li>
+   
+    
   </ol>
 </nav>
 
