@@ -57,20 +57,11 @@
   <div class="container main-nav">
     <a href="{{ '/#' | relative_url }}" class="logo">Davor Banović</a>
     <ul>
-      <li id="mobile-content" style="display: none;"><a href="{{ '/' | relative_url }}">Home</a></li>
       <li><a href="{{ '/#knjige' | relative_url }}">Knjige</a></li>
       <li><a href="{{ '/#knjizevno-prevodenje' | relative_url }}">Prevođenje</a></li>
       <li><a href="{{ '/blog' | relative_url }}">Blog</a></li>
 
        </ul>
   </div>
-
-  <script>
-  if (/Mobi|Android|iPhone/i.test(navigator.userAgent)) {
-    document.getElementById('mobile-content').style.display = 'block';
-  } else {
-    document.getElementById('desktop-content').style.display = 'block';
-  }
-</script>
 
 </header>
