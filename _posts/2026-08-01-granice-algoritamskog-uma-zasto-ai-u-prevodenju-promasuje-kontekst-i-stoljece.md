@@ -10,9 +10,9 @@ Ovih dana puno sam razmišljao o AI-u u književnom prevođenju. Naravno da nisa
 
 Pitaju se dakle mnogi prevoditelji, a tako i ja, hoće li nam AI uzeti posao i treba  li ga uopće koristiti. Ukratko, moje mišljenje je da AI hoće uzeti posao nekim prevoditeljima i već ga uzima, ali da nije došao kraj ljudskim prevoditeljima jer AI zbog razloga koje ću niže iznijeti, po mom mišljenju naprosto ne može zamijeniti čovjeka u prevođenju.  Svoje mišljenje pokušat ću obrazložiti na najlakši mogući način - analogijom. Znamo da analogije inače nisu dobre za obrazlaganje, osim u jednom slučaju. Najbolji (i zapravo jedini opravdani) *use-case* za analogiju jest didaktička i konceptualna vizualizacija.  Analogija se primjenjuje kada slika služi kao "skela" (scaffolding) za razumijevanje nečega što je apstraktno, nevidljivo ili tehnički složeno. 
 
-Za sada ću se kloniti argumentacije o etičkoj ispravnosti LLM-ovog znanja o milijunima autorskih tekstova. I ljudski prevoditelj, bez obzira na to što se ne može mjeriti u količinama s ChatGPT-om ili Geminijem, svoje poznavanje jezika temelji i na čitanju knjiga na tom jeziku. Je li neki od tih knjiga na svoj *čitač* prevoditelj skinuo s etički upitnih repozitorija, je druga tema, zar ne?
+Za sada ću se kloniti argumentacije o etičkoj ispravnosti LLM-ovog znanja o milijunima autorskih tekstova. I ljudski prevoditelj, bez obzira na to što se ne može mjeriti u količinama s ChatGPT-om ili Geminijem, svoje poznavanje jezika temelji i na čitanju knjiga na tom jeziku. Je li neku od tih knjiga na svoj *čitač* prevoditelj skinuo s etički upitnih repozitorija, je druga tema, zar ne?
  
-### Arthur C. Clarke o teškoćama u razumijevanju i prevođenju
+### Arthur C. Clarke o teškoćama u razumijevanju
 
 Razmišljajući dakle, pala mi je na pamet zgoda iz Clarkeovog djela koja zorno govori o izmicanju razumijevanja. I opet ću reći, s punim razumijevanjem da su analogije zapravo slikovite paralele i kao takve  nisu svemoćne u argumentaciji, uzeo bih ipak tu zgode kao analogije za objašnjenje što ja mislim da AI može a što ne. 
 
@@ -30,7 +30,7 @@ Zašto povećanje broja parametara ne može automatski premostiti jaz prema aute
 
 #### 1. Kulturni implicit i "soba Luja XVI"
 
-Kada prevodimo frazu, idiom ili stilski obojenu rečenicu, mi ne prevodimo samo riječi — prevodimo povijest, podtekst i asocijacije. AI može nepogrešivo identificirati stilski registar, ali često "promaši stoljeće" ili ton jer ne razumije *zašto* je autor odabrao baš taj izraz. U nedostatku konteksta iza samog teksta (čovjeku treba udobna i lijepa soba), on će ishalucinirati output (sobi ništa nedostaje osim što je Bowmanu u potpunosti strana). 
+Kada prevodimo frazu, idiom ili stilski obojenu rečenicu, mi ne prevodimo samo riječi — prevodimo povijest, podtekst i asocijacije. AI može nepogrešivo identificirati stilski registar, ali često "promaši stoljeće" ili ton jer ne razumije *zašto* je autor odabrao baš taj izraz. U nedostatku konteksta iza samog teksta (čovjeku treba udobna i lijepa soba), on će ishalucinirati output (sobi ništa ne nedostaje osim što je Bowmanu u potpunosti strana). 
 
 Prevoditelj s ljudskim iskustvom prepoznaje ironiju, nostalgiju, kulturalne odrednice ili podsmijeh koji se kriju u pottekstu, dok ih algoritam shvaća na razini uzorka i prijevod se svodi na najveću vjerojatnost, a ne na iskustvenu sigurnost u značenje.
 
