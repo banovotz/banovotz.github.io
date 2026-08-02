@@ -14,9 +14,9 @@ Za sada ću se kloniti argumentacije o etičkoj ispravnosti LLM-ovog znanja o mi
  
 ### Arthur C. Clarke o teškoćama u razumijevanju
 
-Razmišljajući dakle, pala mi je na pamet zgoda iz Clarkeovog djela koja zorno govori o izmicanju razumijevanja. I opet ću reći, s punim razumijevanjem da su analogije zapravo slikovite paralele i kao takve  nisu svemoćne u argumentaciji, uzeo bih ipak tu zgode kao analogije za objašnjenje što ja mislim da AI može a što ne. 
+Razmišljajući dakle, pala mi je na pamet zgoda iz Clarkeovog djela koja zorno govori o izmicanju razumijevanja. I opet ću reći, s punim razumijevanjem da su analogije zapravo slikovite paralele i kao takve  nisu svemoćne u argumentaciji, uzeo bih ipak tu literarnu zgodu kao analogiju za objašnjenje što ja mislim da AI može a što ne. 
 
-U kultnom Clarkeovom romanu *2001: Odiseji u svemiru*,  vanzemaljska inteligencija za astronauta Davida Bowmana rekonstruira hotelsku sobu u stilu francuskog klasicizma. Za njih je to "Ljudsko stanište" — tehnički besprijekorno kopirano iz zemaljskih TV signala. No, soba je u svojoj funkcionalnosti i doživljaju promašena; inteligencija koja ju je stvorila posjedovala je sve podatke, ali niti mrvicu ljudskog, proživljenog konteksta. Soba je izgledala točno, ali se u njoj osjećala hladnoća potpune nerazumljivosti.
+U kultnom Clarkeovom romanu *2001: Odiseji u svemiru*,  vanzemaljska inteligencija za astronauta Davida Bowmana rekonstruira hotelsku sobu u stilu francuskog klasicizma. Za njih je to "Ljudsko stanište" — tehnički besprijekorno kopirano iz zemaljskih TV signala. No, soba je u svojoj funkcionalnosti i doživljaju promašena; inteligencija koja ju je stvorila posjedovala je sve podatke, ali niti mrvicu ljudskog, proživljenog konteksta. Soba je izgledala točno, ali se u njoj osjećala hladnoća potpunog nerazumijevanja.
 
 ### Što AI uistinu radi kada "prevodi"?
 
@@ -44,7 +44,7 @@ Da bismo neki tekst točno prenijeli, često moramo razumjeti fizičko i emotivn
 
 #### 4. Implicitno znanje o tome koji prijevod je *ispravan*
 
-Na neki način, ovdje se zrcali Humeov zakon, filozofsko načelo preka kojem se iz činjeničnih tvrdnji o tome kakvo stanje stvari jest ne može logički izvesti normativna tvrdnja o tome kakvo ono treba biti. Strojno prevođenje radi isključivo na razini činjeničnog opisa jezika (statistika, vjerojatnost, uzorci). LLM *zna* kako ljudi inače pišu (činjenično stanje – *jest*). Međutim, stroj *ne razumije* implicitnu normativnost – društvena pravila, kulturni bonton i moralna očekivanja koja čitatelj ciljnog jezika podrazumijeva kao pravilo ponašanja (kako se u trenutku „treba” izraziti).
+Na neki način, ovdje se zrcali Humeov zakon, filozofsko načelo prema kojem se iz činjeničnih tvrdnji o tome kakvo stanje stvari jest ne može logički izvesti normativna tvrdnja o tome kakvo ono treba biti. Strojno prevođenje radi isključivo na razini činjeničnog opisa jezika (statistika, vjerojatnost, uzorci). LLM *zna* kako ljudi inače pišu (činjenično stanje – *jest*). Međutim, stroj *ne razumije* implicitnu normativnost – društvena pravila, kulturni bonton i moralna očekivanja koja čitatelj ciljnog jezika podrazumijeva kao pravilo ponašanja (kako se u trenutku „treba” izraziti).
 
 ### Prevođenje je ljudski pothvat čovjeka kojem *ljudsko*  nije strano
 
