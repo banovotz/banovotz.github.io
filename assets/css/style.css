@@ -333,7 +333,7 @@
             .main-nav .logo {
                 display: none; /* Hide logo on mobile nav */
             }
-            .main-nav ul li { margin: 0 1rem; }
+            .main-nav ul li { margin: 0 10px; }
             
             .about-content, .book-item, .book-item:nth-child(even) {
                 flex-direction: column;
