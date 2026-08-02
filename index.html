@@ -137,7 +137,7 @@ layout: default
       </div>
 
       <h3 class="note-card-title">
-        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+        <a href="{{ post.url | relative_url }}#post">{{ post.title }}</a>
       </h3>
 
       <p class="note-card-excerpt">
@@ -148,7 +148,7 @@ layout: default
         {% endif %}
       </p>
 
-      <a href="{{ post.url | relative_url }}" class="note-read-more">
+      <a href="{{ post.url | relative_url }}#post" class="note-read-more">
         Pročitaj više &rarr;
       </a>
     </article>
