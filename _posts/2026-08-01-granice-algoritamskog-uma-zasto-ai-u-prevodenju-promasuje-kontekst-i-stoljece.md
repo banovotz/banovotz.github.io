@@ -12,7 +12,7 @@ Pitaju se dakle mnogi prevoditelji, a tako i ja, hoće li nam AI uzeti posao i t
 
 Za sada ću se kloniti argumentacije o etičkoj ispravnosti LLM-ovog znanja o milijunima autorskih tekstova. I ljudski prevoditelj, bez obzira na to što se ne može mjeriti u količinama s ChatGPT-om ili Geminijem, svoje poznavanje jezika temelji i na čitanju knjiga na tom jeziku. Je li neki od tih knjiga na svoj *čitač* prevoditelj skinuo s etički upitnih repozitorija, je druga tema, zar ne?
  
- ### Arthur C. Clarke o teškoćama u razumijevanju i prevođenju
+### Arthur C. Clarke o teškoćama u razumijevanju i prevođenju
 
 Razmišljajući dakle, pala mi je na pamet zgoda iz Clarkeovog djela koja zorno govori o izmicanju razumijevanja. I opet ću reći, s punim razumijevanjem da su analogije zapravo slikovite paralele i kao takve  nisu svemoćne u argumentaciji, uzeo bih ipak tu zgode kao analogije za objašnjenje što ja mislim da AI može a što ne. 
 
