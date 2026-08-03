@@ -4,6 +4,7 @@ title: 'Književni prevoditelj na tromeđi između autorskog pera, obrta i samos
 layout: post
 category: case-study
 image: assets/images/elist-nguyen-_DmyrWg1JtE-unsplash.jpg
+description: 'Isplati li se književnom prevoditelju otvoriti obrt ili ići u HZSU? Pročitajte analizu autorskih ugovora, troškova i hibridnog modela rada iz prve ruke.'
 ---
 
 Kada s kolegama književnim prevoditeljima razgovaram o financijskoj strani našeg zanata, razgovor se gotovo uvijek usmjeri prema poznatim koordinatama: autorskim ugovorima, koliko tko plaća po kartici, uviđavnim ili manje uviđavnim rokovima isplate, te vječnim pregovorima s izdavačima. No, u nekom trenutku profesionalnog puta — bilo zbog povećanog opsega posla, želje za širenjem vlastitih djelatnosti ili jednostavnog slaganja osobne slagalice — u zraku se pojavi to tiho, ali konkretno pitanje: Treba li mi možda vlastiti obrt? Isplati li se ući u te vode, osobito ako prevodim književnost? 

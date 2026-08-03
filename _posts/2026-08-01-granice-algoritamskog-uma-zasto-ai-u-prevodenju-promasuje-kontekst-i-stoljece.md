@@ -4,6 +4,7 @@ layout: post
 category: prevoditeljske-biljeske
 image: assets/images/spaceodyssey.jpeg
 date: '2026-08-02 10:05:47'
+description: 'Zašto AI ne može zamijeniti ljudskog književnog prevoditelja? Esej o granicama LLM-a, Clarkeovoj 2001: Odiseji, nativnoj intuiciji i problemu konteksta.'
 ---
 
 Ovih dana puno sam razmišljao o AI-u u književnom prevođenju. Naravno da nisam jedini. To je velika tema među književnim prevoditeljima diljem svijeta. Nedavno je Europsko vijeće udruga književnih prevodilaca (CEATL) provelo [istraživanje](https://www.ceatl.eu/wp-content/uploads/2024/04/CEATL_AI_survey_for_members.pdf){:target="_blank"} među prevoditeljima upravo na ovu temu. Također, [glavna tema](https://www.ceatl.eu/petra-e-international-conference-creative-translation-in-the-age-of-ai){:target="_blank"} ovogodišnje međunerodne konferencije Europske platforma za književno prevođenje (PETRA-E) bila je upravo *kreativno prevođenje u doba AI-a.*

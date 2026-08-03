@@ -5,6 +5,7 @@ layout: post
 category: prevoditeljske-biljeske
 date: '2026-08-11 10:05:00'
 image: assets/images/martine-mussies-bumuBbsiavM-unsplash.jpg
+description: 'Nisu samo komplicirane rečenice teške u književnom prevođenju. Otkrijte kako se u književnim prijevodima s engleskog othrvati "robovanju" jeziku izvornika, a zadržati prirodni ritam jezika.'
 ---
 
 Neki romani naizgled su laki za prevođenje. To bi svakako mogli reći za roman Michaela Bishopa No Enemy but Time. Bishopove rečenice djeluju jednostavno i izravno i naizgled nezahtjevno. No, počesto obiluju specifičnim ritmom i kulturnim žanrovskim referencama koje traže dodatnu pažnju. To nam daje temu za bar još jedan blog. No, u ovom bih se posvetio lakoći padanja u napast "robovanja" jednostavnosti izvornika.  Ako se kao književni prevoditelj nečeg bojim, onda je to da čitatelj vidi da moj tekst vrišti "loš prijevod" tako što "robuje" rečdničnim konstrkucijama izvornika.  Prevodeći ovaj roman, nekim  sam se rečenicama morao vraćati upravo zato jer sam ih  prevedio previše "lako" ili, bolje reći "olako".

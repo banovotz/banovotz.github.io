@@ -4,6 +4,7 @@ layout: post
 category: prevoditeljske-biljeske
 date: '2026-07-27 08:24:00'
 image: assets/images/michael-starkie-d-LCEwE9H_A-unsplash.jpg
+description: 'Kako od doslovnog teksta doći do tečnog književnog prijevoda? Pročitajte analizu višestrukih prolaza kroz zahtjevnu rečenicu iz romana Michaela Bishopa.'
 ---
 
 Ako ste kojim slučajem i sami književni prevoditelj ili urednik i imate iskustva s prevođenjem ili pak uređivanjem književnih tekstova, možda vam je poznat onaj osjećaj kada prvi prijevod neke rečenice treba i nekoliko iteracija da zazvuči ne samo ispravno, nego i tečno, kao izvorna rečenica. 

@@ -4,6 +4,7 @@ layout: post
 date: '2026-08-18 10:19:22'
 category: prevoditeljske-biljeske
 image: assets/images/sherise-van-dyk-NVIe0UYOhU8-unsplash.jpg
+description: 'Analiza sitne zamke u književnom prevođenju: kako jedna krivo upotrijebljena zamjenica u prijevodu može promijeniti obiteljske odnose među likovima.'
 ---
 
 U književnom prevođenju postoje sitne, naizgled potpuno banalne riječi koje mogu proći neopaženo, a u stanju su napraviti tektonski poremećaj u radnji. Odličan primjer za to su posvojne i povratno-posvojne zamjenice (*moj*, *tvoj*, *njezin* vs. *svoj*). Ako ih krivo preslikamo iz engleskog jezika, tekst ni kriv ni dužan može dobiti potpuno novu, neželjenu i potencijalno incestuoznu dimenziju.
