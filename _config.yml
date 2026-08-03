@@ -24,3 +24,13 @@ exclude :
   - modes
   - nailta
 
+defaults:
+  - scope:
+      path: "" # Primenjuje se na sve datoteke u projektu
+      type: "posts" # Odnosi se samo na objave (posts)
+    values:
+      layout: "post"
+      author: "Davor Banović"
+      category: ""
+      image: ""
+      description: "" # Prazno polje koje te podsjeća da ga ispuniš
