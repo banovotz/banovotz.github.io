@@ -2,7 +2,7 @@ name: Deploy Jekyll with Minification
 
 on:
   push:
-    branches: ["main"]
+    branches: ["master"]
 
 permissions:
   contents: read
