@@ -1,4 +1,4 @@
-name: Deploy Jekyll with Minification
+name: Deploy Jekyll with Minification beta
 
 on:
   push:
