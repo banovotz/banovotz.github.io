@@ -15,6 +15,7 @@ include:
 
 plugins:
   - jekyll-sitemap
+  - jekyll-minifier
 
 exclude :
   - cards
@@ -34,3 +35,5 @@ defaults:
       category: ""
       image: ""
       description: "" # Prazno polje koje te podsjeća da ga ispuniš
+
+sass: { style: compressed }

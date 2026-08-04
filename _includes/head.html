@@ -11,6 +11,7 @@
 <!-- Clean, absolute path injection using Jekyll filters -->
 <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
 
+<link rel="canonical" href="{{ page.url | absolute_url }}" />
 
 <!-- Hotjar Tracking Code for https://davorbanovic.com/ -->
     <script>
@@ -49,7 +50,7 @@
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js');
+      navigator.serviceWorker.register('/assets/js/sw.js');
     });
   }
 </script>
