@@ -25,6 +25,7 @@ jobs:
         with:
           ruby-version: '3.2'
           bundler-cache: true
+          bundler: default # Dozvoljava prilagodbu bez rušenja u frozen modu
 
       - name: Setup Pages
         id: pages
