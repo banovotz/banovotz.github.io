@@ -7,13 +7,11 @@ GEM
     bigdecimal (4.1.2)
     colorator (1.1.0)
     concurrent-ruby (1.3.7)
-    cssminify2 (2.1.0)
     csv (3.3.5)
     em-websocket (0.5.3)
       eventmachine (>= 0.12.9)
       http_parser.rb (~> 0)
     eventmachine (1.2.7)
-    execjs (2.10.1)
     ffi (1.17.4)
     ffi (1.17.4-aarch64-linux-gnu)
     ffi (1.17.4-aarch64-linux-musl)
@@ -53,7 +51,6 @@ GEM
     google-protobuf (4.35.1-x86_64-linux-musl)
       bigdecimal
       rake (~> 13.3)
-    htmlcompressor (0.4.0)
     http_parser.rb (0.8.1)
     i18n (1.15.2)
       concurrent-ruby (~> 1.0)
@@ -83,12 +80,6 @@ GEM
       sinatra-contrib (~> 4.0)
     jekyll-feed (0.17.0)
       jekyll (>= 3.7, < 5.0)
-    jekyll-minifier (0.2.2)
-      cssminify2 (~> 2.1.0)
-      htmlcompressor (~> 0.4)
-      jekyll (~> 4.0)
-      json-minify (~> 0.0.3)
-      terser (~> 1.2.3)
     jekyll-sass-converter (3.1.0)
       sass-embedded (~> 1.75)
     jekyll-seo-tag (2.9.0)
@@ -98,8 +89,6 @@ GEM
     jekyll-watch (2.2.1)
       listen (~> 3.0)
     json (2.21.1)
-    json-minify (0.0.3)
-      json (> 0)
     kramdown (2.5.2)
       rexml (>= 3.4.4)
     kramdown-parser-gfm (1.1.0)
@@ -183,8 +172,6 @@ GEM
       tilt (~> 2.0)
     terminal-table (3.0.2)
       unicode-display_width (>= 1.1.1, < 3)
-    terser (1.2.8)
-      execjs (>= 0.3.0, < 3)
     tilt (2.8.0)
     unicode-display_width (2.6.0)
     webrick (1.9.2)
@@ -214,7 +201,6 @@ DEPENDENCIES
   jekyll (~> 4.4.1)
   jekyll-admin
   jekyll-feed (~> 0.12)
-  jekyll-minifier
   jekyll-sitemap
   minima (~> 2.5)
   tzinfo (>= 1, < 3)
@@ -229,11 +215,9 @@ CHECKSUMS
   bundler (4.0.16) sha256=d6ca5dd440c24f9abce9844cf44cc8e18c6a553de65a47efb4544137af92c47d
   colorator (1.1.0) sha256=e2f85daf57af47d740db2a32191d1bdfb0f6503a0dfbc8327d0c9154d5ddfc38
   concurrent-ruby (1.3.7) sha256=4412caec3a5ea2e5fdc52076724c071a81f2c0593d83b2ac8cbb8ca63b3151b0
-  cssminify2 (2.1.0) sha256=406a0b95fdaab60132c6f1fbb47b4a30f9572d2ef523f806fb94a530d78c2bb1
   csv (3.3.5) sha256=6e5134ac3383ef728b7f02725d9872934f523cb40b961479f69cf3afa6c8e73f
   em-websocket (0.5.3) sha256=f56a92bde4e6cb879256d58ee31f124181f68f8887bd14d53d5d9a292758c6a8
   eventmachine (1.2.7) sha256=994016e42aa041477ba9cff45cbe50de2047f25dd418eba003e84f0d16560972
-  execjs (2.10.1) sha256=abe0ae028467eb8e30c10814eb934d07876a691aae7e803d813b7ce5a75e73f1
   ffi (1.17.4) sha256=bcd1642e06f0d16fc9e09ac6d49c3a7298b9789bcb58127302f934e437d60acf
   ffi (1.17.4-aarch64-linux-gnu) sha256=b208f06f91ffd8f5e1193da3cae3d2ccfc27fc36fba577baf698d26d91c080df
   ffi (1.17.4-aarch64-linux-musl) sha256=9286b7a615f2676245283aef0a0a3b475ae3aae2bb5448baace630bb77b91f39
@@ -255,19 +239,16 @@ CHECKSUMS
   google-protobuf (4.35.1-x86_64-darwin) sha256=66b62b4df00931018a692806df66393efa960d6d2b7da69735187249f950d3ee
   google-protobuf (4.35.1-x86_64-linux-gnu) sha256=c786439087512a3fbd199e9897d265b855f951d4027e218ea55e858d45969edd
   google-protobuf (4.35.1-x86_64-linux-musl) sha256=91890eb0002934a339fdb7d77a147c46b7474b6799db27872b747b905837f744
-  htmlcompressor (0.4.0) sha256=4630cf8ed46b563f0b49cc6028a3fe8c17a9067f2becd7c3a2aa5aaacefb1f9e
   http_parser.rb (0.8.1) sha256=9ae8df145b39aa5398b2f90090d651c67bd8e2ebfe4507c966579f641e11097a
   i18n (1.15.2) sha256=00f9eb62412fe593b2a65a97daa75300d37abb8f7202ec748e94b6d46a9dd1b5
   jekyll (4.4.1) sha256=4c1144d857a5b2b80d45b8cf5138289579a9f8136aadfa6dd684b31fe2bc18c1
   jekyll-admin (0.12.0) sha256=9a48cceace1bd5a58081ab474619fbe863252a921503c9f9c35ac66505670d2f
   jekyll-feed (0.17.0) sha256=689aab16c877949bb9e7a5c436de6278318a51ecb974792232fd94d8b3acfcc3
-  jekyll-minifier (0.2.2) sha256=f0a182b98b369492b9d93f1dd064223cf04a10ba31c49e1535f28fe35764ee19
   jekyll-sass-converter (3.1.0) sha256=83925d84f1d134410c11d0c6643b0093e82e3a3cf127e90757a85294a3862443
   jekyll-seo-tag (2.9.0) sha256=0260015a8e1df9bf195cdfb0c675b7b2883fd8cbf12556e1c1cbe36a831c6852
   jekyll-sitemap (1.4.0) sha256=0de08c5debc185ea5a8f980e1025c7cd3f8e0c35c8b6ef592f15c46235cf4218
   jekyll-watch (2.2.1) sha256=bc44ed43f5e0a552836245a54dbff3ea7421ecc2856707e8a1ee203a8387a7e1
   json (2.21.1) sha256=13a43df75d95641443f5702dff350f237164a9d811ff0f2c2800d4d980220583
-  json-minify (0.0.3) sha256=fd38ef93867332c2340aaf1b57335782ab5958fe6fb3ca7a8aba1469f0bf08ae
   kramdown (2.5.2) sha256=1ba542204c66b6f9111ff00dcc26075b95b220b07f2905d8261740c82f7f02fa
   kramdown-parser-gfm (1.1.0) sha256=fb39745516427d2988543bf01fc4cf0ab1149476382393e0e9c48592f6581729
   liquid (4.0.4) sha256=4fcfebb1a045e47918388dbb7a0925e7c3893e58d2bd6c3b3c73ec17a2d8fdb3
@@ -307,7 +288,6 @@ CHECKSUMS
   sinatra (4.2.1) sha256=b7aeb9b11d046b552972ade834f1f9be98b185fa8444480688e3627625377080
   sinatra-contrib (4.2.1) sha256=10d091c944d268aa910c618ea40a3c3ebe0533e6e32990d84af92235a3d26b4a
   terminal-table (3.0.2) sha256=f951b6af5f3e00203fb290a669e0a85c5dd5b051b3b023392ccfd67ba5abae91
-  terser (1.2.8) sha256=64931851d173bc5be0a90bd4570d751be5e83b2b063ccb750dbdc11a7b1d14db
   tilt (2.8.0) sha256=ba472eb2716fe1e04112d6d219a9dae938ec09a6a1e2ad3ecc7922e79bde3721
   unicode-display_width (2.6.0) sha256=12279874bba6d5e4d2728cef814b19197dbb10d7a7837a869bab65da943b7f5a
   webrick (1.9.2) sha256=beb4a15fc474defed24a3bda4ffd88a490d517c9e4e6118c3edce59e45864131
