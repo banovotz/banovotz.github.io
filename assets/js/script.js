@@ -57,29 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 document.addEventListener("DOMContentLoaded", function() {
-    const text = "BRIDGING WORLDS ACROSS THE REPUBLIC OF LETTERS";
-    const speed = 50; // Brzina tipkanja
-    let index = 0;
-
-    function typeWriter() {
-        if (index < text.length) {
-            document.getElementById("typewriter").innerHTML += text.charAt(index);
-            index++;
-            setTimeout(typeWriter, speed);
-        } else {
-            // Kada tekst završi s ispisom, ukloni kursor
-            const cursor = document.getElementById("typewriter-cursor");
-            if (cursor) {
-                cursor.remove();
-            }
-        }
-    }
-
-    // Pokreni efekt tipkanja
-    typeWriter();
-});
-
-document.addEventListener("DOMContentLoaded", function() {
   const openBtn = document.getElementById("open-translations-modal");
   const closeBtn = document.getElementById("close-translations-modal");
   const modal = document.getElementById("translations-modal");
