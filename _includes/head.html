@@ -34,14 +34,15 @@
     "@type": "Person",
     "name": "Davor Banović",
     "jobTitle": ["Author", "Literary Translator"],
+    "url": "https://davorbanovic.com/",
     "knowsAbout": [
       "Creative Writing",  
       "Literary Translation",
       "Theology",
       "Philosophy",
-      "IT"
+      "IT",
       {% for item in site.data.translations %}
-        "Translation of {{ item.author | escape }}"{% if forloop.last == false %},{% endif %}
+        "Translated into Croatian {{ item.author | escape }}, Croatian title: {{ item.title | escape }}"{% if forloop.last == false %},{% endif %}
       {% endfor %}
     ]
   }
