@@ -2,6 +2,7 @@
 title: 'Književni prevoditelj na tromeđi između autorskog pera, obrta i samostalnog
   umjetnika: Pogled iznutra'
 layout: post
+date: '2026-08-03 10:10:00 +0200' 
 category: case-study
 image: assets/images/elist-nguyen-_DmyrWg1JtE-unsplash.jpg
 description: 'Isplati li se književnom prevoditelju otvoriti obrt ili ići u HZSU? Pročitajte analizu autorskih ugovora, troškova i hibridnog modela rada iz prve ruke.'
