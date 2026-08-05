@@ -7,6 +7,11 @@
 <meta property="og:image" content="{{ page.image | default: site.image | relative_url  }}">
 <meta property="og:url" content="{{ page.url | relative_url | default: site.url }}">
 <meta property="og:type" content="website">
+<meta name="twitter:site" content="@banovotz">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="{{ page.title | default: site.title | xml_escape }}">
+<meta name="twitter:description" content="{{ page.description | default: site.description | xml_escape }}">
+<meta name="twitter:image" content="{{ page.image | default: site.image | absolute_url }}">
 
 <!-- Clean, absolute path injection using Jekyll filters -->
 <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
