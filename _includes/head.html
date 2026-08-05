@@ -46,8 +46,8 @@
       "Theology",
       "Philosophy",
       "IT",
-      {% for item in site.data.translations %}
-        "Translated into Croatian {{ item.author | escape }}, Croatian title: {{ item.title | escape }}"{% if forloop.last == false %},{% endif %}
+      {% for item in site.data.alltranslations %}
+        "Translated into Croatian {{ item.author | escape }}, {{ item.original_title | escape }}"{% if forloop.last == false %},{% endif %}
       {% endfor %}
     ]
   }
