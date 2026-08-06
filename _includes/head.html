@@ -48,7 +48,11 @@
       "IT",
       {% for item in site.data.alltranslations %}
         "Translated into Croatian {{ item.author | escape }}, {{ item.original_title | escape }}"{% if forloop.last == false %},{% endif %}
-      {% endfor %}
+      {% endfor %},
+       {% for item in site.data.books %}
+       "Author of {{ item.title | escape }}"{% if forloop.last == false %},{% endif %}
+
+       {% endfor %}
     ]
   }
 }
