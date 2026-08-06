@@ -49,5 +49,5 @@ Ova jednostavna situacija iz svakodnevice izvrstan je primjer kako funkcionira k
 
 Ako prostor ne komunicira jasno nova pravila (npr. uočljivijim oznakama ili jednostavnim uputama iznad samih artikala), kupac je prisiljen učiti "u hodu", stvarajući zastoj i za sebe i za druge.
 
-Na kraju, svi mi svakodnevno prevodimo simbole oko sebe: ikone na ekranima, brojeve na štandovima, raspored u prostoru. Pitanje je samo koliko je taj sustav intuitivan i pomaže li nam da do cilja stignemo tečno — ili nas prisiljava da posred trgovine stajemo i dešifriramo lubenicu.
+Na kraju, svi mi svakodnevno prevodimo simbole oko sebe: ikone na ekranima, brojeve na štandovima, raspored u prostoru. Pitanje je samo koliko je taj sustav intuitivan i pomaže li nam da do cilja stignemo tečno — ili nas tjera da si damo vremena da dešifriramo tu lubenicu.
 
