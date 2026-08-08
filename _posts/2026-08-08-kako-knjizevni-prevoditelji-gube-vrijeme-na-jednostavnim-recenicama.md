@@ -55,6 +55,6 @@ Pogledajmo evoluciju ove rečenice kroz glavu prevoditelja (u suboto u 3 sata uj
 **Dijagnoza:** Elegantan kompromis. Zvuči moderno, dinamično i dobro drži ritam odlomka. Jedini je problem što će prevoditelj sada provesti sljedećih 45 minuta uspoređujući varijante 4 i 6, dok mu se kava hladi.
 
 **Zaključak s terena:**
-Koja je verzija najbolja? Sve ovisi o tome što se događa u rečenici *prije* i rečenici *poslije*. I upravo je to čar (i kletva) ovog posla – nijedna rečenica nije otok za sebe.
+Koja je verzija najbolja? Sve ovisi o tome što se događa u rečenici *prije* i rečenici *poslije*. I upravo je to čar (i mana) ovog posla – nijedna rečenica nije otok za sebe.
 
-A sljedeći put kad netko kaže da je prevođenje samo "zamjena riječi", pošaljite im ovu planinu da ih malo zatrese! 💥
+A sljedeći put kad vam netko kaže da je prevođenje samo "zamjena riječi", pošaljite im razglednicu s jedne ovakve planine. 
