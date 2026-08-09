@@ -2,6 +2,8 @@
 layout: default
 title: "Prevoditeljske bilješke i ogledi"
 permalink: /blog/
+pagination:
+  enabled: true
 ---
 
 <section class="container page-section">
@@ -12,7 +14,7 @@ permalink: /blog/
 <div id="posts">&nbsp;</div>
   <div>{% include category_menu.html %}</div>  
   <div class="notes-grid">
-    {% for post in site.posts %}
+    {% for post in paginator.posts %}
     <article class="note-card">
       <div class="note-card-meta">
         <time datetime="{{ post.date | date_to_xmlschema }}">
@@ -37,4 +39,22 @@ permalink: /blog/
     </article>
     {% endfor %}
   </div>
+
+  <!-- Navigacija po stranicama -->
+{% if paginator.total_pages > 1 %}
+<nav class="pagination">
+  <p>&nbsp;</p>
+  {% if paginator.previous_page %}
+    <a href="{{ paginator.previous_page_path | relative_url }}" class="note-read-more">← Novije</a>
+  {% endif %}
+
+  <span>Stranica {{ paginator.page }} od {{ paginator.total_pages }}</span>
+
+  {% if paginator.next_page %}
+    <a href="{{ paginator.next_page_path | relative_url }}" class="note-read-more">Starije →</a>
+  {% endif %}
+</nav>
+{% endif %}
+  <p>&nbsp;</p>
+
 </section>

@@ -19,6 +19,7 @@ include:
 plugins:
   - jekyll-sitemap
   - jekyll-minifier
+  - jekyll-paginate-v2
 
 exclude :
   - cards
@@ -40,3 +41,17 @@ defaults:
       description: "" # Prazno polje koje te podsjeća da ga ispuniš
 
 sass: { style: compressed }
+
+# Postavke za glavnu paginaciju
+pagination:
+  enabled: true
+  per_page: 6                   # Koliko kartica po stranici
+  permalink: '/blog/:num/'      # Putanja za glavnu stranicu (npr. /page/2/)
+  title: ':title - Stranica :num'
+  limit: 0                     # 0 znači bez limita (svi postovi)
+  
+  # Postavke za paginaciju po kategorijama:
+  category_init:
+    enabled: true
+    per_page: 6
+    permalink: '/:category/page/:num/'
