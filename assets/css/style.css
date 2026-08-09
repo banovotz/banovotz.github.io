@@ -1533,3 +1533,62 @@ a.category-link.is-active:hover {
   font-weight: 600;
   font-size: 0.9rem;
 }
+
+/* Pozicioniranje glavne stavke s podmenijem */
+.main-nav ul li.has-dropdown {
+  position: relative;
+}
+
+/* Strellica pored naziva */
+.main-nav .arrow {
+  font-size: 0.75em;
+  margin-left: 4px;
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+/* Skrivanje podmenija po defaultu */
+.main-nav ul .dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #ffffff;
+  min-width: 210px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  border-radius: 4px;
+  padding: 8px 0;
+  z-index: 1000;
+  list-style: none;
+}
+
+/* Stilovi za linkove unutar podmenija */
+.main-nav ul .dropdown li {
+  display: block;
+  width: 100%;
+  margin: 0;
+}
+
+.main-nav ul .dropdown li a {
+  padding: 10px 16px;
+  display: block;
+  color: #333333;
+  text-decoration: none;
+  white-space: nowrap;
+  font-size: 0.95rem;
+  transition: background 0.2s ease;
+}
+
+.main-nav ul .dropdown li a:hover {
+  background-color: #f5f5f5;
+  color: #008080; /* Vaša primarna/brand boja */
+}
+
+/* Otvaranje podmenija na hover na računalu */
+.main-nav ul li.has-dropdown:hover .dropdown {
+  display: block;
+}
+
+.main-nav ul li.has-dropdown:hover .arrow {
+  transform: rotate(180deg);
+}

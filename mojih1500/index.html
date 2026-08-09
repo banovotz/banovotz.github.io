@@ -1,0 +1,287 @@
+---
+layout: default
+title: "Aplikacija za književne prevoditelje - Mojih 1500 — Prevoditeljski Ritam & Metrika"
+description: "Besplatan, 100% privatna web aplikacija koja književnim prevoditeljim olakšava praćennje ugovorenih projekata, rokova isporuke, broja prevedenih kartica, tempo rada... Unos trenutnog stanja uz uz OCR skeniranje Word counta."
+---
+
+<!-- CSS Stilovi za Landing Stranicu -->
+<style>
+  :root {
+    --pwa-primary: #008080;
+    --pwa-primary-hover: #006666;
+    --pwa-bg-card: #F8F5F2;
+    --pwa-text: #2B2D42;
+    --pwa-border: #E2DDD7;
+  }
+
+  .landing-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px 16px;
+    color: var(--pwa-text);
+  }
+
+  /* Hero Section */
+  .hero-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    align-items: center;
+    padding: 40px 0;
+  }
+
+  .hero-text h1 {
+    font-size: 2.4rem;
+    line-height: 1.2;
+    margin-bottom: 16px;
+    color: var(--pwa-text);
+  }
+
+  .hero-text p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #555;
+    margin-bottom: 24px;
+  }
+
+  .hero-cta-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .btn-pwa-main {
+    background-color: var(--pwa-primary);
+    color: #ffffff !important;
+    padding: 14px 24px;
+    border-radius: 6px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-block;
+    transition: background 0.2s ease;
+  }
+
+  .btn-pwa-main:hover {
+    background-color: var(--pwa-primary-hover);
+  }
+
+  .btn-pwa-secondary {
+    background-color: transparent;
+    color: var(--pwa-primary) !important;
+    border: 2px solid var(--pwa-primary);
+    padding: 12px 22px;
+    border-radius: 6px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-block;
+  }
+
+  .hero-image img {
+    width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.08);
+  }
+
+  /* Section Styling */
+  .landing-section {
+    padding: 48px 0;
+    border-top: 1px solid var(--pwa-border);
+  }
+
+  .section-title {
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 32px;
+  }
+
+  /* Grid Features & How-To */
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .feature-card, .step-card {
+    background: var(--pwa-bg-card);
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid var(--pwa-border);
+  }
+
+  .feature-card h3, .step-card h3 {
+    margin-top: 0;
+    font-size: 1.2rem;
+  }
+
+  /* PWA Install Guide */
+  .install-box {
+    background: #EBF5F5;
+    border-left: 4px solid var(--pwa-primary);
+    padding: 24px;
+    border-radius: 0 8px 8px 0;
+    margin-top: 24px;
+  }
+
+  .install-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  /* Mini Interactive Calculator (Dodatak) */
+  .calc-box {
+    background: var(--pwa-bg-card);
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid var(--pwa-border);
+    max-width: 600px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .calc-box input {
+    width: 120px;
+    padding: 8px;
+    font-size: 1rem;
+    text-align: center;
+    margin: 0 8px;
+  }
+
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .hero-section {
+      grid-template-columns: 1fr;
+      text-align: center;
+    }
+    .hero-cta-group {
+      justify-content: center;
+    }
+    .grid-3, .install-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<div class="landing-container">
+
+  <!-- HERO SECTION -->
+  <section class="hero-section">
+    <div class="hero-text">
+      <h1>Mojih 1500 — Održite savršen prevoditeljski ritam</h1>
+      <p>Aplikacija s kojom <b>pratite</b>:
+        <li>Ugovorene <b>prevoditeljske projekte</b></li>
+        <li><b>Rokove</b> isporuke</li> 
+        <li>Broja <b>prevedenih kartica</b></li>
+        <li><b>Tempo</b> rada...</li> <u>Bez tablica, bez stresa... </u>
+        <li>Uz <b>automatsko OCR skeniranje</b> trenutnog broja znakova u vašem prijevodu.</li></p>
+      <div class="hero-cta-group">
+        <a href="{{ '/mojih1500/app/' | relative_url }}" class="btn-pwa-main">🚀 Pokreni Aplikaciju</a>
+        <a href="#kako-radi" class="btn-pwa-secondary">Saznaj više</a>
+      </div>
+    </div>
+    <div class="hero-image">
+      <img src="./mockup1.png" alt="Mojih 1500 PWA Prikaz" style="max-width: 380px; margin: 0 auto; display: block;">
+    </div>
+  </section>
+
+  <!-- KAKO APLIKACIJA FUNKCIONIRA -->
+  <section id="kako-radi" class="landing-section">
+    <h2 class="section-title">Kako funkcionira?</h2>
+    <div class="grid-3">
+      <div class="step-card">
+        <h3>1. Postavite projekt</h3>
+        <p>Unesite ukupan broj kartica, ugovoreni rok i honorar. Aplikacija izračunava vašu početnu dnevnu normu.</p>
+      </div>
+      <div class="step-card">
+        <h3>2. Skenirajte Word Count</h3>
+        <p>Usmjerite kameru mobitela prema ekranu računala. Aplikacija sama prepoznaje broj znakova s razmacima i preračunava ih u kartice.</p>
+      </div>
+      <div class="step-card">
+        <h3>3. Pratite dinamički ritam</h3>
+        <p>Ako uzmete slobodan dan, alat automatski preračunava novi dnevni cilj kako biste projekt završili točno na vrijeme.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- KLJUČNE PREDNOSTI -->
+  <section class="landing-section">
+    <h2 class="section-title">Zašto koristiti Mojih 1500?</h2>
+    <div class="grid-3">
+      <div class="feature-card">
+        <h3>🔒 100% Privatno</h3>
+        <p>Svi podaci spremaju se isključivo u vaš preglednik (IndexedDB). Vaši projekti, ugovori i iznosi nikada ne napuštaju vaše računalo.</p>
+      </div>
+      <div class="feature-card">
+        <h3>📷 OCR Skeniranje</h3>
+        <p>Bez ručnog preračunavanja i tipkanja. Uredski ili književni prijevod pretvorite u kartice jednim fotografiranjem prozorčića.</p>
+      </div>
+      <div class="feature-card">
+        <h3>📶 Radi potpuno Offline</h3>
+        <p>Budući da je izrađena kao PWA, aplikacija radi i bez internetske veze. Instalirajte je na mobitel ili računalo jednim klikom.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- DODATAK: INTERAKTIVNI MINIKALKULATOR KARTICA -->
+  <section class="landing-section">
+    <h2 class="section-title">Brzi kalkulator kartica</h2>
+    <div class="calc-box">
+      <p>Unesite ukupan broj znakova s razmacima iz vašeg teksta:</p>
+      <p>
+        <input type="number" id="demo-chars" placeholder="npr. 14400" oninput="izracunajDemoKartice()"> znakova
+      </p>
+      <h3 id="demo-result" style="color: var(--pwa-primary); margin-top: 16px;">= 0,00 autorskih kartica</h3>
+      <p style="font-size: 0.85rem; color: #777;">*(Standardna norma: 1 autorska kartica = 1800 znakova s razmacima)*</p>
+    </div>
+  </section>
+
+  <!-- UPUTE ZA INSTALACIJU (PWA) -->
+  <section class="landing-section">
+    <h2 class="section-title">Kako instalirati aplikaciju na uređaj?</h2>
+    <p style="text-align: center; margin-bottom: 24px;">Ne trebate ići na App Store ili Google Play. Aplikacija se instalira izravno iz preglednika:</p>
+    
+    <div class="install-grid">
+      <div class="install-box">
+        <h3>📱 Na mobitelu (iOS / Android)</h3>
+        <ul>
+          <li>Otvorite aplikaciju u pregledniku (Safari / Chrome).</li>
+          <li>Pritisnite gumb <b>Dijeli (Share)</b> ili tri točke u izborniku.</li>
+          <li>Odaberite <b>"Dodaj na početni zaslon"</b> (<i>Add to Home Screen</i>).</li>
+        </ul>
+      </div>
+      <div class="install-box">
+        <h3>💻 Na računalu (Chrome / Edge / Brave)</h3>
+        <ul>
+          <li>Otvorite aplikaciju u pregledniku.</li>
+          <li>Kliknite na ikonicu ekrana s strelicom u adresnoj traci (skroz desno).</li>
+          <li>Odaberite <b>"Instaliraj Mojih 1500"</b>.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ZAVRŠNI CTA -->
+  <section class="landing-section" style="text-align: center;">
+    <h2>Spremni za jednostavnije praćenje prijevoda?</h2>
+    <p style="margin-bottom: 24px;">Besplatno je, bez registracije i spremno za korištenje u nekoliko sekundi.</p>
+    <a href="{{ '/mojih1500/app/' | relative_url }}"" class="btn-pwa-main" style="font-size: 1.2rem; padding: 16px 32px;">Pokreni Mojih 1500</a>
+  </section>
+
+</div>
+
+<!-- Skripta za brzi demo kalkulator -->
+<script>
+  function izracunajDemoKartice() {
+    const chars = parseFloat(document.getElementById('demo-chars').value);
+    const resultElement = document.getElementById('demo-result');
+    
+    if (isNaN(chars) || chars <= 0) {
+      resultElement.innerText = "= 0,00 autorskih kartica";
+      return;
+    }
+    
+    const kartice = (chars / 1800).toFixed(2);
+    resultElement.innerText = `= ${kartice.replace('.', ',')} autorskih kartica`;
+  }
+</script>

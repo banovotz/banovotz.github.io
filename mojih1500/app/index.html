@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mojih 1500 — Prevoditeljski Ritam & Metrika</title>
+  <!-- PWA Postavke -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#008080">
+  <link rel="apple-touch-icon" href="icon-192.png">
+
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Mojih1500</h1>
+    <div class="lbl">Jednostavno upravljanje književnim prijevodima.</div>
+    <button onclick="toggleFormaProjekta()">+ Novi Projekt</button>
+  </header>
+
+  <!-- Forma za kreiranje/uređivanje projekta -->
+  <div id="forma-projekt-container" class="card sakriveno">
+    <h2 id="forma-naslov">Novi Projekt</h2>
+    <form id="projekt-forma" onsubmit="spremiProjektForma(event)">
+      <input type="hidden" id="p-id">
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="p-naslov">Naslov djela / projekta *</label>
+          <input type="text" id="p-naslov" required placeholder="npr. Južni krajevi">
+        </div>
+        <div class="form-group">
+          <label for="p-klijent">Klijent / Izdavač</label>
+          <input type="text" id="p-klijent" placeholder="npr. Matica hrvatska">
+        </div>
+      </div>
+
+      <div class="grid-2">
+       <div class="form-group">
+  <label for="p-ukupno">Broj kartica originala *</label>
+  <input type="number" step="0.1" id="p-ukupno" required placeholder="220" inputmode="decimal">
+</div>
+
+<div class="form-group">
+  <label for="p-honorar">Honorar po kartici (€) *</label>
+  <input type="number" step="0.01" id="p-honorar" required placeholder="12.50" inputmode="decimal">
+</div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="p-start">Prvi dan projekta *</label>
+          <input type="date" id="p-start" required>
+        </div>
+        <div class="form-group">
+          <label for="p-rok">Ciljani zadnji dan (Rok) *</label>
+          <input type="date" id="p-rok" required>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="p-cilj-dnevno">Ciljani broj kartica po danu</label>
+          <input type="number" step="0.1" id="p-cilj-dnevno" placeholder="5">
+        </div>
+        <div class="form-group">
+          <label for="p-vikend">Rad vikendima?</label>
+          <select id="p-vikend">
+            <option value="ne">Ne (samo radni dani)</option>
+            <option value="da">Da (svi dani)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit">Spremi Projekt</button>
+        <button type="button" class="btn-secondary" onclick="toggleFormaProjekta()">Odustani</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Dashboard Prikaz Projekata -->
+  <div id="dashboard">
+    <!-- Projekti se dinamički učitavaju putem app.js -->
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
