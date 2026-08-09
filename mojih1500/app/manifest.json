@@ -1,7 +1,7 @@
 {
-  "name": "Kartaža — Prevoditeljski Ritam & Metrika",
-  "short_name": "Kartaža",
-  "description": "Aplikacija za praćenje ritma prevođenja i normi.",
+  "name": "Mojih1500 — Aplikacija za književne prevoditelje",
+  "short_name": "Mojih1500",
+  "description": "Aplikacija za književne prevoditelje - Mojih 1500 — Prevoditeljski Ritam & Metrika",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#F8F5F2",
