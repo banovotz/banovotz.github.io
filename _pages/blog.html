@@ -46,13 +46,13 @@ pagination:
 <nav class="pagination">
   <p>&nbsp;</p>
   {% if paginator.previous_page %}
-    <a href="{{ paginator.previous_page_path | relative_url }}" class="note-read-more">← Novije</a>
+    <a href="{{ paginator.previous_page_path | relative_url }}#posts" class="note-read-more">← Novije</a>
   {% endif %}
 
   <span>Stranica {{ paginator.page }} od {{ paginator.total_pages }}</span>
 
   {% if paginator.next_page %}
-    <a href="{{ paginator.next_page_path | relative_url }}" class="note-read-more">Starije →</a>
+    <a href="{{ paginator.next_page_path | relative_url }}#posts" class="note-read-more">Starije →</a>
   {% endif %}
 </nav>
 {% endif %}
