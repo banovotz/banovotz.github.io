@@ -4,7 +4,7 @@
     <!-- Gumb za sve članke -->
     <li class="category-item">
       <a href="{{ '/blog/' | relative_url }}#posts" 
-         class="category-link {% if page.url == '/blog/' %}is-active{% endif %}">
+         class="category-link {% if page.url contains 'blog' %}is-active{% endif %}">
         Sve
       </a>
     </li>
