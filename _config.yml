@@ -42,16 +42,12 @@ defaults:
 
 sass: { style: compressed }
 
-# Postavke za glavnu paginaciju
+# Postavke za paginaciju bloga i kategorija
 pagination:
   enabled: true
-  per_page: 6                   # Koliko kartica po stranici
-  permalink: '/blog/:num/'      # Putanja za glavnu stranicu (npr. /page/2/)
+  per_page: 4                   # Koliko kartica po stranici
+  permalink: '/:num/'      # Putanja za glavnu stranicu (npr. /page/2/)
   title: ':title - Stranica :num'
   limit: 0                     # 0 znači bez limita (svi postovi)
   
-  # Postavke za paginaciju po kategorijama:
-  category_init:
-    enabled: true
-    per_page: 6
-    permalink: '/:category/page/:num/'
+ 

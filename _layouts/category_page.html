@@ -3,7 +3,6 @@ layout: default
 ---
 
 <div class="category-archive container">
-  <!-- Pronalazimo podatke o kategoriji iz _data/categories.yml -->
   {% assign cat_info = site.data.categories | where: "slug", page.category_slug | first %}
 
   <header class="category-header">
@@ -12,55 +11,67 @@ layout: default
       <p class="category-description">{{ cat_info.description }}</p>
     {% endif %}
   </header>
-<div id="posts">&nbsp;</div>
-  <!-- Prikaz navigacije kategorija -->
+
+  <div id="posts">&nbsp;</div>
   {% include category_menu.html %}
 
-  <!-- Lista članaka iz te kategorije -->
   <div class="posts-list">
-   <!-- Prikupljanje članaka za točnu kategoriju -->
-{% assign filtered_posts = "" | split: "" %}
+    <div class="posts-grid">
+      {% comment %} 
+        Iskorištavamo paginator.posts ako je paginacija aktivna, 
+        inače se vraćamo na filtriranu listu
+      {% endcomment %}
+      {% assign posts_to_display = paginator.posts | default: filtered_posts %}
 
-{% for post in site.posts %}
-  <!-- Ako post koristi 'category' ili 'categories', prevaramo ih u niz -->
-  {% if post.categories contains page.category_slug or post.category == page.category_slug %}
-    {% assign filtered_posts = filtered_posts | push: post %}
-  {% endif %}
-{% endfor %}
+      {% if posts_to_display.size > 0 %}
+        {% for post in posts_to_display %}
+          <article class="note-card">
+            <div class="note-card-meta">
+              <time datetime="{{ post.date | date_to_xmlschema }}">
+                {{ post.date | date: "%d.%m.%Y." }}
+              </time>
+              {% if post.category %}
+                <span class="note-category">{{ post.category | replace: "-", " " }}</span>
+              {% endif %}
+            </div>
 
-<div class="posts-grid">
-  {% if filtered_posts.size > 0 %}
-    {% for post in filtered_posts %}
-      <!-- Prikaz kartice posta -->
-     <article class="note-card">
-      <div class="note-card-meta">
-        <time datetime="{{ post.date | date_to_xmlschema }}">
-          {{ post.date | date: "%d.%m.%Y." }}
-        </time>
-        {% if post.category %}
-            <span class="note-category">{{ post.category | replace: "-", " " }}</span>
-        {% endif %}
-      </div>
+            <h3 class="note-card-title">
+              <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
+            </h3>
 
-      <h3 class="note-card-title">
-        <a href="{{ post.url | relative_url }}">{{ post.title }}</a>
-      </h3>
+            <p class="note-card-excerpt">
+              {{ post.excerpt | strip_html | truncatewords: 30 }}
+            </p>
 
-      <p class="note-card-excerpt">
-        {{ post.excerpt | strip_html | truncatewords: 30 }}
-      </p>
-
-      <a href="{{ post.url | relative_url }}#post" class="note-read-more">
-        Pročitaj više &rarr;
-      </a>
-    </article>
-    {% endfor %}
-  {% else %}
-    <div class="no-posts">
-      <p>Trenutačno nema članaka u ovoj kategoriji.</p>
+            <a href="{{ post.url | relative_url }}#post" class="note-read-more">
+              Pročitaj više &rarr;
+            </a>
+          </article>
+        {% endfor %}
+      {% else %}
+        <div class="no-posts">
+          <p>Trenutačno nema članaka u ovoj kategoriji.</p>
+        </div>
+      {% endif %}
     </div>
-  {% endif %}
-</div>
-</div>
 
+    <!-- Prikaz navigacije paginacije -->
+<div class="pagination">
+    {% if paginator.total_pages > 1 %}
+      <nav class="pagination">
+        <p>&nbsp;</p>
+        {% if paginator.previous_page %}
+          <a href="{{ paginator.previous_page_path | relative_url }}" class="note-read-more">← Novije</a>
+        {% endif %}
 
+        <span>Stranica {{ paginator.page }} od {{ paginator.total_pages }}</span>
+
+        {% if paginator.next_page %}
+          <a href="{{ paginator.next_page_path | relative_url }}" class="note-read-more">Starije →</a>
+        {% endif %}
+      </nav>
+    {% endif %}
+    </div>
+  </div>
+</div>
+<p>&nbsp;</p>

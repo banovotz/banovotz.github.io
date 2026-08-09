@@ -10,14 +10,22 @@
     </li>
     
     <!-- Dinamičke kategorije iz _data/categories.yml -->
+    
     {% for cat in site.data.categories %}
       {% assign cat_url = '/' | append: cat.slug | append: '/' %}
+      {% assign is_active = false %}
+    
+    {% if page.url contains cat.slug %}
+      {% assign is_active = true %}
+      
+    {% endif %}
       <li class="category-item">
         <a href="{{ cat_url | relative_url }}#posts" 
-           class="category-link {% if page.url == cat_url %}is-active{% endif %}">
+           class="category-link {% if is_active %}is-active{% endif %}">
           {{ cat.name }}
         </a>
       </li>
     {% endfor %}
   </ul>
 </nav>
+

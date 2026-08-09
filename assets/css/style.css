@@ -1273,10 +1273,12 @@
   transform: translateY(-1px);
 }
 
-/* Aktivna kategorija (stranica na kojoj se korisnik nalazi) */
-.category-link.is-active {
-  color: #ffffff;
-  background-color: var(--accent-color, #0066cc);
+/* Pojačan selektor i pokrivanje više stanja linka */
+a.category-link.is-active,
+a.category-link.is-active:visited,
+a.category-link.is-active:hover {
+  color: #ffffff !important;
+  background-color: var(--accent-color, #0066cc) !important;
   font-weight: 600;
   box-shadow: 0 2px 8px rgba(0, 102, 204, 0.25);
 }
