@@ -68,26 +68,16 @@
 
 <!-- Navigation Bar -->
 <header class="main-header">
- <div class="container main-nav">
-  <a href="{{ '/#' | relative_url }}" class="logo">Davor Banović</a>
-  <ul>
-    <li id="mobile-content" style="display: none;"><a href="{{ '/#' | relative_url }}">Home</a></li>
-    <li><a href="{{ '/#knjige' | relative_url }}">Knjige</a></li>
-    
-    <!-- Prevođenje s podmenijem -->
-    <li class="has-dropdown">
-      <a href="{{ '/#knjizevno-prevodenje' | relative_url }}">Prevođenje </a>
-        <!---
-        <span class="arrow">&#9662;</span></a>
-      <ul class="dropdown">
-        <li><a href="{{ '/#knjizevno-prevodenje' | relative_url }}">Književno prevođenje</a></li>
-        <li><a href="{{ '/mojih1500/' | relative_url }}">Aplikacija za prevoditelje</a></li>
-      </ul>-->
-    </li>
+  <div class="container main-nav">
+    <a href="{{ '/#' | relative_url }}" class="logo">Davor Banović</a>
+    <ul>
+      <li id="mobile-content" style="display: none;"><a href="{{ '/#' | relative_url }}">Home</a></li>
+      <li><a href="{{ '/#knjige' | relative_url }}">Knjige</a></li>
+      <li><a href="{{ '/#knjizevno-prevodenje' | relative_url }}">Prevođenje</a></li>
+      <li><a href="{{ '/blog/' | relative_url }}">Blog</a></li>
 
-    <li><a href="{{ '/blog/' | relative_url }}">Blog</a></li>
-  </ul>
-</div>
+       </ul>
+  </div>
 <script>
   document.addEventListener("DOMContentLoaded", function() {
     // Simple regex to check for mobile user agents

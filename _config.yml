@@ -49,8 +49,9 @@ pagination:
   permalink: '/:num/'      # Putanja za glavnu stranicu (npr. /page/2/)
   title: ':title - Stranica :num'
   limit: 0                     # 0 znači bez limita (svi postovi)
-  
+
+
  # Osigurava da se Service Worker i Manifest kopiraju bez izmjena
-include:
-  - mojih1500/sw.js
-  - mojih1500/manifest.json
+#include:
+#  - mojih1500/sw.js
+#  - mojih1500/manifest.json
