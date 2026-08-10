@@ -38,7 +38,7 @@ defaults:
       author: "Davor Banović"
       category: ""
       image: ""
-      description: "" # Prazno polje koje te podsjeća da ga ispuniš
+      description: "" # Prazno polje
 
 sass: { style: compressed }
 
@@ -49,6 +49,8 @@ pagination:
   permalink: '/:num/'      # Putanja za glavnu stranicu (npr. /page/2/)
   title: ':title - Stranica :num'
   limit: 0                     # 0 znači bez limita (svi postovi)
+  sort_field: 'date'
+  sort_reverse: true
 
 
  # Osigurava da se Service Worker i Manifest kopiraju bez izmjena
