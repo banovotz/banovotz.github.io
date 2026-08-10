@@ -539,6 +539,11 @@
     color: #666;
 }
 
+.intro-emphasis {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
 /* Sliding Cards Mechanism */
 .slider-wrapper {
     position: relative;
@@ -1592,3 +1597,4 @@ a.category-link.is-active:hover {
 .main-nav ul li.has-dropdown:hover .arrow {
   transform: rotate(180deg);
 }
+

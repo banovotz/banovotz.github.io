@@ -58,4 +58,13 @@ pagination:
 {% endif %}
   <p>&nbsp;</p>
 </div>
+
+<div class="post-cta">
+  {% assign random_cta = site.data.cta_messages | sample %}
+  <h3>{{ random_cta.heading }}</h3>
+  <p>{{ random_cta.text }}</p>
+  <a href="{{ '/#contact' | relative_url }}" class="btn">{{ random_cta.button_text }}</a>
+</div>
+
 </section>
+
