@@ -1,5 +1,5 @@
 ---
-title: 'Kako se u književnom prevođenju othrvati "robovanju" izvorniku'
+title: 'Kada književni prijevod "robuje" izvorniku: Kako održati ravnotežu između točnosti i elegancije prijevoda'
 layout: post
 category: prevoditeljske-biljeske
 date: '2026-08-11 07:31:22'
