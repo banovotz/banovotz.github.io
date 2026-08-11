@@ -3,12 +3,12 @@ title: 'Kriju li jednostavne rečenice zamku za prevoditelja?: Kako se othrvati 
   izvorniku'
 layout: post
 category: prevoditeljske-biljeske
-date: '2026-08-11 10:05:00'
+date: '2026-08-11 07:31:22'
 image: assets/images/martine-mussies-bumuBbsiavM-unsplash.jpg
 description: 'Nisu samo komplicirane rečenice teške u književnom prevođenju. Otkrijte kako se u književnim prijevodima s engleskog othrvati "robovanju" jeziku izvornika, a zadržati prirodni ritam jezika.'
 ---
 
-Neki romani naizgled su laki za prevođenje. To bi svakako mogli reći za roman Michaela Bishopa No Enemy but Time. Bishopove rečenice djeluju jednostavno i izravno i naizgled nezahtjevno. No, počesto obiluju specifičnim ritmom i kulturnim žanrovskim referencama koje traže dodatnu pažnju. To nam daje temu za bar još jedan blog. No, u ovom bih se posvetio lakoći padanja u napast "robovanja" jednostavnosti izvornika.  Ako se kao književni prevoditelj nečeg bojim, onda je to da čitatelj vidi da moj tekst vrišti "loš prijevod" tako što "robuje" rečdničnim konstrkucijama izvornika.  Prevodeći ovaj roman, nekim  sam se rečenicama morao vraćati upravo zato jer sam ih  prevedio previše "lako" ili, bolje reći "olako".
+Neki romani naizgled su laki za prevođenje. To bi svakako mogli reći za roman Michaela Bishopa No Enemy but Time. Bishopove rečenice djeluju jednostavno i izravno i naizgled nezahtjevno. Ipak, počesto obiluju specifičnim ritmom i kulturnim žanrovskim referencama koje traže dodatnu pažnju, što nam daje temu za bar još jedan blog post. U ovom postu posvetit ću se lakoći padanja u napast "robovanja" izvorniku. Ako kao književni prevoditelj zbog ičega u prijevodu strepim, onda je to da čitatelj vidi da moj tekst vrišti "loš prijevod" tako što "robuje" rečdničnim konstrkucijama izvornika.  Prevodeći ovaj roman, nekim  sam se rečenicama morao vraćati upravo zato jer sam ih  prevedio previše "lako" ili, bolje reći "olako".
 
 Uzmimo za primjer ovu rečenicu:
 
@@ -16,7 +16,7 @@ Uzmimo za primjer ovu rečenicu:
 
 Moj prvi prijevod bio je, priznajem, ovaj:
 
-> *Ovog Božića najistaknutiji džepni romani u otvorenom izlogu bili su  serija foto-romana posvećenih podvizima grofa Stanislawa Stodta, vampira u službi CIA-e.*
+> *Ovog Božića najistaknutiji džepni romani u otvorenom izlogu bili su serija foto-romana posvećenih podvizima grofa Stanislawa Stodta, vampira u službi CIA-e.*
 
 Iako je ovaj prijevod točan i prenosi sve informacije iz izvornika, u njemu se osjeća blaga sintaktička ukočenost, a i nekakvo neslaganje u broju (ne odgovara baš ni *bili su* ni *bila je*). Drugo i treće čitanje otkrivaju mjesta na kojima hrvatski prijevod može dobiti na tečnosti, eleganciji i prirodnijem ritmu.
 
