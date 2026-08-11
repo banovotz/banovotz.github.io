@@ -48,9 +48,9 @@ Također, u hrvatskom se spojenice poput "foto-roman” mogu pisati bez crtice. 
 
 * **Izmjena:**  "...vampira u redovima CIA-e.”
 
-Jezici tvore idiome - posebne skupove riječi čije se značenje ne može zaključiti iz doslovnog značenja pojedinačnih riječi, ali koji jezik čine življima, a naš prijevod slikovitijim.x
+Jezici tvore idiome - posebne skupove riječi čije se značenje ne može zaključiti iz doslovnog značenja pojedinačnih riječi, ali koji jezik čine življima, a naš prijevod slikovitijim.
 
-Izraz "u službi CIA-e” standardni je i potpuno ispravan prijevod (odmah nas asocira na film *U službi njenog Veličanstva*).  Izborom fraze "u redovima CIA-e” dobivamo dozu blage ironije i stilske plastičnosti koja savršeno odgovara motivu vampira koji radi za obavještajnu agenciju.
+Izraz "u službi CIA-e” standardni je i potpuno ispravan prijevod (odmah nas asocira na film *U službi njenog Veličanstva*).  Izborom fraze "u redovima CIA-e” dobivamo dozu blage ironije (asocira malo na novinarski stil) i stilske plastičnosti koja savršeno odgovara motivu vampira koji radi za obavještajnu agenciju.
 
 ### Finalna verzija
 Nakon brušenja leksika i poretka riječi, uklanjanja nepotrebnog pasiva, traženja slikovitijeg idioma i prilagodbe ritma rečenice hrvatskom jeziku, dolazimo do rafiniranog prijevoda:
