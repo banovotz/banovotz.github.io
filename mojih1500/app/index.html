@@ -134,6 +134,12 @@
     <!-- Projekti se dinamički učitavaju putem app.js -->
   </div>
 </div>
+<!-- HTML uvoz/izvoz rezervne kopije -->
+<div class="backup-actions" style="margin-top: 20px; text-align: center;">
+  <button onclick="izveziSigurnosnuKopiju()" class="btn-secondary">💾 Spremi sigurnosnu kopiju (JSON)</button>
+  <button onclick="document.getElementById('import-file-input').click()" class="btn-secondary">📥 Učitaj kopiju</button>
+  <input type="file" id="import-file-input" style="display:none;" onchange="uveziSigurnosnuKopiju(event)" accept=".json" />
+</div>
 
 <script src="app.js"></script>
 </body>

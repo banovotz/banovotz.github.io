@@ -1,3 +1,14 @@
+// Omogućava trajno čuvanje podataka u pregledniku (spriječava Chrome da briše memoriju)
+if (navigator.storage && navigator.storage.persist) {
+  navigator.storage.persist().then(granted => {
+    if (granted) {
+      console.log("Pohrana podataka je trajna (persist enabled).");
+    } else {
+      console.warn("Preglednik može obrisati podatke ako zafali memorije.");
+    }
+  });
+}
+
 // --- INDEXEDDB LOGIKA ---
 const DB_NAME = 'PrevoditeljRitamDB';
 const DB_VERSION = 1;
@@ -1034,4 +1045,48 @@ function ocistiFormuProjekta() {
 
   const metrikaPreview = document.getElementById('metrika-preview');
   if (metrikaPreview) metrikaPreview.style.display = 'none';
+}
+
+
+/**
+ * Preuzima sve projekte kao .json datoteku na računalo.
+ */
+function izveziSigurnosnuKopiju() {
+  const projekti = dohvatiSveProjekte();
+  if (projekti.length === 0) {
+    alert("Nemate projekata za izvoz.");
+    return;
+  }
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(projekti, null, 2));
+  const downloadAnchor = document.createElement('a');
+  downloadAnchor.setAttribute("href", dataStr);
+  downloadAnchor.setAttribute("download", `mojih1500_backup_${new Date().toISOString().slice(0,10)}.json`);
+  document.body.appendChild(downloadAnchor);
+  downloadAnchor.click();
+  downloadAnchor.remove();
+}
+
+/**
+ * Učitava projekte iz .json datoteke natrag u aplikaciju.
+ */
+function uveziSigurnosnuKopiju(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const projekti = JSON.parse(e.target.result);
+      if (Array.isArray(projekti)) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(projekti));
+        renderDashboard();
+        alert("Projekti uspješno učitani iz sigurnosne kopije!");
+      } else {
+        alert("Neispravna datoteka sigurnosne kopije.");
+      }
+    } catch (err) {
+      alert("Greška pri čitanju datoteke: " + err.message);
+    }
+  };
+  reader.readAsText(file);
 }
