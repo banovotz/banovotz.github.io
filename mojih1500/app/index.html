@@ -4,19 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mojih 1500 — Prevoditeljski Ritam & Metrika</title>
+  
   <!-- PWA Postavke -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#008080">
   <link rel="apple-touch-icon" href="icon-192.png">
 
   <link rel="stylesheet" href="style.css">
+  
+  <!-- Vanjske biblioteke: Tesseract (OCR) i JSZip (za ePub ekstrakciju) -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
   <!-- Omogućuje PWA način rada na iOS-u -->
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Mojih1500">
-<link rel="apple-touch-startup-image" href="apple-splash.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Mojih1500">
+  <link rel="apple-touch-startup-image" href="apple-splash.png">
 </head>
 <body>
 
@@ -24,14 +28,52 @@
   <header>
     <h1>Mojih1500</h1>
     <div class="lbl">Jednostavno upravljanje književnim prijevodima.</div>
-    <button onclick="toggleFormaProjekta()">+ Novi Projekt</button>
+    <button id="btn-novi-projekt" class="btn-primary" onclick="toggleFormaProjekta()">+ Novi Projekt</button>
   </header>
 
   <!-- Forma za kreiranje/uređivanje projekta -->
-  <div id="forma-projekt-container" class="card sakriveno">
+  <div id="forma-projekt-container" style="display: none;">
     <h2 id="forma-naslov">Novi Projekt</h2>
     <form id="projekt-forma" onsubmit="spremiProjektForma(event)">
       <input type="hidden" id="p-id">
+      <input type="hidden" id="p-naslovnica-base64">
+      <input type="hidden" id="p-slova-original">
+      <input type="hidden" id="p-slova-prijevod">
+      <input type="hidden" id="p-last-synced">
+
+      <!-- Izvori podataka: ePub i Google Doc -->
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="p-epub-file">Odaberi ePub izvornika</label>
+          <input type="file" id="p-epub-file" accept=".epub">
+        </div>
+
+        <div class="form-group">
+          <label for="p-gdoc-url">Google Docs URL prijevoda</label>
+          <input type="url" id="p-gdoc-url" placeholder="https://docs.google.com/document/d/...">
+        </div>
+      </div>
+
+      <!-- Gumb za aktivaciju povlačenja i analize -->
+      <div class="form-group" style="margin-bottom: 15px;">
+        <button type="button" id="btn-povuci-podatke" class="btn-secondary" style="width: 100%; font-weight: bold; background: #e6f2f2; color: #008080; border: 1px solid #008080;" onclick="povuciPodatkeIzIzvora()">
+          ⚡ Povuci podatke iz ePub-a i Doc-a
+        </button>
+        <small id="fetch-status-msg" class="text-muted" style="display:none; color: #008080; font-weight: bold; margin-top: 5px; text-align: center; display: block;"></small>
+      </div>
+
+      <!-- Pregled izvučenih metapodataka i izračuna -->
+      <div id="metrika-preview" class="preview-box" style="display:none; background: #f4f8f8; padding: 12px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #008080;">
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <img id="img-cover-preview" src="" alt="" style="display:none; width: 45px; height: 65px; object-fit: cover; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">
+          <div>
+            <div><strong>Izvornik (ePub):</strong> <span id="lbl-slova-orig">0</span> slova (~<span id="lbl-kartice-orig">0</span> kartica)</div>
+            <div><strong>Prijevod (GDoc):</strong> <span id="lbl-slova-doc">0</span> slova (~<span id="lbl-kartice-doc">0</span> kartica)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Osnovni parametri projekta -->
       <div class="grid-2">
         <div class="form-group">
           <label for="p-naslov">Naslov djela / projekta *</label>
@@ -44,15 +86,15 @@
       </div>
 
       <div class="grid-2">
-       <div class="form-group">
-  <label for="p-ukupno">Broj kartica originala *</label>
-  <input type="number" step="0.1" id="p-ukupno" required placeholder="220" inputmode="decimal">
-</div>
+        <div class="form-group">
+          <label for="p-ukupno">Broj kartica originala * (1800 slova = 1 kartica)</label>
+          <input type="number" step="0.01" id="p-ukupno" required placeholder="220" inputmode="decimal">
+        </div>
 
-<div class="form-group">
-  <label for="p-honorar">Honorar po kartici (€) *</label>
-  <input type="number" step="0.01" id="p-honorar" required placeholder="12.50" inputmode="decimal">
-</div>
+        <div class="form-group">
+          <label for="p-honorar">Honorar po kartici (€) *</label>
+          <input type="number" step="0.01" id="p-honorar" required placeholder="12.50" inputmode="decimal">
+        </div>
       </div>
 
       <div class="grid-2">
@@ -82,7 +124,7 @@
 
       <div class="form-actions">
         <button type="submit">Spremi Projekt</button>
-        <button type="button" class="btn-secondary" onclick="toggleFormaProjekta()">Odustani</button>
+      <button type="button" class="btn-secondary" onclick="toggleFormaProjekta(true)">Odustani</button>
       </div>
     </form>
   </div>

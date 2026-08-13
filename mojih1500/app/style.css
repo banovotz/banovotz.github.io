@@ -391,3 +391,226 @@ ul.unosi-list li {
   }
 }
 
+.project-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 16px;
+  background: #ffffff;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  margin-bottom: 20px;
+}
+
+.card-header {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.project-cover {
+  width: 70px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.project-cover-placeholder {
+  width: 70px;
+  height: 100px;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: #888;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.sync-date {
+  font-size: 0.85rem;
+  color: #666;
+  display: block;
+  margin-top: 4px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  font-size: 0.95rem;
+}
+
+.progress-bar-container {
+  height: 8px;
+  background: #eee;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.progress-bar {
+  height: 100%;
+  background: #4caf50;
+  transition: width 0.3s ease;
+}
+
+.btn-sync {
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-sync:hover {
+  background-color: #1e88e5;
+}
+
+/* Layout Projektne Kartice */
+.project-card {
+  margin-bottom: 20px;
+  padding: 16px;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.card-header-layout {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+/* Naslovnica */
+.card-cover-img {
+  width: 60px;
+  height: 85px;
+  object-fit: cover;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.card-cover-placeholder {
+  width: 60px;
+  height: 85px;
+  background: #eef4f4;
+  border: 1px dashed #008080;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #008080;
+}
+
+.card-main-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.card-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.project-title {
+  margin: 0;
+  font-size: 1.15rem;
+  color: #222;
+}
+
+.project-client {
+  font-size: 0.85rem;
+  color: #666;
+  display: block;
+  margin-top: 2px;
+}
+
+/* Sync traka */
+.sync-status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #555;
+  background: #f9f9f9;
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.btn-sync-small {
+  background: #008080;
+  color: white;
+  border: none;
+  padding: 3px 8px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.btn-sync-small:hover {
+  background: #006666;
+}
+
+/* Traka Napretka (Progress bar) */
+.progress-section {
+  margin-bottom: 15px;
+}
+
+.progress-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  margin-bottom: 5px;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 10px;
+  background: #e0e0e0;
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: #008080;
+  transition: width 0.4s ease;
+}
+
+/* Metrika grid */
+.card-stats-grid {
+  gap: 10px;
+}
+
+.stat-box {
+  background: #f4f8f8;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.stat-box small {
+  display: block;
+  color: #666;
+  font-size: 0.75rem;
+  margin-bottom: 2px;
+}
+
+.btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 2px 4px;
+}
+
