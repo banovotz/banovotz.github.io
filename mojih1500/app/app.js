@@ -221,6 +221,15 @@ async function ucitajDashboard() {
       const preostaloKartica = Math.max(0, ukupnoKartica - odradjenoKartica);
       const postotak = ukupnoKartica > 0 ? Math.min(100, Math.round((odradjenoKartica / ukupnoKartica) * 100)) : 0;
 
+      // --- OVDJE STAVLJATE DYNAMIC BUTTON LOGIKU ---
+      const primarniGumbHtml = p.gdocUrl 
+        ? `<button onclick="sinkronizirajProjekt('${p.id}')" class="btn-primary" style="padding: 6px 12px; font-size: 0.85em; background: #008080; color: #fff; border: none; border-radius: 4px; cursor: pointer;">
+            ⚡ Sync Doc
+           </button>`
+        : `<button onclick="rucniUnosZnakova('${p.id}')" class="btn-primary" style="padding: 6px 12px; font-size: 0.85em; background: #008080; color: #fff; border: none; border-radius: 4px; cursor: pointer;">
+            📝 Ručni unos 
+           </button>`;
+           
       // Izračun tempa
       const preostaloDana = izracunajPreostaleDane(p.datumRoka, p.radVikendom);
       let dnevniRitamText = '';
@@ -251,10 +260,9 @@ async function ucitajDashboard() {
         ? `<span style="color: #2e7d32; font-size: 0.82em;" title="${p.gdocUrl}">🟢 GDoc Povezan${lastSyncText}</span>` 
         : `<span style="color: #c62828; font-size: 0.82em;">🔴 Bez GDoc URL-a</span>`;
 
-      const card = document.createElement('div');
+const card = document.createElement('div');
       card.className = 'card-projekt';
       card.style = 'background: #fff; border-radius: 10px; padding: 16px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #eef2f2;';
-
       card.innerHTML = `
         <div style="display: flex; gap: 16px; align-items: flex-start;">
           ${naslovnicaHtml}
@@ -285,12 +293,12 @@ async function ucitajDashboard() {
             </div>
 
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <button onclick="sinkronizirajProjekt('${p.id}')" class="btn-primary" style="padding: 6px 12px; font-size: 0.85em; background: #008080; color: #fff; border: none; border-radius: 4px; cursor: pointer;">
-                ⚡ Sync Doc
-              </button>
-              <button onclick="urediProjekt('${p.id}')" class="btn-secondary" style="padding: 6px 12px; font-size: 0.85em;">✏️ Uredi</button>
-              <button onclick="obrisiProjekt('${p.id}')" class="btn-secondary" style="padding: 6px 12px; font-size: 0.85em; color: #c62828;">🗑️ Obriši</button>
-            </div>
+             <!-- Gumbi za akcije -->
+  <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+    ${primarniGumbHtml}
+    <button onclick="urediProjekt('${p.id}')" class="btn-secondary" style="padding: 6px 12px; font-size: 0.85em;">✏️ Uredi</button>
+    <button onclick="obrisiProjekt('${p.id}')" class="btn-secondary" style="padding: 6px 12px; font-size: 0.85em; color: #c62828;">🗑️ Obriši</button>
+  </div>
           </div>
         </div>
       `;
@@ -1298,3 +1306,51 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error("Inicijalizacija aplikacije nije uspjela:", err);
   }
 });
+
+/**
+ * Omogućuje brz ručni unos / korekciju ukupnog broja znakova u prijevodu.
+ */
+async function rucniUnosZnakova(id) {
+  try {
+    const db = await otvoriBazu();
+    
+    // Dohvaćanje projekta iz baze
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    const store = tx.objectStore(STORE_NAME);
+    const p = await new Promise((res, rej) => {
+      const req = store.get(id);
+      req.onsuccess = () => res(req.result);
+      req.onerror = () => rej(req.error);
+    });
+
+    if (!p) return;
+
+    // Otvaranje jednostavnog dijaloga s trenutnim brojem slova
+    const trenutnoSlova = p.slovaPrijevod || 0;
+    const noviUnos = prompt(
+      `Trenutni broj znakova s prazninama u prijevodu za "${p.naslov}": ${trenutnoSlova.toLocaleString('hr-HR')}\n\nUnesite novi ukupni broj znakova s prazninama:`,
+      trenutnoSlova
+    );
+
+    // Ako je korisnik kliknuo 'Cancel' ili ostavio prazno
+    if (noviUnos === null || noviUnos.trim() === '') return;
+
+    const noviBrojSlova = parseInt(noviUnos.replace(/\s+/g, ''), 10);
+
+    if (isNaN(noviBrojSlova) || noviBrojSlova < 0) {
+      alert("Molimo unesite ispravan pozitivan broj!");
+      return;
+    }
+
+    // Ažuriranje i spremanje
+    p.slovaPrijevod = noviBrojSlova;
+    p.lastSynced = 'Ručno (' + new Date().toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' }) + ')';
+
+    await spremiUStorage(p);
+    await ucitajDashboard(); // Osvježava karticu na ekranu
+
+  } catch (err) {
+    console.error("Greška pri ručnom unosu znakova:", err);
+    alert("Nije uspjelo ažuriranje broja znakova.");
+  }
+}
