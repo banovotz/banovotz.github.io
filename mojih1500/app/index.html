@@ -124,7 +124,7 @@
 
       <div class="form-actions">
         <button type="submit">Spremi Projekt</button>
-      <button type="button" class="btn-secondary" onclick="toggleFormaProjekta(true)">Odustani</button>
+        <button type="button" class="btn-secondary" onclick="toggleFormaProjekta(true)">Odustani</button>
       </div>
     </form>
   </div>
@@ -133,14 +133,28 @@
   <div id="dashboard">
     <!-- Projekti se dinamički učitavaju putem app.js -->
   </div>
-</div>
-<!-- HTML uvoz/izvoz rezervne kopije -->
-<div class="backup-actions" style="margin-top: 20px; text-align: center;">
-  <button onclick="izveziSigurnosnuKopiju()" class="btn-secondary">💾 Spremi sigurnosnu kopiju (JSON)</button>
-  <button onclick="document.getElementById('import-file-input').click()" class="btn-secondary">📥 Učitaj kopiju</button>
-  <input type="file" id="import-file-input" style="display:none;" onchange="uveziSigurnosnuKopiju(event)" accept=".json" />
+
+  <!-- HTML uvoz/izvoz rezervne kopije -->
+  <div class="backup-actions" style="margin-top: 30px; margin-bottom: 30px; text-align: center;">
+    <button onclick="izveziSigurnosnuKopiju()" class="btn-secondary">💾 Spremi sigurnosnu kopiju (JSON)</button>
+    <button onclick="document.getElementById('import-file-input').click()" class="btn-secondary">📥 Učitaj kopiju</button>
+    <input type="file" id="import-file-input" style="display:none;" onchange="uveziSigurnosnuKopiju(event)" accept=".json" />
+  </div>
 </div>
 
-<script src="app.js"></script>
+<!-- Dodana verzija v=4 radi prisilnog osvježavanja skripte u pregledniku -->
+<script src="app.js?v=4"></script>
+
+<!-- Automatsko brisanje starog Service Workera kako PWA ne bi serviorao stari cache -->
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      for(let registration of registrations) {
+        registration.unregister();
+      }
+    });
+  }
+</script>
+
 </body>
 </html>

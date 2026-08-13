@@ -1,4 +1,4 @@
-// Omogućava trajno čuvanje podataka u pregledniku (spriječava Chrome da briše memoriju)
+// Omogućava trajno čuvanje podataka u pregledniku
 if (navigator.storage && navigator.storage.persist) {
   navigator.storage.persist().then(granted => {
     if (granted) {
@@ -10,62 +10,66 @@ if (navigator.storage && navigator.storage.persist) {
 }
 
 const DB_NAME = 'Mojih1500DB';
-const DB_VERSION = 3; 
+const DB_VERSION = 4; // Podignuto na 4 radi dodavanja 'unosi' store-a
 const STORE_NAME = 'projekti';
-let dbInstance = null;
+const UNOSI_STORE = 'unosi';
 
 /**
- * Otvara i inicijalizira IndexedDB bazu s garancijom da je Store kreiran.
+ * Otvara IndexedDB bazu i kreira tablice 'projekti' i 'unosi'.
  */
 function otvoriBazu() {
   return new Promise((resolve, reject) => {
-    if (dbInstance) {
-      // Ako već imamo otvorenu bazu i sadrži store, odmah vrati
-      if (dbInstance.objectStoreNames.contains(STORE_NAME)) {
-        return resolve(dbInstance);
-      }
-      dbInstance.close();
-      dbInstance = null;
-    }
-
     const request = indexedDB.open(DB_NAME, DB_VERSION);
 
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
+      
+      // 1. Kreiranje store-a za projekte
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+        console.log("IndexedDB: Kreiran store 'projekti'");
+      }
+
+      // 2. KREIRANJE STORE-A ZA UNOSE (Rješava Vaš NotFoundError!)
+      if (!db.objectStoreNames.contains(UNOSI_STORE)) {
+        const unosiStore = db.createObjectStore(UNOSI_STORE, { keyPath: 'id' });
+        unosiStore.createIndex('projektId', 'projektId', { unique: false });
+        console.log("IndexedDB: Kreiran store 'unosi' i indeks 'projektId'");
       }
     };
 
     request.onsuccess = (event) => {
-      dbInstance = event.target.result;
-
-      // Sigurnosni provjeritelj: ako iz bilo kojeg razloga store ne postoji
-      if (!dbInstance.objectStoreNames.contains(STORE_NAME)) {
-        dbInstance.close();
-        dbInstance = null;
-        return reject(new Error(`Object store '${STORE_NAME}' nije pronađen.`));
-      }
-
-      // Reagira ako je baza otvorena u drugom kartici/prozoru
-      dbInstance.onversionchange = () => {
-        dbInstance.close();
-        dbInstance = null;
-      };
-
-      resolve(dbInstance);
+      resolve(event.target.result);
     };
 
     request.onerror = (event) => {
+      console.error("Greška pri otvaranju baze:", event.target.error);
       reject(event.target.error);
-    };
-
-    request.onblocked = () => {
-      console.warn("Otvaranje baze blokirano! Zatvorite ostale kartice aplikacije.");
     };
   });
 }
 
+/**
+ * SPREMANJE U INDEXEDDB 
+ */
+async function spremiUStorage(projekt) {
+  try {
+    const db = await otvoriBazu();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const store = tx.objectStore(STORE_NAME);
+      store.put(projekt);
+
+      tx.oncomplete = () => {
+        console.log("Projekt uspješno spremljen u IndexedDB:", projekt.id);
+        resolve(true);
+      };
+      tx.onerror = (e) => reject(e.target.error);
+    });
+  } catch (err) {
+    console.error("Greška u spremiUStorage:", err);
+  }
+}
 // --- MATEMATIKA I POMOĆNE FUNKCIJE ---
 function izracunajRadneDane(pocetak, kraj, radVikendom) {
   let d = new Date(pocetak);
@@ -83,182 +87,174 @@ function izracunajRadneDane(pocetak, kraj, radVikendom) {
 }
 
 // --- INICIJALIZACIJA ---
-document.addEventListener('DOMContentLoaded', () => {
-  postaviZadaneDatume();
-  ucitajDashboard();
-});
+// Glavna funkcija koja pokreće prikaz dashboarda
+async function inicijalizirajAplikaciju() {
+  try {
+    console.log("Inicijalizacija aplikacije i dohvat projekata...");
+    
+    // 1. Prvo sačekamo da se bazi otvori pristup
+    await otvoriBazu();
+
+    // 2. Pozivamo render/učitavanje
+    if (typeof ucitajDashboard === 'function') {
+      await ucitajDashboard();
+    } else if (typeof renderDashboard === 'function') {
+      await renderDashboard();
+    }
+  } catch (err) {
+    console.error("Greška pri inicijalizaciji aplikacije:", err);
+  }
+}
+
+// Pokreće se čim se HTML stranica učita
+document.addEventListener('DOMContentLoaded', inicijalizirajAplikaciju);
 
 function postaviZadaneDatume() {
   const danas = new Date().toISOString().split('T')[0];
   document.getElementById('p-start').value = danas;
 }
 
+async function spremiProjektForma(event) {
+  event.preventDefault();
 
-async function spremiProjektForma(e) {
-  e.preventDefault();
-
-  const slovaPrijevod = parseInt(document.getElementById('p-slova-prijevod').value) || 0;
+  const id = document.getElementById('p-id').value || 'proj_' + Date.now();
   
-  // Preračunaj odrađeno na temelju izvučenih slova ako postoji slovaPrijevod
-  const izracunatoOdradjeno = slovaPrijevod > 0 
-    ? parseFloat((slovaPrijevod / 1800).toFixed(2))
-    : (parseFloat(document.getElementById('p-odradjeno')?.value) || 0);
-
   const noviProjekt = {
-    id: document.getElementById('p-id').value || Date.now().toString(),
+    id: id,
     naslov: document.getElementById('p-naslov').value,
     klijent: document.getElementById('p-klijent').value,
-    ukupno: parseFloat(document.getElementById('p-ukupno').value),
-    
-    // OVDJE spremamo odrađene kartice prijevoda:
-    odradjeno: izracunatoOdradjeno, 
-    
-    honorar: parseFloat(document.getElementById('p-honorar').value),
-    start: document.getElementById('p-start').value,
-    rok: document.getElementById('p-rok').value,
+    ukupnoKartica: parseFloat(document.getElementById('p-ukupno').value) || 0,
+    honorarPoKartici: parseFloat(document.getElementById('p-honorar').value) || 0,
+    datumPocetka: document.getElementById('p-start').value,
+    datumRoka: document.getElementById('p-rok').value,
     ciljDnevno: parseFloat(document.getElementById('p-cilj-dnevno').value) || 0,
-    vikend: document.getElementById('p-vikend').value,
+    radVikendom: document.getElementById('p-vikend').value,
     
-    // Novi metapodaci
-    gdocUrl: document.getElementById('p-gdoc-url').value,
+    // KLJUČNO: Spremanje GDoc URL-a i naslovnice
+    gdocUrl: document.getElementById('p-gdoc-url').value.trim(),
+    naslovnicaBase64: document.getElementById('p-naslovnica-base64').value || null,
     slovaOriginal: parseInt(document.getElementById('p-slova-original').value) || 0,
-    slovaPrijevod: slovaPrijevod,
-    naslovnicaBase64: document.getElementById('p-naslovnica-base64').value,
-    lastSynced: document.getElementById('p-last-synced').value
+    slovaPrijevod: parseInt(document.getElementById('p-slova-prijevod').value) || 0,
+    lastSynced: document.getElementById('p-last-synced').value || null
   };
 
-  // Spremi u indexdb i osvježi prikaz na dashboardu
   await spremiUStorage(noviProjekt);
-  await renderDashboard();
+  
+  // Očisti formu i osvježi prikaz
   toggleFormaProjekta(true);
+  await ucitajDashboard();
 }
 
 async function ucitajDashboard() {
-  const db = await otvoriBazu();
-  
-  const projekti = await new Promise((resolve) => {
-    const tx = db.transaction('projekti', 'readonly');
-    const req = tx.objectStore('projekti').getAll();
-    req.onsuccess = () => resolve(req.result);
-  });
+  const dashboardDiv = document.getElementById('dashboard');
+  dashboardDiv.innerHTML = ''; // Očisti stari sadržaj
 
-  const dashboardEl = document.getElementById('dashboard');
-  dashboardEl.innerHTML = '';
-
-  if (projekti.length === 0) {
-    dashboardEl.innerHTML = '<div class="card"><p>Nemate aktivnih projekata. Kliknite na "+ Novi Projekt" za početak.</p></div>';
-    return;
-  }
-
-  const danas = new Date().toISOString().split('T')[0];
-
-  for (const p of projekti) {
-    const unosi = await new Promise((resolve) => {
-      const tx = db.transaction('unosi', 'readonly');
-      const index = tx.objectStore('unosi').index('projektId');
-      const req = index.getAll(p.id);
-      req.onsuccess = () => resolve(req.result);
+  try {
+    const db = await otvoriBazu();
+    
+    // 1. Dohvaćanje svih projekata
+    const txProjekti = db.transaction(STORE_NAME, 'readonly');
+    const storeProjekti = txProjekti.objectStore(STORE_NAME);
+    const projekti = await new Promise((res, rej) => {
+      const req = storeProjekti.getAll();
+      req.onsuccess = () => res(req.result);
+      req.onerror = () => rej(req.error);
     });
 
-    const ukupnoPrevedeno = unosi.reduce((sum, u) => sum + u.brojKartica, 0);
-    const preostaloKartica = Math.max(0, p.ukupnoKartica - ukupnoPrevedeno);
-    const postotak = Math.min(100, Math.round((ukupnoPrevedeno / p.ukupnoKartica) * 100));
-    const zarada = ukupnoPrevedeno * p.honorarPoKartici;
-    
-    const preostaloDana = izracunajRadneDane(danas > p.pocetniDatum ? danas : p.pocetniDatum, p.rokDatum, p.radVikendom);
-    const potrebniDnevniRitam = (preostaloKartica / preostaloDana).toFixed(1);
+    if (!projekti || projekti.length === 0) {
+      dashboardDiv.innerHTML = '<p class="text-muted" style="text-align:center;">Trenutno nemate aktivnih projekata. Kliknite na "+ Novi Projekt".</p>';
+      return;
+    }
 
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `
-      <div class="project-header">
-        <div>
-          <h2>${p.naslov} ${p.klijent ? `<small style="font-weight:normal; font-size:1rem; color:#6c757d;">(${p.klijent})</small>` : ''}</h2>
-          <div style="font-size: 0.85rem; color: #6c757d;">Rok: ${p.rokDatum} | Ukupno: ${p.ukupnoKartica} kartica</div>
+    // 2. Dohvaćanje svih ručnih unosa (ako ih ima)
+    const txUnosi = db.transaction(UNOSI_STORE, 'readonly');
+    const storeUnosi = txUnosi.objectStore(UNOSI_STORE);
+    const sviUnosi = await new Promise((res, rej) => {
+      const req = storeUnosi.getAll();
+      req.onsuccess = () => res(req.result);
+      req.onerror = () => rej(req.error);
+    });
+
+    // 3. Renderiranje kartica
+    projekti.forEach(p => {
+      // (BUG 1 FIX) - Izračun kartica iz povučenih znakova + ručni unosi
+      const karticeIzGDoca = (p.slovaPrijevod || 0) / 1800;
+      const unosiProjekta = sviUnosi.filter(u => u.projektId === p.id);
+      const rucnoKartica = unosiProjekta.reduce((sum, u) => sum + (parseFloat(u.kartica) || 0), 0);
+      
+      // Ukupno odrađeno kartica (primarno iz GDoc slova + eventualni unosi)
+      const odradjenoKartica = karticeIzGDoca + rucnoKartica;
+      const ukupnoKartica = parseFloat(p.ukupnoKartica) || 0;
+      const postotak = ukupnoKartica > 0 ? Math.min(100, Math.round((odradjenoKartica / ukupnoKartica) * 100)) : 0;
+
+      // (BUG 2 FIX) - Izračun zarade
+      const honorarPoKartici = parseFloat(p.honorarPoKartici) || 0;
+      const ukupniHonorar = (ukupnoKartica * honorarPoKartici).toFixed(2);
+      const zaradjenoDoSada = (odradjenoKartica * honorarPoKartici).toFixed(2);
+
+      // Priprema slikovnog elementa (naslovnica)
+      const naslovnicaHtml = p.naslovnicaBase64 
+        ? `<img src="${p.naslovnicaBase64}" alt="Naslovnica" style="width: 75px; height: 110px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); flex-shrink: 0;">`
+        : `<div style="width: 75px; height: 110px; background: #e0e0e0; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #777; flex-shrink: 0;">📖</div>`;
+
+      // Status ikona za Google Doc & info o zadnjoj sinkronizaciji
+      const lastSyncText = p.lastSynced ? ` Zadnje: ${p.lastSynced}` : '';
+      const gdocStatus = p.gdocUrl 
+        ? `<span style="color: #2e7d32; font-size: 0.82em;" title="${p.gdocUrl}">🟢 GDoc Povezan${lastSyncText}</span>` 
+        : `<span style="color: #c62828; font-size: 0.82em;">🔴 Bez GDoc URL-a</span>`;
+
+      const card = document.createElement('div');
+      card.className = 'card-projekt';
+      card.style = 'background: #fff; border-radius: 10px; padding: 16px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #eef2f2;';
+
+      // NOVI LAYOUT KARTICE
+      card.innerHTML = `
+        <div style="display: flex; gap: 16px; align-items: flex-start;">
+          ${naslovnicaHtml}
+          <div style="flex-grow: 1;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 4px;">
+              <h3 style="margin: 0; color: #008080; font-size: 1.2em;">${p.naslov}</h3>
+              ${gdocStatus}
+            </div>
+            <div style="font-size: 0.88em; color: #666; margin-bottom: 10px;">${p.klijent || 'Samostalni projekt'}</div>
+            
+            <!-- Napredak metrika -->
+            <div style="margin-bottom: 6px; font-size: 0.9em;">
+              <strong>Napredak:</strong> ${odradjenoKartica.toFixed(2)} / ${ukupnoKartica.toFixed(2)} kartica 
+              <span style="color: #008080; font-weight: bold;">(${postotak}%)</span>
+              <br><small class="text-muted">(${(p.slovaPrijevod || 0).toLocaleString('hr-HR')} slova u prijevodu)</small>
+            </div>
+
+            <!-- Progress Bar -->
+            <div style="background: #e6f2f2; border-radius: 6px; height: 10px; overflow: hidden; margin-bottom: 10px;">
+              <div style="background: #008080; width: ${postotak}%; height: 100%; transition: width 0.3s ease;"></div>
+            </div>
+
+            <!-- Zarada (Aproksimacija) -->
+            <div style="background: #f9fbfb; padding: 8px 12px; border-radius: 6px; font-size: 0.88em; margin-bottom: 12px; border-left: 3px solid #008080; display: flex; justify-content: space-between;">
+              <span><strong>Zarada:</strong> ${zaradjenoDoSada} € / ${ukupniHonorar} €</span>
+              <span style="color: #666;">(${honorarPoKartici.toFixed(2)} €/kartici)</span>
+            </div>
+
+            <!-- Gumbi za akcije (BUG 3 FIX: Sync gumb) -->
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+              <button onclick="sinkronizirajProjekt('${p.id}')" class="btn-primary" style="padding: 6px 12px; font-size: 0.85em; background: #008080; color: #fff; border: none; border-radius: 4px; cursor: pointer;">
+                ⚡ Sync Doc
+              </button>
+              <button onclick="urediProjekt('${p.id}')" class="btn-secondary" style="padding: 6px 12px; font-size: 0.85em;">✏️ Uredi</button>
+              <button onclick="obrisiProjekt('${p.id}')" class="btn-secondary" style="padding: 6px 12px; font-size: 0.85em; color: #c62828;">🗑️ Obriši</button>
+            </div>
+          </div>
         </div>
-        <div class="project-actions">
-          <button class="btn-secondary" onclick="urediProjekt('${p.id}')">Uredi</button>
-          <button class="btn-danger" onclick="obrisiProjekt('${p.id}')">Obriši</button>
-        </div>
-      </div>
+      `;
 
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill" style="width: ${postotak}%;"></div>
-      </div>
+      dashboardDiv.appendChild(card);
+    });
 
-      <div class="grid-4" style="margin: 16px 0;">
-        <div class="stat-box">
-          <div class="val">${postotak}%</div>
-          <div class="lbl">Dovršeno (${ukupnoPrevedeno.toFixed(1)} / ${p.ukupnoKartica})</div>
-        </div>
-        <div class="stat-box">
-          <div class="val">${potrebniDnevniRitam} k/d</div>
-          <div class="lbl">Potrebno dnevno (${preostaloDana} radnih d.)</div>
-        </div>
-        <div class="stat-box">
-          <div class="val">${zarada.toFixed(2)} €</div>
-          <div class="lbl">Zarađeno (od ${(p.ukupnoKartica * p.honorarPoKartici).toFixed(2)} €)</div>
-        </div>
-        <div class="stat-box">
-          <div class="val">${preostaloKartica.toFixed(1)}</div>
-          <div class="lbl">Preostalo kartica</div>
-        </div>
-      </div>
-
-      <div class="unosi-box">
-  <h3 style="font-size: 0.95rem; margin-bottom: 12px;">+ Zabilježi rad</h3>
-  
-  <!-- Preklopnik (Tabs) za odabir načina unosa -->
-  <div class="unos-tabs">
-    <button type="button" id="tab-scan-btn-${p.id}" class="btn-tab active" onclick="odaberiNacinUnosa('${p.id}', 'scan')">
-      📷 Skeniraj
-    </button>
-    <button type="button" id="tab-manual-btn-${p.id}" class="btn-tab" onclick="odaberiNacinUnosa('${p.id}', 'manual')">
-      ✍️ Ručni unos
-    </button>
-  </div>
-
-  <!-- Odsječak 1: Skeniranje kamerom -->
-  <div id="sekcija-skeniranje-${p.id}" class="unos-sekcija">
-    <p class="upute-tekst">Usmjerite kameru prema <b>Word Count</b> prozoru (znakovi s razmacima).</p>
-    <input type="file" id="camera-input-${p.id}" accept="image/*" capture="environment" style="display: none;" onchange="obradiSliku(event, '${p.id}')">
-    <button type="button" class="btn-block" onclick="document.getElementById('camera-input-${p.id}').click()">
-      Pokreni kameru / Odaberi sliku
-    </button>
-  </div>
-
-  <!-- Odsječak 2: Ručni unos (ekspandira se na klik) -->
-  <div id="sekcija-rucno-${p.id}" class="unos-sekcija sakriveno">
-    <form class="inline-form" onsubmit="dodajUnosForma(event, '${p.id}')">
-      <div style="flex: 1;">
-        <label for="u-datum-${p.id}">Datum</label>
-        <input type="date" id="u-datum-${p.id}" value="${danas}" required>
-      </div>
-      <div style="flex: 1;">
-        <label for="u-kartice-${p.id}">Prevedeno kartica</label>
-        <input type="number" step="0.01" id="u-kartice-${p.id}" placeholder="npr. 4.5" inputmode="decimal" required>
-      </div>
-      <button type="submit" style="align-self: flex-end;">Spremi Unos</button>
-    </form>
-  </div>
-</div>
-
-      ${unosi.length > 0 ? `
-        <h4 style="margin: 16px 0 4px 0; font-size: 0.85rem;">Povijest unosa:</h4>
-        <ul class="unosi-list">
-          ${unosi.sort((a,b) => b.datum.localeCompare(a.datum)).map(u => `
-            <li>
-              <span><b>${u.datum}:</b> ${u.brojKartica} kartica</span>
-              <a href="#" style="color:var(--danger); text-decoration:none;" onclick="obrisiUnos('${u.id}')">Obriši</a>
-            </li>
-          `).join('')}
-        </ul>
-      ` : ''}
-    `;
-    dashboardEl.appendChild(card);
+  } catch (err) {
+    console.error("Greška pri učitavanju dashboarda:", err);
   }
 }
-
 async function dodajUnosForma(e, projektId) {
   e.preventDefault();
   const datum = document.getElementById(`u-datum-${projektId}`).value;
@@ -285,29 +281,47 @@ async function obrisiUnos(unosId) {
   tx.oncomplete = () => ucitajDashboard();
 }
 
+
 async function urediProjekt(id) {
   const db = await otvoriBazu();
-  const tx = db.transaction('projekti', 'readonly');
-  const p = await new Promise((resolve) => {
-    const req = tx.objectStore('projekti').get(id);
-    req.onsuccess = () => resolve(req.result);
-  });
+  const tx = db.transaction(STORE_NAME, 'readonly');
+  const store = tx.objectStore(STORE_NAME);
+  
+  const request = store.get(id);
+  request.onsuccess = () => {
+    const p = request.result;
+    if (!p) return;
 
-  if (p) {
+    // Popunjavanje vidljivih polja
     document.getElementById('p-id').value = p.id;
-    document.getElementById('p-naslov').value = p.naslov;
+    document.getElementById('p-naslov').value = p.naslov || '';
     document.getElementById('p-klijent').value = p.klijent || '';
-    document.getElementById('p-ukupno').value = p.ukupnoKartica;
-    document.getElementById('p-honorar').value = p.honorarPoKartici;
-    document.getElementById('p-start').value = p.pocetniDatum;
-    document.getElementById('p-rok').value = p.rokDatum;
-    document.getElementById('p-cilj-dnevno').value = p.ciljKarticaDnevno || '';
-    document.getElementById('p-vikend').value = p.radVikendom ? 'da' : 'ne';
+    document.getElementById('p-ukupno').value = p.ukupnoKartica || '';
+    document.getElementById('p-honorar').value = p.honorarPoKartici || '';
+    document.getElementById('p-start').value = p.datumPocetka || '';
+    document.getElementById('p-rok').value = p.datumRoka || '';
+    document.getElementById('p-cilj-dnevno').value = p.ciljDnevno || '';
+    document.getElementById('p-vikend').value = p.radVikendom || 'ne';
     
+    // KLJUČNO: Popunjavanje GDoc URL-a i skrivenih metrika
+    document.getElementById('p-gdoc-url').value = p.gdocUrl || '';
+    document.getElementById('p-naslovnica-base64').value = p.naslovnicaBase64 || '';
+    document.getElementById('p-slova-original').value = p.slovaOriginal || 0;
+    document.getElementById('p-slova-prijevod').value = p.slovaPrijevod || 0;
+    document.getElementById('p-last-synced').value = p.lastSynced || '';
+
+    // Prikaz naslovnice u preview-u ako postoji
+    const imgPreview = document.getElementById('img-cover-preview');
+    const previewBox = document.getElementById('metrika-preview');
+    if (p.naslovnicaBase64) {
+      imgPreview.src = p.naslovnicaBase64;
+      imgPreview.style.display = 'block';
+      previewBox.style.display = 'block';
+    }
+
     document.getElementById('forma-naslov').innerText = 'Uredi Projekt';
-    document.getElementById('forma-projekt-container').classList.remove('sakriveno');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
+    document.getElementById('forma-projekt-container').style.display = 'block';
+  };
 }
 
 async function obrisiProjekt(id) {
@@ -607,6 +621,7 @@ async function sinhronizirajProjekt(id) {
 // Ključ pod kojim spremamo sve projekte u LocalStorage
 const STORAGE_KEY = 'mojih1500_projekti';
 
+
 /**
  * Dohvaća sve projekte iz IndexedDB-a.
  */
@@ -618,49 +633,27 @@ async function dohvatiSveProjekte() {
       const store = tx.objectStore(STORE_NAME);
       const request = store.getAll();
 
-      request.onsuccess = () => resolve(request.result || []);
-      request.onerror = () => reject(request.error);
+      request.onsuccess = () => {
+        const rez = request.result || [];
+        console.log(`Dohvaćeno ${rez.length} projekata iz IndexedDB-a.`);
+        resolve(rez);
+      };
+
+      request.onerror = (event) => {
+        console.error("Greška pri dohvaćanju projekata:", event.target.error);
+        reject(event.target.error);
+      };
     });
   } catch (err) {
-    console.error("Greška pri dohvaćanju projekata:", err);
+    console.error("Greška u dohvatiSveProjekte:", err);
     return [];
   }
 }
-
-/**
- * Dohvaća jedan projekt prema ID-u.
- */
 async function dohvatiProjektPoId(id) {
   const projekti = await dohvatiSveProjekte();
   return projekti.find(p => p.id === id) || null;
 }
 
-/**
- * Sprema ili ažurira projekt u IndexedDB.
- */
-async function spremiUStorage(projekt) {
-  try {
-    const db = await otvoriBazu();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction(STORE_NAME, 'readwrite');
-      const store = tx.objectStore(STORE_NAME);
-      const request = store.put(projekt);
-
-      tx.oncomplete = () => resolve(true);
-      tx.onerror = () => reject(tx.error);
-    });
-  } catch (err) {
-    console.error("Greška pri spremanju u IndexedDB:", err);
-  }
-}
-
-async function azurirajProjektUStorage(projekt) {
-  await spremiUStorage(projekt);
-}
-
-/**
- * Briše projekt iz IndexedDB-a.
- */
 async function obrisiProjektIzStoragea(id) {
   try {
     const db = await otvoriBazu();
@@ -669,16 +662,16 @@ async function obrisiProjektIzStoragea(id) {
       const store = tx.objectStore(STORE_NAME);
       store.delete(id);
 
-      tx.oncomplete = () => resolve(true);
-      tx.onerror = () => reject(tx.error);
+      tx.oncomplete = () => {
+        console.log("Projekt obrisan iz IndexedDB-a:", id);
+        resolve(true);
+      };
+      tx.onerror = (event) => reject(event.target.error);
     });
   } catch (err) {
-    console.error("Greška pri brisanju iz IndexedDB-a:", err);
+    console.error("Greška pri brisanju:", err);
   }
 }
-
-
-
 
 /**
  * Pomoćna funkcija za eksplicitno ažuriranje postojećeg objekta projekta.
@@ -1110,45 +1103,96 @@ function ocistiFormuProjekta() {
 /**
  * Preuzima sve projekte kao .json datoteku na računalo.
  */
-function izveziSigurnosnuKopiju() {
-  const projekti = dohvatiSveProjekte();
-  if (projekti.length === 0) {
-    alert("Nemate projekata za izvoz.");
-    return;
+async function izveziSigurnosnuKopiju() {
+  try {
+    const db = await otvoriBazu();
+
+    // 1. Dohvaćanje projekata
+    const txP = db.transaction(STORE_NAME, 'readonly');
+    const projekti = await new Promise((res, rej) => {
+      const req = txP.objectStore(STORE_NAME).getAll();
+      req.onsuccess = () => res(req.result);
+      req.onerror = () => rej(req.error);
+    });
+
+    // 2. Dohvaćanje unosa
+    const txU = db.transaction(UNOSI_STORE, 'readonly');
+    const unosi = await new Promise((res, rej) => {
+      const req = txU.objectStore(UNOSI_STORE).getAll();
+      req.onsuccess = () => res(req.result);
+      req.onerror = () => rej(req.error);
+    });
+
+    // Objedinjavanje u jedan rezervni objekt
+    const backupData = {
+      version: DB_VERSION,
+      datum: new Date().toISOString(),
+      projekti: projekti,
+      unosi: unosi
+    };
+
+    // Pretvaranje u JSON i preuzimanje
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `mojih1500_backup_${new Date().toISOString().slice(0, 10)}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+
+  } catch (err) {
+    console.error("Greška pri izvozu sigurnosne kopije:", err);
+    alert("Izvoz sigurnosne kopije nije uspio.");
   }
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(projekti, null, 2));
-  const downloadAnchor = document.createElement('a');
-  downloadAnchor.setAttribute("href", dataStr);
-  downloadAnchor.setAttribute("download", `mojih1500_backup_${new Date().toISOString().slice(0,10)}.json`);
-  document.body.appendChild(downloadAnchor);
-  downloadAnchor.click();
-  downloadAnchor.remove();
 }
 
-/**
- * Učitava projekte iz .json datoteke natrag u aplikaciju.
- */
-function uveziSigurnosnuKopiju(event) {
+async function uveziSigurnosnuKopiju(event) {
   const file = event.target.files[0];
   if (!file) return;
 
   const reader = new FileReader();
-  reader.onload = function(e) {
+  reader.onload = async (e) => {
     try {
-      const projekti = JSON.parse(e.target.result);
-      if (Array.isArray(projekti)) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(projekti));
-        renderDashboard();
-        alert("Projekti uspješno učitani iz sigurnosne kopije!");
-      } else {
-        alert("Neispravna datoteka sigurnosne kopije.");
+      const data = JSON.parse(e.target.result);
+
+      if (!data.projekti || !Array.isArray(data.projekti)) {
+        throw new Error("Datoteka nema ispravnu strukturu projekata.");
       }
+
+      const db = await otvoriBazu();
+
+      // 1. Spremanje projekata
+      const txP = db.transaction(STORE_NAME, 'readwrite');
+      const storeP = txP.objectStore(STORE_NAME);
+      for (const p of data.projekti) {
+        storeP.put(p);
+      }
+
+      // 2. Spremanje unosa (ako postoje u backupu)
+      if (data.unosi && Array.isArray(data.unosi)) {
+        const txU = db.transaction(UNOSI_STORE, 'readwrite');
+        const storeU = txU.objectStore(UNOSI_STORE);
+        for (const u of data.unosi) {
+          storeU.put(u);
+        }
+      }
+
+      alert("Sigurnosna kopija je uspješno učitana!");
+      await ucitajDashboard(); // Osvježi prikaz na ekranu
+
     } catch (err) {
-      alert("Greška pri čitanju datoteke: " + err.message);
+      console.error("Greška pri uvozu sigurnosne kopije:", err);
+      alert("Učitavanje kopije nije uspjelo. Provjerite je li datoteka ispravan JSON.");
+    } finally {
+      // Očisti file input da se isti file može opet odabrati po potrebi
+      event.target.value = '';
     }
   };
+
   reader.readAsText(file);
 }
+
+
 // Pravilan slijed pokretanja aplikacije
 document.addEventListener('DOMContentLoaded', async () => {
   try {
@@ -1164,3 +1208,47 @@ document.addEventListener('DOMContentLoaded', async () => {
     console.error("Inicijalizacija aplikacije nije uspjela:", err);
   }
 });
+
+async function sinkronizirajProjekt(id) {
+  try {
+    const db = await otvoriBazu();
+    const tx = db.transaction(STORE_NAME, 'readonly');
+    const p = await new Promise((res, rej) => {
+      const req = tx.objectStore(STORE_NAME).get(id);
+      req.onsuccess = () => res(req.result);
+      req.onerror = () => rej(req.error);
+    });
+
+    if (!p || !p.gdocUrl) {
+      alert("Projekt nema postavljen Google Doc URL za sinkronizaciju.");
+      return;
+    }
+
+    // Izvlačenje ID-a dokumenta iz URL-a
+    const docIdMatch = p.gdocUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
+    if (!docIdMatch) {
+      alert("Neispravan Google Doc URL!");
+      return;
+    }
+
+    const docId = docIdMatch[1];
+    const exportUrl = `https://docs.google.com/document/d/${docId}/export?format=txt`;
+
+    const response = await fetch(exportUrl);
+    if (!response.ok) throw new Error("Ne mogu dohvatiti Google Doc text.");
+
+    const text = await response.text();
+    const slovaPrijevod = text.length;
+
+    // Ažuriranje projekta u bazi
+    p.slovaPrijevod = slovaPrijevod;
+    p.lastSynced = new Date().toLocaleTimeString('hr-HR', { hour: '2-digit', minute: '2-digit' });
+
+    await spremiUStorage(p);
+    await ucitajDashboard(); // Osvježava dashboard na ekranu!
+
+  } catch (err) {
+    console.error("Greška pri sinkronizaciji:", err);
+    alert("Sinkronizacija nije uspjela. Provjerite je li Google Doc javan ('Anyone with the link can view').");
+  }
+}
