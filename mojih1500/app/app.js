@@ -9,24 +9,59 @@ if (navigator.storage && navigator.storage.persist) {
   });
 }
 
-// --- INDEXEDDB LOGIKA ---
-const DB_NAME = 'PrevoditeljRitamDB';
-const DB_VERSION = 1;
+const DB_NAME = 'Mojih1500DB';
+const DB_VERSION = 3; 
+const STORE_NAME = 'projekti';
+let dbInstance = null;
 
+/**
+ * Otvara i inicijalizira IndexedDB bazu s garancijom da je Store kreiran.
+ */
 function otvoriBazu() {
   return new Promise((resolve, reject) => {
+    if (dbInstance) {
+      // Ako već imamo otvorenu bazu i sadrži store, odmah vrati
+      if (dbInstance.objectStoreNames.contains(STORE_NAME)) {
+        return resolve(dbInstance);
+      }
+      dbInstance.close();
+      dbInstance = null;
+    }
+
     const request = indexedDB.open(DB_NAME, DB_VERSION);
-    request.onerror = (e) => reject(e.target.error);
-    request.onsuccess = (e) => resolve(e.target.result);
-    request.onupgradeneeded = (e) => {
-      const db = e.target.result;
-      if (!db.objectStoreNames.contains('projekti')) {
-        db.createObjectStore('projekti', { keyPath: 'id' });
+
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME, { keyPath: 'id' });
       }
-      if (!db.objectStoreNames.contains('unosi')) {
-        const unosiStore = db.createObjectStore('unosi', { keyPath: 'id' });
-        unosiStore.createIndex('projektId', 'projektId', { unique: false });
+    };
+
+    request.onsuccess = (event) => {
+      dbInstance = event.target.result;
+
+      // Sigurnosni provjeritelj: ako iz bilo kojeg razloga store ne postoji
+      if (!dbInstance.objectStoreNames.contains(STORE_NAME)) {
+        dbInstance.close();
+        dbInstance = null;
+        return reject(new Error(`Object store '${STORE_NAME}' nije pronađen.`));
       }
+
+      // Reagira ako je baza otvorena u drugom kartici/prozoru
+      dbInstance.onversionchange = () => {
+        dbInstance.close();
+        dbInstance = null;
+      };
+
+      resolve(dbInstance);
+    };
+
+    request.onerror = (event) => {
+      reject(event.target.error);
+    };
+
+    request.onblocked = () => {
+      console.warn("Otvaranje baze blokirano! Zatvorite ostale kartice aplikacije.");
     };
   });
 }
@@ -59,7 +94,7 @@ function postaviZadaneDatume() {
 }
 
 
-function spremiProjektForma(e) {
+async function spremiProjektForma(e) {
   e.preventDefault();
 
   const slovaPrijevod = parseInt(document.getElementById('p-slova-prijevod').value) || 0;
@@ -92,10 +127,10 @@ function spremiProjektForma(e) {
     lastSynced: document.getElementById('p-last-synced').value
   };
 
-  // Spremi u localStorage i osvježi prikaz na dashboardu
-  spremiUStorage(noviProjekt);
-  renderDashboard();
-  toggleFormaProjekta();
+  // Spremi u indexdb i osvježi prikaz na dashboardu
+  await spremiUStorage(noviProjekt);
+  await renderDashboard();
+  toggleFormaProjekta(true);
 }
 
 async function ucitajDashboard() {
@@ -573,69 +608,96 @@ async function sinhronizirajProjekt(id) {
 const STORAGE_KEY = 'mojih1500_projekti';
 
 /**
- * Dohvaća sve projekte iz LocalStoragea.
- * Ako nema ničega, vraća prazan polje (array).
+ * Dohvaća sve projekte iz IndexedDB-a.
  */
-function dohvatiSveProjekte() {
-  const podaci = localStorage.getItem(STORAGE_KEY);
-  return podaci ? JSON.parse(podaci) : [];
+async function dohvatiSveProjekte() {
+  try {
+    const db = await otvoriBazu();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readonly');
+      const store = tx.objectStore(STORE_NAME);
+      const request = store.getAll();
+
+      request.onsuccess = () => resolve(request.result || []);
+      request.onerror = () => reject(request.error);
+    });
+  } catch (err) {
+    console.error("Greška pri dohvaćanju projekata:", err);
+    return [];
+  }
 }
 
 /**
- * Dohvaća jedan projekt prema njegovom ID-u.
+ * Dohvaća jedan projekt prema ID-u.
  */
-function dohvatiProjektPoId(id) {
-  const projekti = dohvatiSveProjekte();
+async function dohvatiProjektPoId(id) {
+  const projekti = await dohvatiSveProjekte();
   return projekti.find(p => p.id === id) || null;
 }
 
 /**
- * Sprema ili ažurira projekt u LocalStorageu.
- * Ako projekt s tim ID-em već postoji, prebrisat će ga novim podacima (Edit).
- * Ako ne postoji, dodat će ga kao novi projekt (Create).
+ * Sprema ili ažurira projekt u IndexedDB.
  */
-function spremiUStorage(projekt) {
-  let projekti = dohvatiSveProjekte();
+async function spremiUStorage(projekt) {
+  try {
+    const db = await otvoriBazu();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const store = tx.objectStore(STORE_NAME);
+      const request = store.put(projekt);
 
-  const index = projekti.findIndex(p => p.id === projekt.id);
-
-  if (index !== -1) {
-    // Ažuriranje postojeće kartice / projekta
-    projekti[index] = projekt;
-  } else {
-    // Dodavanje novog projekta na početak liste
-    projekti.unshift(projekt);
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch (err) {
+    console.error("Greška pri spremanju u IndexedDB:", err);
   }
-
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(projekti));
 }
+
+async function azurirajProjektUStorage(projekt) {
+  await spremiUStorage(projekt);
+}
+
+/**
+ * Briše projekt iz IndexedDB-a.
+ */
+async function obrisiProjektIzStoragea(id) {
+  try {
+    const db = await otvoriBazu();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite');
+      const store = tx.objectStore(STORE_NAME);
+      store.delete(id);
+
+      tx.oncomplete = () => resolve(true);
+      tx.onerror = () => reject(tx.error);
+    });
+  } catch (err) {
+    console.error("Greška pri brisanju iz IndexedDB-a:", err);
+  }
+}
+
+
+
 
 /**
  * Pomoćna funkcija za eksplicitno ažuriranje postojećeg objekta projekta.
  */
-function azurirajProjektUStorage(projekt) {
-  spremiUStorage(projekt);
+async function azurirajProjektUStorage(projekt) {
+  await spremiUStorage(projekt);
 }
 
-/**
- * Briše projekt iz LocalStoragea na temelju ID-a.
- */
-function obrisiProjektIzStoragea(id) {
-  let projekti = dohvatiSveProjekte();
-  projekti = projekti.filter(p => p.id !== id);
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(projekti));
-}
 
 /**
  * Glavna funkcija za iscrtavanje svih projekata na Dashboardu.
  */
-function renderDashboard() {
+async function renderDashboard() {
   const container = document.getElementById('dashboard');
   if (!container) return;
 
-  const projekti = dohvatiSveProjekte();
+  // SADA CEKAMO DOHVAT IZ BAZA
+  const projekti = await dohvatiSveProjekte();
 
-  // Ako nema nikakvih projekata, prikaži prazno stanje (empty state)
   if (!projekti || projekti.length === 0) {
     container.innerHTML = `
       <div class="card" style="text-align: center; padding: 40px 20px; color: #666;">
@@ -646,15 +708,12 @@ function renderDashboard() {
     return;
   }
 
-  container.innerHTML = ''; // Očisti trenutačni prikaz
-
-  // Prolazimo kroz sve projekte i kreiramo HTML karticu za svaki
+  container.innerHTML = '';
   projekti.forEach(projekt => {
     const cardHtml = kreirajHTMLKarticuProjekta(projekt);
     container.insertAdjacentHTML('beforeend', cardHtml);
   });
 }
-
 /**
  * Pomoćna funkcija koja generira HTML za pojedinačnu projektnu karticu.
  */
@@ -785,10 +844,10 @@ function izracunajRitamIRok(p) {
  * Pomoćna funkcija za brisanje i osvježavanje prikaza.
  */
 
-function obrisiProjektIRerender(id) {
+async function obrisiProjektIRerender(id) {
   if (confirm("Jeste li sigurni da želite obrisati ovaj projekt?")) {
-    obrisiProjektIzStoragea(id);
-    renderDashboard();
+    await obrisiProjektIzStoragea(id);
+    await renderDashboard();
   }
 }
 
@@ -825,8 +884,8 @@ function toggleFormaProjekta(forceClose = false) {
 /**
  * Otvara formu i popunjava je podacima postojećeg projekta radi uređivanja.
  */
-function otvoriFormuZaUređivanje(id) {
-  const p = dohvatiProjektPoId(id);
+async function otvoriFormuZaUređivanje(id) {
+ const p = await dohvatiProjektPoId(id);
   if (!p) return;
 
   // Prvo otvori formu
@@ -1090,3 +1149,18 @@ function uveziSigurnosnuKopiju(event) {
   };
   reader.readAsText(file);
 }
+// Pravilan slijed pokretanja aplikacije
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    // Prvo inicijaliziramo bazu
+    await otvoriBazu();
+    // Tek onda učitavamo dashboard
+    if (typeof ucitajDashboard === 'function') {
+      await ucitajDashboard();
+    } else if (typeof renderDashboard === 'function') {
+      await renderDashboard();
+    }
+  } catch (err) {
+    console.error("Inicijalizacija aplikacije nije uspjela:", err);
+  }
+});
