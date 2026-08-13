@@ -145,14 +145,46 @@ async function spremiProjektForma(event) {
   await ucitajDashboard();
 }
 
+/**
+ * Izračunava preostali broj dana od danas do zadanog roka.
+ * Ako je radVikendom 'ne', broji samo radne dane (ponedjeljak - petak).
+ */
+function izracunajPreostaleDane(datumRokaStr, radVikendom) {
+  const danas = new Date();
+  danas.setHours(0, 0, 0, 0);
+
+  const rok = new Date(datumRokaStr);
+  rok.setHours(0, 0, 0, 0);
+
+  if (rok < danas) return 0; // Rok je prošao
+
+  let preostaloDana = 0;
+  let tekuciDatum = new Date(danas);
+
+  while (tekuciDatum <= rok) {
+    const danUTjednu = tekuciDatum.getDay(); // 0 = nedjelja, 6 = subota
+    const jeVikend = (danUTjednu === 0 || danUTjednu === 6);
+
+    if (radVikendom === 'da' || !jeVikend) {
+      preostaloDana++;
+    }
+    tekuciDatum.setDate(tekuciDatum.getDate() + 1);
+  }
+
+  return preostaloDana;
+}
+
 async function ucitajDashboard() {
   const dashboardDiv = document.getElementById('dashboard');
-  dashboardDiv.innerHTML = ''; // Očisti stari sadržaj
+  if (!dashboardDiv) return;
+
+  // 1. OBAVEZNO ČIŠĆENJE: Isprazni sav prethodni sadržaj iz HTML-a
+  dashboardDiv.innerHTML = '';
 
   try {
     const db = await otvoriBazu();
     
-    // 1. Dohvaćanje svih projekata
+    // 2. Dohvaćanje svih projekata
     const txProjekti = db.transaction(STORE_NAME, 'readonly');
     const storeProjekti = txProjekti.objectStore(STORE_NAME);
     const projekti = await new Promise((res, rej) => {
@@ -162,11 +194,11 @@ async function ucitajDashboard() {
     });
 
     if (!projekti || projekti.length === 0) {
-      dashboardDiv.innerHTML = '<p class="text-muted" style="text-align:center;">Trenutno nemate aktivnih projekata. Kliknite na "+ Novi Projekt".</p>';
+      dashboardDiv.innerHTML = '<p class="text-muted" style="text-align:center; padding: 20px;">Trenutno nemate aktivnih projekata. Kliknite na "+ Novi Projekt".</p>';
       return;
     }
 
-    // 2. Dohvaćanje svih ručnih unosa (ako ih ima)
+    // 3. Dohvaćanje ručnih unosa
     const txUnosi = db.transaction(UNOSI_STORE, 'readonly');
     const storeUnosi = txUnosi.objectStore(UNOSI_STORE);
     const sviUnosi = await new Promise((res, rej) => {
@@ -175,29 +207,45 @@ async function ucitajDashboard() {
       req.onerror = () => rej(req.error);
     });
 
-    // 3. Renderiranje kartica
+    // Koristimo fragment kako bismo izbjegli višestruko ucitavanje u DOM
+    const fragment = document.createDocumentFragment();
+
+    // 4. Renderiranje svake kartice
     projekti.forEach(p => {
-      // (BUG 1 FIX) - Izračun kartica iz povučenih znakova + ručni unosi
       const karticeIzGDoca = (p.slovaPrijevod || 0) / 1800;
       const unosiProjekta = sviUnosi.filter(u => u.projektId === p.id);
       const rucnoKartica = unosiProjekta.reduce((sum, u) => sum + (parseFloat(u.kartica) || 0), 0);
       
-      // Ukupno odrađeno kartica (primarno iz GDoc slova + eventualni unosi)
       const odradjenoKartica = karticeIzGDoca + rucnoKartica;
       const ukupnoKartica = parseFloat(p.ukupnoKartica) || 0;
+      const preostaloKartica = Math.max(0, ukupnoKartica - odradjenoKartica);
       const postotak = ukupnoKartica > 0 ? Math.min(100, Math.round((odradjenoKartica / ukupnoKartica) * 100)) : 0;
 
-      // (BUG 2 FIX) - Izračun zarade
+      // Izračun tempa
+      const preostaloDana = izracunajPreostaleDane(p.datumRoka, p.radVikendom);
+      let dnevniRitamText = '';
+
+      if (postotak >= 100) {
+        dnevniRitamText = `<span style="color: #2e7d32; font-weight: bold;">🎉 Projekt je završen!</span>`;
+      } else if (preostaloDana <= 0) {
+        dnevniRitamText = `<span style="color: #c62828; font-weight: bold;">⚠️ Rok je istekao!</span>`;
+      } else {
+        const potrebnoDnevno = (preostaloKartica / preostaloDana).toFixed(2);
+        const vikendOpaska = p.radVikendom === 'da' ? 'svi dani' : 'radni dani';
+        dnevniRitamText = `<strong>Potrebni tempo:</strong> <mark style="background: #e6f2f2; color: #008080; padding: 2px 6px; border-radius: 4px; font-weight: bold;">${potrebnoDnevno} kartica/dan</mark> <small class="text-muted">(${preostaloDana} ${vikendOpaska} do roka)</small>`;
+      }
+
+      // Honorari
       const honorarPoKartici = parseFloat(p.honorarPoKartici) || 0;
       const ukupniHonorar = (ukupnoKartica * honorarPoKartici).toFixed(2);
       const zaradjenoDoSada = (odradjenoKartica * honorarPoKartici).toFixed(2);
 
-      // Priprema slikovnog elementa (naslovnica)
+      // Naslovnica
       const naslovnicaHtml = p.naslovnicaBase64 
         ? `<img src="${p.naslovnicaBase64}" alt="Naslovnica" style="width: 75px; height: 110px; object-fit: cover; border-radius: 6px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); flex-shrink: 0;">`
         : `<div style="width: 75px; height: 110px; background: #e0e0e0; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #777; flex-shrink: 0;">📖</div>`;
 
-      // Status ikona za Google Doc & info o zadnjoj sinkronizaciji
+      // Status
       const lastSyncText = p.lastSynced ? ` Zadnje: ${p.lastSynced}` : '';
       const gdocStatus = p.gdocUrl 
         ? `<span style="color: #2e7d32; font-size: 0.82em;" title="${p.gdocUrl}">🟢 GDoc Povezan${lastSyncText}</span>` 
@@ -207,7 +255,6 @@ async function ucitajDashboard() {
       card.className = 'card-projekt';
       card.style = 'background: #fff; border-radius: 10px; padding: 16px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #eef2f2;';
 
-      // NOVI LAYOUT KARTICE
       card.innerHTML = `
         <div style="display: flex; gap: 16px; align-items: flex-start;">
           ${naslovnicaHtml}
@@ -216,27 +263,27 @@ async function ucitajDashboard() {
               <h3 style="margin: 0; color: #008080; font-size: 1.2em;">${p.naslov}</h3>
               ${gdocStatus}
             </div>
-            <div style="font-size: 0.88em; color: #666; margin-bottom: 10px;">${p.klijent || 'Samostalni projekt'}</div>
+            <div style="font-size: 0.88em; color: #666; margin-bottom: 8px;">${p.klijent || 'Samostalni projekt'}</div>
             
-            <!-- Napredak metrika -->
             <div style="margin-bottom: 6px; font-size: 0.9em;">
               <strong>Napredak:</strong> ${odradjenoKartica.toFixed(2)} / ${ukupnoKartica.toFixed(2)} kartica 
               <span style="color: #008080; font-weight: bold;">(${postotak}%)</span>
               <br><small class="text-muted">(${(p.slovaPrijevod || 0).toLocaleString('hr-HR')} slova u prijevodu)</small>
             </div>
 
-            <!-- Progress Bar -->
             <div style="background: #e6f2f2; border-radius: 6px; height: 10px; overflow: hidden; margin-bottom: 10px;">
               <div style="background: #008080; width: ${postotak}%; height: 100%; transition: width 0.3s ease;"></div>
             </div>
 
-            <!-- Zarada (Aproksimacija) -->
+            <div style="font-size: 0.88em; margin-bottom: 10px;">
+              ${dnevniRitamText}
+            </div>
+
             <div style="background: #f9fbfb; padding: 8px 12px; border-radius: 6px; font-size: 0.88em; margin-bottom: 12px; border-left: 3px solid #008080; display: flex; justify-content: space-between;">
               <span><strong>Zarada:</strong> ${zaradjenoDoSada} € / ${ukupniHonorar} €</span>
               <span style="color: #666;">(${honorarPoKartici.toFixed(2)} €/kartici)</span>
             </div>
 
-            <!-- Gumbi za akcije (BUG 3 FIX: Sync gumb) -->
             <div style="display: flex; gap: 8px; flex-wrap: wrap;">
               <button onclick="sinkronizirajProjekt('${p.id}')" class="btn-primary" style="padding: 6px 12px; font-size: 0.85em; background: #008080; color: #fff; border: none; border-radius: 4px; cursor: pointer;">
                 ⚡ Sync Doc
@@ -248,13 +295,18 @@ async function ucitajDashboard() {
         </div>
       `;
 
-      dashboardDiv.appendChild(card);
+      fragment.appendChild(card);
     });
+
+    // Jednokratno dodavanje svih kartica u čist kontejner
+    dashboardDiv.appendChild(fragment);
 
   } catch (err) {
     console.error("Greška pri učitavanju dashboarda:", err);
   }
 }
+
+
 async function dodajUnosForma(e, projektId) {
   e.preventDefault();
   const datum = document.getElementById(`u-datum-${projektId}`).value;
@@ -1193,22 +1245,6 @@ async function uveziSigurnosnuKopiju(event) {
 }
 
 
-// Pravilan slijed pokretanja aplikacije
-document.addEventListener('DOMContentLoaded', async () => {
-  try {
-    // Prvo inicijaliziramo bazu
-    await otvoriBazu();
-    // Tek onda učitavamo dashboard
-    if (typeof ucitajDashboard === 'function') {
-      await ucitajDashboard();
-    } else if (typeof renderDashboard === 'function') {
-      await renderDashboard();
-    }
-  } catch (err) {
-    console.error("Inicijalizacija aplikacije nije uspjela:", err);
-  }
-});
-
 async function sinkronizirajProjekt(id) {
   try {
     const db = await otvoriBazu();
@@ -1252,3 +1288,13 @@ async function sinkronizirajProjekt(id) {
     alert("Sinkronizacija nije uspjela. Provjerite je li Google Doc javan ('Anyone with the link can view').");
   }
 }
+
+
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    await otvoriBazu();
+    await ucitajDashboard();
+  } catch (err) {
+    console.error("Inicijalizacija aplikacije nije uspjela:", err);
+  }
+});
