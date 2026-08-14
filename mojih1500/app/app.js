@@ -242,7 +242,7 @@ async function ucitajDashboard() {
         dnevniRitamText = `<span style="color: #c62828; font-weight: bold;">⚠️ Rok je istekao!</span>`;
       } else {
         const potrebnoDnevno = (preostaloKartica / preostaloDana).toFixed(2);
-        const vikendOpaska = p.radVikendom === 'da' ? 'svi dani' : 'radni dani';
+        const vikendOpaska = p.radVikendom === 'da' ? 'dana (ukljućujući i vikende)' : 'radnih dana';
         
         // Prikaz planiranog i potrebnog tempa
         dnevniRitamText = `
@@ -391,7 +391,14 @@ async function urediProjekt(id) {
     }
 
     document.getElementById('forma-naslov').innerText = 'Uredi Projekt';
-    document.getElementById('forma-projekt-container').style.display = 'block';
+    // Otvaranje kontejnera s formom
+    const formaContainer = document.getElementById('forma-projekt-container');
+    formaContainer.style.display = 'block';
+
+    // DODANO: Glatko skrolanje do vrha forme
+    formaContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    
   };
 }
 
