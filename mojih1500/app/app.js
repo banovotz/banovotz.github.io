@@ -261,15 +261,23 @@ async function ucitajDashboard() {
       } else if (preostaloDana <= 0) {
         dnevniRitamText = `<span style="color: #c62828; font-weight: bold;">⚠️ Rok je istekao!</span>`;
       } else {
+        const potrebnoDnevnoNum = preostaloKartica / preostaloDana;
         const potrebnoDnevno = (preostaloKartica / preostaloDana).toFixed(2);
         const vikendOpaska = p.radVikendom === 'da' ? 'dana (ukljućujući i vikende)' : 'radnih dana';
+
+        // Određivanje boje: crveno ako je potreban tempo veći od planiranog, zeleno ako je isti ili manji
+        const jeUZaostatku = planiranoDnevno > 0 && potrebnoDnevnoNum > planiranoDnevno;
+        const markBojaPozadine = jeUZaostatku ? '#fde8e8' : '#e6f2f2';
+        const markBojaTeksta = jeUZaostatku ? '#c62828' : '#008080';
         
         // Prikaz planiranog i potrebnog tempa
         dnevniRitamText = `
           <div><strong>Planirani tempo:</strong> ${planiranoDnevno > 0 ? `${planiranoDnevno} kartica/dan` : '<span class="text-muted">Nije postavljen</span>'}</div>
           <div style="margin-top: 2px;">
             <strong>Potrebni tempo:</strong> 
-            <mark style="background: #e6f2f2; color: #008080; padding: 2px 6px; border-radius: 4px; font-weight: bold;">${potrebnoDnevno} kartica/dan</mark> 
+            <mark style="background: ${markBojaPozadine}; color: ${markBojaTeksta}; padding: 2px 6px; border-radius: 4px; font-weight: bold;">
+              ${potrebnoDnevno} kartica/dan
+            </mark> 
             <small class="text-muted">(${preostaloDana} ${vikendOpaska} do roka)</small>
           </div>
         `;
@@ -307,7 +315,7 @@ const card = document.createElement('div');
             <div style="margin-bottom: 6px; font-size: 0.9em;">
               <strong>Napredak:</strong> ${odradjenoKartica.toFixed(2)} / ${ukupnoKartica.toFixed(2)} kartica 
               <span style="color: #008080; font-weight: bold;">(${postotak}%)</span>
-              <br><small class="text-muted">(${(p.slovaPrijevod || 0).toLocaleString('hr-HR')} znakova s razmacima u prijevodu)</small>
+              <br><small class="text-muted">U prijevodu ima ${(p.slovaPrijevod || 0).toLocaleString('hr-HR')} znakova s razmacima.</small>
             </div>
 
             <div style="background: #e6f2f2; border-radius: 6px; height: 10px; overflow: hidden; margin-bottom: 10px;">
