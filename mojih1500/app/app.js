@@ -107,7 +107,27 @@ async function inicijalizirajAplikaciju() {
 }
 
 // Pokreće se čim se HTML stranica učita
-document.addEventListener('DOMContentLoaded', inicijalizirajAplikaciju);
+// Zastavica koja sprječava višestruku inicijalizaciju
+let aplikacijaInicijalizirana = false;
+
+async function pokreniAplikaciju() {
+  if (aplikacijaInicijalizirana) return;
+  aplikacijaInicijalizirana = true;
+
+  try {
+    await otvoriBazu();
+    await ucitajDashboard();
+  } catch (err) {
+    console.error("Greška pri pokretanju aplikacije:", err);
+  }
+}
+
+// Sigurno pokretanje samo jednom
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', pokreniAplikaciju);
+} else {
+  pokreniAplikaciju();
+}
 
 function postaviZadaneDatume() {
   const danas = new Date().toISOString().split('T')[0];
@@ -1316,14 +1336,6 @@ async function sinkronizirajProjekt(id) {
 }
 
 
-document.addEventListener('DOMContentLoaded', async () => {
-  try {
-    await otvoriBazu();
-    await ucitajDashboard();
-  } catch (err) {
-    console.error("Inicijalizacija aplikacije nije uspjela:", err);
-  }
-});
 
 /**
  * Omogućuje brz ručni unos / korekciju ukupnog broja znakova u prijevodu.
