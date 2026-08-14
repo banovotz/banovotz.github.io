@@ -230,8 +230,10 @@ async function ucitajDashboard() {
             📝 Ručni unos 
            </button>`;
            
-      // Izračun tempa
+    
+     // Izračun tempa
       const preostaloDana = izracunajPreostaleDane(p.datumRoka, p.radVikendom);
+      const planiranoDnevno = parseFloat(p.ciljDnevno) || 0;
       let dnevniRitamText = '';
 
       if (postotak >= 100) {
@@ -241,7 +243,16 @@ async function ucitajDashboard() {
       } else {
         const potrebnoDnevno = (preostaloKartica / preostaloDana).toFixed(2);
         const vikendOpaska = p.radVikendom === 'da' ? 'svi dani' : 'radni dani';
-        dnevniRitamText = `<strong>Potrebni tempo:</strong> <mark style="background: #e6f2f2; color: #008080; padding: 2px 6px; border-radius: 4px; font-weight: bold;">${potrebnoDnevno} kartica/dan</mark> <small class="text-muted">(${preostaloDana} ${vikendOpaska} do roka)</small>`;
+        
+        // Prikaz planiranog i potrebnog tempa
+        dnevniRitamText = `
+          <div><strong>Planirani tempo:</strong> ${planiranoDnevno > 0 ? `${planiranoDnevno} kartica/dan` : '<span class="text-muted">Nije postavljen</span>'}</div>
+          <div style="margin-top: 2px;">
+            <strong>Potrebni tempo:</strong> 
+            <mark style="background: #e6f2f2; color: #008080; padding: 2px 6px; border-radius: 4px; font-weight: bold;">${potrebnoDnevno} kartica/dan</mark> 
+            <small class="text-muted">(${preostaloDana} ${vikendOpaska} do roka)</small>
+          </div>
+        `;
       }
 
       // Honorari
