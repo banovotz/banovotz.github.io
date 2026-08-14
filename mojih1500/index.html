@@ -1,7 +1,7 @@
 ---
 layout: default
-title: "Aplikacija za književne prevoditelje - Mojih1500 — Prevoditeljski Ritam & Metrika"
-description: "Besplatan, 100% privatna web aplikacija koja književnim prevoditeljim olakšava praćennje ugovorenih projekata, rokova isporuke, broja prevedenih kartica, tempo rada... Unos trenutnog stanja uz uz OCR skeniranje Word counta."
+title: "Mojih 1500 - Aplikacija za književne prevoditelje. Praćenje tempa prevođenja, rokova i zarade."
+description: "Mojih 1500 je besplatna, 100% privatna web aplikacija koja književnim prevoditeljim olakšava praćenje ugovorenih projekata, rokova isporuke, broja prevedenih kartica, tempo rada... Automatski izračun broja trenutno prevedenih kartica i preostalog broja kartica za prijevod."
 image: /mojih1500/mockup1.jpg
 ---
 
@@ -114,6 +114,11 @@ image: /mojih1500/mockup1.jpg
     margin-top: 0;
     font-size: 1.2rem;
   }
+  #sup {
+    font-size: 0.8rem;
+    line-height: 1;
+  }
+
 
   /* PWA Install Guide */
   .install-box {
@@ -175,7 +180,7 @@ image: /mojih1500/mockup1.jpg
 - <b>Rokove</b> isporuke<br>
 - Broj <b>prevedenih kartica</b><br>
 - <b>Tempo</b> rada (bez tablica i stresa)</p>
-<p>Uz <b>automatsko OCR skeniranje</b> trenutnog broja znakova u vašem prijevodu.</p>
+<p><b>Automatski izračun</b> broja trenutno prevedenih kartica u odnosu na preostali broj kartica za prijevod.</p>
 
       <div class="hero-cta-group">
         <a href="{{ '/mojih1500/app/' | relative_url }}" class="btn-pwa-main">🚀 Pokreni Aplikaciju</a>
@@ -183,27 +188,41 @@ image: /mojih1500/mockup1.jpg
       </div>
     </div>
     <div class="hero-image">
-      <img src="./mockup1.png" alt="Mojih 1500 PWA Prikaz" style="max-width: 380px; margin: 0 auto; display: block;">
+      <img src="./mockup4.jpeg" alt="Mojih 1500 PWA Prikaz" style="max-width: 380px; margin: 0 auto; display: block;">
     </div>
   </section>
 
   <!-- KAKO APLIKACIJA FUNKCIONIRA -->
   <section id="kako-radi" class="landing-section">
     <h2 class="section-title">Kako funkcionira?</h2>
+    
     <div class="grid-3">
+       <div class="hero-image">
+      <img src="./mockup2.jpeg" alt="Mojih 1500 PWA Prikaz" style="max-width: 380px; margin: 0 auto; display: block;">
+    </div>
+        <div class="hero-image">
+      <img src="./mockup3.jpeg" alt="Mojih 1500 PWA Prikaz" style="max-width: 380px; margin: 0 auto; display: block;">
+    </div>
+        <div class="hero-image">
+      <img src="./mockup4.jpeg" alt="Mojih 1500 PWA Prikaz" style="max-width: 380px; margin: 0 auto; display: block;">
+    </div>
+
       <div class="step-card">
         <h3>1. Postavite projekt</h3>
-        <p>Unesite ukupan broj kartica, ugovoreni rok i honorar. Aplikacija izračunava vašu početnu dnevnu normu.</p>
+
+        <p>Učitajte ePub izvornika i link na Google doc* s vašim prijevodom. Postavite ugovoreni rok, planirani dnevni broj prevedenih kartica i honorar.</p>
+        <p id="sup">*Doc treba biti podijeljen kao "anyone with the link" ili možete ručno unijeti broj znakova.</p>
       </div>
       <div class="step-card">
-        <h3>2. Skenirajte Word Count</h3>
-        <p>Usmjerite kameru mobitela prema ekranu računala. Aplikacija sama prepoznaje broj znakova s razmacima i preračunava ih u kartice.</p>
+        <h3>2. Sinhronizirajte dokument</h3>
+        <p>Aplikacija preuzima broj znakova s razmacima i preračunava ih u kartice, te prati vaš dnevni tempo i stižete li njime na vrijeme.</p>
       </div>
       <div class="step-card">
         <h3>3. Pratite dinamički ritam</h3>
         <p>Ako uzmete slobodan dan, alat automatski preračunava novi dnevni cilj kako biste projekt završili točno na vrijeme.</p>
       </div>
-    </div>
+      
+             </div>
   </section>
 
   <!-- KLJUČNE PREDNOSTI -->
@@ -215,8 +234,8 @@ image: /mojih1500/mockup1.jpg
         <p>Svi podaci spremaju se isključivo u vaš preglednik (IndexedDB). Vaši projekti, ugovori i iznosi nikada ne napuštaju vaše računalo.</p>
       </div>
       <div class="feature-card">
-        <h3>📷 OCR Skeniranje</h3>
-        <p>Bez ručnog preračunavanja i tipkanja. Uredski ili književni prijevod pretvorite u kartice jednim fotografiranjem prozorčića.</p>
+        <h3>📈 Praćenje napretka</h3>
+        <p> Aplikacija automatski prati vaš napredak u prevođenju i izračunava preostali broj kartica i sugerira dnevni ritam kako bi na vrijeme završili prijevod.</p>
       </div>
       <div class="feature-card">
         <h3>📶 Radi potpuno Offline</h3>
