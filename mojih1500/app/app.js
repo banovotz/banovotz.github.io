@@ -307,7 +307,7 @@ const card = document.createElement('div');
             <div style="margin-bottom: 6px; font-size: 0.9em;">
               <strong>Napredak:</strong> ${odradjenoKartica.toFixed(2)} / ${ukupnoKartica.toFixed(2)} kartica 
               <span style="color: #008080; font-weight: bold;">(${postotak}%)</span>
-              <br><small class="text-muted">(${(p.slovaPrijevod || 0).toLocaleString('hr-HR')} slova u prijevodu)</small>
+              <br><small class="text-muted">(${(p.slovaPrijevod || 0).toLocaleString('hr-HR')} znakova s razmacima u prijevodu)</small>
             </div>
 
             <div style="background: #e6f2f2; border-radius: 6px; height: 10px; overflow: hidden; margin-bottom: 10px;">
