@@ -195,7 +195,7 @@ function izracunajPreostaleDane(datumRokaStr, radVikendom) {
 }
 
 async function ucitajDashboard() {
-  const dashboardDiv = document.getElementById('dashboard');
+  const dashboardDiv = document.getElementById('dashboard-page');
   if (!dashboardDiv) return;
 
   // 1. OBAVEZNO ČIŠĆENJE: Isprazni sav prethodni sadržaj iz HTML-a
@@ -1391,4 +1391,295 @@ async function rucniUnosZnakova(id) {
     console.error("Greška pri ručnom unosu znakova:", err);
     alert("Nije uspjelo ažuriranje broja znakova.");
   }
+}
+
+const SETTINGS_KEY = 'mojih1500_postavke';
+
+function ucitajPostavke() {
+  prikaziStranicu('settings-page');
+
+  const postojacePostavke = JSON.parse(localStorage.getItem(SETTINGS_KEY)) || {
+    modelDoprinosa: 'obrt',
+    fiksniIznos: 0,
+    postotakIznos: 0,
+    vrstaKartice: '1800'
+  };
+
+  if (postojacePostavke.modelDoprinosa === 'postotak') {
+    document.getElementById('model-postotak').checked = true;
+  } else {
+    document.getElementById('model-obrt').checked = true;
+  }
+
+  document.getElementById('fiksni-iznos').value = postojacePostavke.fiksniIznos || '';
+  document.getElementById('postotak-iznos').value = postojacePostavke.postotakIznos || '';
+  document.getElementById('kartica-1800').checked = true;
+
+  osvjeziPrikazFinancija();
+}
+
+function osvjeziPrikazFinancija() {
+  const isObrt = document.getElementById('model-obrt').checked;
+  document.getElementById('polje-fiksni').style.display = isObrt ? 'block' : 'none';
+  document.getElementById('polje-postotak').style.display = isObrt ? 'none' : 'block';
+}
+
+function spremiPostavke() {
+  const modelDoprinosa = document.querySelector('input[name="modelDoprinosa"]:checked').value;
+  const fiksniIznos = parseFloat(document.getElementById('fiksni-iznos').value) || 0;
+  const postotakIznos = parseFloat(document.getElementById('postotak-iznos').value) || 0;
+  const vrstaKartice = document.querySelector('input[name="vrstaKartice"]:checked').value;
+
+  const postavke = {
+    modelDoprinosa,
+    fiksniIznos,
+    postotakIznos,
+    vrstaKartice
+  };
+
+  localStorage.setItem(SETTINGS_KEY, JSON.stringify(postavke));
+  alert('Postavke su spremljene!');
+}
+
+let odabranaGodinaAnalitike = new Date().getFullYear();
+
+/**
+ * Učitava i inicijalizira ekran Analitike
+ */
+async function ucitajAnalitiku() {
+  prikaziStranicu('analytics-page');
+  popuniGodineOdabira();
+  await generirajTablicuAnalitike();
+}
+
+/**
+ * Popunjava padajući izbornik s godinama (trenutna godina + 2 unaprijed i 2 unazad)
+ */
+function popuniGodineOdabira() {
+  const select = document.getElementById('odabir-godine');
+  select.innerHTML = '';
+  
+  const trenutnaGodina = new Date().getFullYear();
+  for (let g = trenutnaGodina - 2; g <= trenutnaGodina + 2; g++) {
+    const opt = document.createElement('option');
+    opt.value = g;
+    opt.textContent = `${g}. godina`;
+    if (g === odabranaGodinaAnalitike) opt.selected = true;
+    select.appendChild(opt);
+  }
+}
+
+/**
+ * Reagira na promjenu godine u izborniku
+ */
+async function promijeniGodinuAnalitike() {
+  odabranaGodinaAnalitike = parseInt(document.getElementById('odabir-godine').value);
+  await generirajTablicuAnalitike();
+}
+
+/**
+ * Glavna funkcija za preračunavanje i prikaz tablice analitike
+ */
+async function generirajTablicuAnalitike() {
+  const tbody = document.getElementById('analitika-tablica-body');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  // 1. Dohvat i konverzija postavki
+  const sirovoPostavke = JSON.parse(localStorage.getItem('mojih1500_postavke')) || {};
+  const postavke = {
+    modelDoprinosa: sirovoPostavke.modelDoprinosa || 'obrt',
+    fiksniIznos: parseFloat(sirovoPostavke.fiksniIznos) || 0,
+    postotakIznos: parseFloat(sirovoPostavke.postotakIznos) || 0,
+    vrstaKartice: parseInt(sirovoPostavke.vrstaKartice) || 1800
+  };
+
+  const db = await otvoriBazu();
+  const sviProjekti = await dohvatiSveProjekte(db);
+
+  const naziviMjeseci = [
+    "Siječanj", "Veljača", "Ožujak", "Travanj", "Svibanj", "Lipanj",
+    "Srpanj", "Kolovoz", "Rujan", "Listopad", "Studeni", "Prosinac"
+  ];
+
+  let godisnjiNetoUkupno = 0;
+  const danas = new Date();
+
+  for (let m = 0; m < 12; m++) {
+    const aktivniProjektiUMjesecu = [];
+
+    sviProjekti.forEach(p => {
+      const datumPocetka = p.datumPocetka ? new Date(p.datumPocetka) : new Date(p.datumKreiranja || Date.now());
+      const datumRoka = new Date(p.datumRoka);
+
+      const pocetakMjeseca = new Date(odabranaGodinaAnalitike, m, 1);
+      const krajMjeseca = new Date(odabranaGodinaAnalitike, m + 1, 0);
+
+      // Provjera aktivnih projekata u mjesecu
+      if (datumPocetka <= krajMjeseca && datumRoka >= pocetakMjeseca) {
+
+        const norma = postavke.vrstaKartice || 1800;
+        let ukupnoZnakovaOdradjeno = 0;
+
+        // 1. Dnevnik unosa (dnevnik/logs/povijest)
+        const unosiDnevnika = p.dnevnik || p.logs || p.povijest || [];
+        if (Array.isArray(unosiDnevnika) && unosiDnevnika.length > 0) {
+          ukupnoZnakovaOdradjeno = unosiDnevnika.reduce((sum, u) => sum + (parseFloat(u.brojZnakova || u.znakova || u.iznos) || 0), 0);
+        } else {
+          // 2. Čitanje iz slovaPrijevod / slovaOriginal ili odradjenoZnakova
+          ukupnoZnakovaOdradjeno = parseFloat(p.slovaPrijevod || p.slovaOriginal || p.odradjenoZnakova || p.trenutnoZnakova) || 0;
+        }
+
+        let odradjenoKartica = ukupnoZnakovaOdradjeno / norma;
+
+        // Fallback na ukupne ugovorene kartice projekta
+        if (odradjenoKartica === 0) {
+          odradjenoKartica = parseFloat(p.ukupnoKartica) || parseFloat(p.odradjenoKartica) || 0;
+        }
+
+        // --- POPRAVAK: Čitanje polja honorarPoKartici ---
+        const cijenaPoKartici = parseFloat(p.honorarPoKartici || p.cijenaPoKartici || p.cijena) || 0;
+        
+        let trenutnoBruto = odradjenoKartica * cijenaPoKartici;
+        if (trenutnoBruto === 0 && p.ukupnoBruto) {
+          trenutnoBruto = parseFloat(p.ukupnoBruto) || 0;
+        }
+
+        // Provjera kašnjenja
+        let kasni = false;
+        const ukupnoKartica = parseFloat(p.ukupnoKartica) || 0;
+        if (datumRoka < danas && (ukupnoKartica === 0 || odradjenoKartica < ukupnoKartica)) {
+          kasni = true;
+        }
+
+        const nazivKlijenta = p.klijent || p.izdavac || p.narucitelj || '-';
+
+        aktivniProjektiUMjesecu.push({
+          naslov: p.naslov || p.naziv || 'Bezimeni projekt',
+          izdavac: nazivKlijenta,
+          bruto: trenutnoBruto,
+          kasni: kasni
+        });
+      }
+    });
+
+    const brojRedova = Math.max(1, aktivniProjektiUMjesecu.length);
+    const imeMjeseca = naziviMjeseci[m];
+    const ukupniMjesecniBruto = aktivniProjektiUMjesecu.reduce((sum, item) => sum + item.bruto, 0);
+
+    let mjesecniNetoObrt = 0;
+    if (postavke.modelDoprinosa === 'obrt') {
+      mjesecniNetoObrt = Math.max(0, ukupniMjesecniBruto - postavke.fiksniIznos);
+      if (aktivniProjektiUMjesecu.length > 0) {
+        godisnjiNetoUkupno += mjesecniNetoObrt;
+      }
+    }
+
+    if (aktivniProjektiUMjesecu.length === 0) {
+      const tr = document.createElement('tr');
+      tr.style.borderBottom = '1px solid #eee';
+      tr.innerHTML = `
+        <td style="padding: 10px 12px; font-weight: bold; color: #555;">${imeMjeseca}</td>
+        <td style="padding: 10px 12px; color: #aaa;" colspan="2"><em>Nema aktivnih projekata</em></td>
+        <td style="padding: 10px 12px; text-align: right; color: #aaa;">0.00 €</td>
+        <td style="padding: 10px 12px; color: #aaa;">-</td>
+      `;
+      tbody.appendChild(tr);
+    } else {
+      aktivniProjektiUMjesecu.forEach((proj, idx) => {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid #eee';
+
+        let tdMjesec = idx === 0 
+          ? `<td rowspan="${brojRedova}" style="padding: 10px 12px; font-weight: bold; color: #333; vertical-align: top; background: #fafafa;">${imeMjeseca}</td>` 
+          : '';
+
+        let tdProjekt = `<td style="padding: 10px 12px; font-weight: 500;">${proj.naslov}</td>`;
+        let tdIzdavac = `<td style="padding: 10px 12px; color: #666;">${proj.izdavac}</td>`;
+
+        let tdNeto = '';
+        if (postavke.modelDoprinosa === 'obrt') {
+          if (idx === 0) {
+            tdNeto = `<td rowspan="${brojRedova}" style="padding: 10px 12px; text-align: right; font-weight: bold; color: #2e7d32; vertical-align: top; background: #fafafa;">
+              ${mjesecniNetoObrt.toFixed(2)} €
+            </td>`;
+          }
+        } else {
+          // Model: Postotak (Autorski ugovor) -> Bruto * (1 - postotak/100)
+          const stopaDoprinosa = (postavke.postotakIznos || 0) / 100;
+          const projNeto = proj.bruto * (1 - stopaDoprinosa);
+          godisnjiNetoUkupno += projNeto;
+
+          tdNeto = `<td style="padding: 10px 12px; text-align: right; font-weight: bold; color: #2e7d32;">
+            ${projNeto.toFixed(2)} €
+          </td>`;
+        }
+
+        let opaskaHtml = proj.kasni 
+          ? `<span style="color: #c62828; font-weight: bold; background: #fde8e8; padding: 2px 6px; border-radius: 4px; font-size: 0.85em;">⚠️ Projekt kasni</span>`
+          : `<span style="color: #2e7d32; font-size: 0.85em;">U rasporedu</span>`;
+
+        let tdOpaska = `<td style="padding: 10px 12px;">${opaskaHtml}</td>`;
+
+        tr.innerHTML = tdMjesec + tdProjekt + tdIzdavac + tdNeto + tdOpaska;
+        tbody.appendChild(tr);
+      });
+    }
+  }
+
+  const ukupnoEl = document.getElementById('analitika-ukupno-neto');
+  if (ukupnoEl) {
+    ukupnoEl.textContent = `${godisnjiNetoUkupno.toFixed(2)} €`;
+  }
+}
+
+
+function toggleMenu() {
+  const sideDrawer = document.getElementById('side-drawer');
+  const overlay = document.getElementById('overlay');
+  
+  if (sideDrawer && overlay) {
+    sideDrawer.classList.toggle('open');
+    overlay.classList.toggle('active');
+  }
+}
+
+/**
+ * Otvara / zatvara bočni hamburger izbornik
+ */
+function toggleMenu() {
+  const sideDrawer = document.getElementById('side-drawer');
+  const overlay = document.getElementById('overlay');
+  
+  if (sideDrawer && overlay) {
+    sideDrawer.classList.toggle('open');
+    overlay.classList.toggle('active');
+  }
+}
+/**
+ * Prikazuje samo odabranu stranicu, skrivajući sve ostale sekcije s klasom .page-content
+ * @param {string} pageId - ID kontejnera koji se prikazuje
+ */
+function prikaziStranicu(pageId) {
+  // Dohvaćamo sve kontejnere stranica
+  const sveStranice = document.querySelectorAll('.page-content');
+  
+  sveStranice.forEach(page => {
+    page.style.display = 'none';
+  });
+
+  const trazenaStranica = document.getElementById(pageId);
+  if (trazenaStranica) {
+    trazenaStranica.style.display = 'block';
+  }
+
+  // Pomiče prozor na sam vrh
+  window.scrollTo(0, 0);
+}
+/**
+ * Vraća korisnika na glavni Dashboard
+ */
+function prikaziDashboard() {
+  prikaziStranicu('dashboard-page'); // Provjerite je li kontejner za dashboard nazvan 'dashboard-page' ili 'dashboard'
+  ucitajDashboard();
 }

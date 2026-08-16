@@ -17,12 +17,48 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
   <!-- Omogućuje PWA način rada na iOS-u -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Mojih1500">
   <link rel="apple-touch-startup-image" href="apple-splash.png">
 </head>
 <body>
+
+
+<!-- Navigacijska traka -->
+<nav class="navbar" style="display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); position: sticky; top: 0; z-index: 1000;">
+  <div class="nav-brand" style="font-size: 1.2rem; font-weight: bold; color: #008080; cursor: pointer;" onclick="prikaziDashboard()">
+    Mojih 1500
+  </div>
+
+  <div class="nav-right" style="display: flex; align-items: center; gap: 20px;">
+    <!-- Glavni linkovi (Desktop) -->
+    <ul class="nav-links" style="display: flex; list-style: none; gap: 16px; margin: 0; padding: 0;">
+      <li><a href="javascript:void(0)" onclick="prikaziDashboard()" class="nav-item">🏠 Dashboard</a></li>
+      <li><a href="javascript:void(0)" onclick="ucitajAnalitiku()" class="nav-item">📊 Analitika</a></li>
+      <li><a href="javascript:void(0)" onclick="ucitajPostavke()" class="nav-item">⚙️ Postavke</a></li>
+    </ul>
+
+    <!-- Hamburger Gumb -->
+    <button class="hamburger-btn" id="hamburger-btn" aria-label="Otvori izbornik" onclick="toggleMenu()" style="background: none; border: none; cursor: pointer; display: flex; flex-direction: column; justify-content: space-around; width: 28px; height: 22px; padding: 0;">
+      <span style="width: 100%; height: 3px; background-color: #008080; border-radius: 2px;"></span>
+      <span style="width: 100%; height: 3px; background-color: #008080; border-radius: 2px;"></span>
+      <span style="width: 100%; height: 3px; background-color: #008080; border-radius: 2px;"></span>
+    </button>
+  </div>
+</nav>
+
+<!-- Bočni Hamburger Izbornik (Drawer) -->
+<aside class="side-drawer" id="side-drawer">
+  <ul class="drawer-menu">
+    <li><a href="javascript:void(0)" class="nav-item" onclick="prikaziDashboard(); toggleMenu();">🏠 Dashboard</a></li>
+    <li><a href="javascript:void(0)" class="nav-item" onclick="ucitajAnalitiku(); toggleMenu();">📊 Analitika</a></li>
+    <li><a href="javascript:void(0)" class="nav-item" onclick="ucitajPostavke(); toggleMenu();">⚙️ Postavke</a></li>
+  </ul>
+</aside>
+
+<!-- Zatamnjeni sloj za zatvaranje -->
+<div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
 <div class="container">
   <header>
@@ -130,16 +166,140 @@
   </div>
 
   <!-- Dashboard Prikaz Projekata -->
-  <div id="dashboard">
+  <div id="dashboard-page" class="page-content">
     <!-- Projekti se dinamički učitavaju putem app.js -->
   </div>
 
-  <!-- HTML uvoz/izvoz rezervne kopije -->
-  <div class="backup-actions" style="margin-top: 30px; margin-bottom: 30px; text-align: center;">
-    <button onclick="izveziSigurnosnuKopiju()" class="btn-secondary">💾 Spremi sigurnosnu kopiju (JSON)</button>
-    <button onclick="document.getElementById('import-file-input').click()" class="btn-secondary">📥 Učitaj kopiju</button>
-    <input type="file" id="import-file-input" style="display:none;" onchange="uveziSigurnosnuKopiju(event)" accept=".json" />
+
+<!-- EKRAN ZA POSTAVKE -->
+<div id="settings-page" class="page-content" style="display: none; max-width: 800px; margin: 0 auto; padding: 20px;">
+  <h2 style="color: #008080; margin-bottom: 24px;">⚙️ Postavke Aplikacije</h2>
+
+  <!-- SEKCIJA 1: Financijske postavke (Odbici) -->
+  <section class="settings-card" style="background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #eef2f2;">
+    <h3 style="margin-top: 0; color: #333;">💰 Financije i Odbici</h3>
+    <p style="color: #666; font-size: 0.9em; margin-bottom: 16px;">
+      Ove postavke služe za izračun neto prihoda na ekranu <strong>Analitike</strong> i ne utječu na prikaz bruta na glavnom dashboardu.
+    </p>
+
+    <div style="margin-bottom: 16px;">
+      <label style="font-weight: bold; display: block; margin-bottom: 8px;">Model obračuna doprinosa:</label>
+      
+      <div style="margin-bottom: 8px;">
+        <input type="radio" id="model-obrt" name="modelDoprinosa" value="obrt" onchange="osvjeziPrikazFinancija()" checked>
+        <label for="model-obrt">Obrt s fiksnim mjesečnim odbicima za doprinose</label>
+      </div>
+      
+      <div>
+        <input type="radio" id="model-postotak" name="modelDoprinosa" value="postotak" onchange="osvjeziPrikazFinancija()">
+        <label for="model-postotak">Postotni udjel doprinosa po ugovoru (autorski honorar/ugovor o djelu)</label>
+      </div>
+    </div>
+
+    <!-- Opcija A: Fiksni odbici (Obrt) -->
+    <div id="polje-fiksni" style="margin-top: 12px; padding: 12px; background: #f9fbfb; border-radius: 6px;">
+      <label for="fiksni-iznos" style="display: block; font-size: 0.9em; margin-bottom: 4px;">Fiksni mjesečni doprinosi (€):</label>
+      <input type="number" id="fiksni-iznos" placeholder="npr. 200" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 200px;">
+    </div>
+
+    <!-- Opcija B: Postotni odbici -->
+    <div id="polje-postotak" style="display: none; margin-top: 12px; padding: 12px; background: #f9fbfb; border-radius: 6px;">
+      <label for="postotak-iznos" style="display: block; font-size: 0.9em; margin-bottom: 4px;">Stopa doprinosa (%):</label>
+      <input type="number" id="postotak-iznos" placeholder="npr. 15" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 200px;">
+    </div>
+  </section>
+
+  <!-- SEKCIJA 2: Definiranje Književne Kartice -->
+  <section class="settings-card" style="background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #eef2f2;">
+    <h3 style="margin-top: 0; color: #333;">📏 Definiranje Književne Kartice</h3>
+    <p style="color: #666; font-size: 0.9em; margin-bottom: 16px;">Odaberite standard po kojem aplikacija izračunava broj kartica iz unesenog teksta.</p>
+
+    <div style="margin-bottom: 10px;">
+      <input type="radio" id="kartica-1800" name="vrstaKartice" value="1800" checked>
+      <label for="kartica-1800"><strong>1800 znakova s razmacima</strong> (Standardni hrvatski književni normativ)</label>
+    </div>
+
+    <div style="opacity: 0.5; cursor: not-allowed;" title="Ova opcija će biti dostupna u budućoj verziji">
+      <input type="radio" id="kartica-1500" name="vrstaKartice" value="1500" disabled>
+      <label for="kartica-1500" style="cursor: not-allowed;">1500 znakova bez razmaka <em>(Uskoro)</em></label>
+    </div>
+  </section>
+
+  <!-- SEKCIJA 3: Export / Import Baze (Izmještene kontrole) -->
+  <section class="settings-card" style="background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #eef2f2;">
+    <h3 style="margin-top: 0; color: #333;">💾 Sigurnosna Kopija (Eksport & Import)</h3>
+    <p style="color: #666; font-size: 0.9em; margin-bottom: 16px;">
+      Preuzmite cjelokupnu bazu projekata u JSON datoteci ili učitajte ranije spremljenu kopiju.
+    </p>
+
+    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+      <!-- Poziva postojeću eksport funkciju -->
+      <button onclick="izveziSigurnosnuKopiju()" class="btn-primary" style="padding: 10px 16px; background: #008080; color: #fff; border: none; border-radius: 4px; cursor: pointer;">
+        📥 Eksportiraj Bazu (JSON)
+      </button>
+
+      <!-- Okida postojeći file input za import koji već imate u aplikaciji -->
+      <button onclick="document.getElementById('import-file-input').click()" class="btn-secondary" style="padding: 10px 16px; background: #f0f7f7; color: #008080; border: 1px solid #008080; border-radius: 4px; cursor: pointer;">
+        📤 Importiraj Bazu
+      </button>
+    </div>
+  </section>
+
+  <!-- Gumb za spremanje postavki -->
+  <div style="text-align: right; margin-top: 20px;">
+    <button onclick="spremiPostavke()" style="padding: 12px 24px; background: #008080; color: #fff; font-size: 1em; font-weight: bold; border: none; border-radius: 6px; cursor: pointer;">
+      💾 Spremi Postavke
+    </button>
   </div>
+</div>
+
+<!-- EKRAN ZA ANALITIKU -->
+<div id="analytics-page" class="page-content" style="display: none; max-width: 1000px; margin: 0 auto; padding: 20px;">
+  
+  <!-- Priča 0: Naslov i obavijest -->
+  <div style="margin-bottom: 24px;">
+    <h2 style="color: #008080; margin-bottom: 6px;">📊 Analitika Financija i Procesa</h2>
+    <p style="color: #666; font-size: 0.9em; margin: 0; background: #e6f2f2; padding: 10px 14px; border-radius: 6px; border-left: 4px solid #008080;">
+      ℹ️ <strong>Napomena:</strong> Prikazana analitika je informativne prirode i služi za internu procjenu i planiranje radnog ritma i prihoda.
+    </p>
+  </div>
+
+  <!-- Priča 1: Odabir godine -->
+  <div style="background: #fff; padding: 16px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+    <label for="odabir-godine" style="font-weight: bold; color: #333;">Odaberite godinu za pregled:</label>
+    <select id="odabir-godine" onchange="promijeniGodinuAnalitike()" style="padding: 8px 12px; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer;">
+      <!-- Dinamički će se popuniti u JS-u -->
+    </select>
+  </div>
+
+  <!-- Priča 2: Tablica s mjesečnim prikazom -->
+  <div style="background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow-x: auto;">
+    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95em;">
+      <thead>
+        <tr style="background-color: #f0f7f7; color: #008080; border-bottom: 2px solid #008080;">
+          <th style="padding: 12px; min-width: 110px;">Mjesec</th>
+          <th style="padding: 12px;">Prijevod (Naslov)</th>
+          <th style="padding: 12px;">Klijent / Izdavač</th>
+          <th style="padding: 12px; text-align: right; min-width: 130px;">Neto zarada (€)</th>
+          <th style="padding: 12px; min-width: 150px;">Opaske</th>
+        </tr>
+      </thead>
+      <tbody id="analitika-tablica-body">
+        <!-- Dinamički sadržaj tablice -->
+      </tbody>
+      <tfoot>
+        <tr style="background-color: #f9fbfb; font-weight: bold; border-top: 2px solid #ccc;">
+          <td colspan="3" style="padding: 12px; text-align: right;">Ukupna godišnja neto zarada:</td>
+          <td id="analitika-ukupno-neto" style="padding: 12px; text-align: right; color: #008080; font-size: 1.1em;">0.00 €</td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+
+
 </div>
 
 <!-- Dodana verzija v=4 radi prisilnog osvježavanja skripte u pregledniku -->
