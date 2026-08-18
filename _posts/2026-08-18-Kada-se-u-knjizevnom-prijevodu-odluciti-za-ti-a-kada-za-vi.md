@@ -46,7 +46,7 @@ Zašto? Zato što humor i podbadanje ne moraju nužno značiti gubitak poštovan
 
 Evo jednog izvrsnog mjesta u romanu gdje vidimo upravo tu dinamiku. 
 
-*“Poprilično si popio, čini mi se. Smeta li ti ako te pokušam stići?”*
+*“Poprilično si popio, čini mi se. Imaš li što protiv ako te pokušam stići?”*
 
 *“Zašto?”*
 
