@@ -4,7 +4,7 @@ layout: post
 date: '2026-08-18 09:15:22'
 category: prevoditeljske-biljeske
 image: assets/images/immo-wegmann-rReG42Hkqo4-unsplash.jpg       
-description: 'Zašto je izbor između „ti” i „vi” ključan za odnos likova u romanu i kako prevoditelj dešifrira nevidljive tragove u tekstu.'
+description: 'Zašto je izbor između „ti” i „vi” ključan za odnos likova u romanu i kako književni prevoditelj dešifrira nevidljive tragove u tekstu.'
 ---
 
 Mnogo godina sam profesionalno proveo u informacijskom sektoru u kojem je,  bez obzira na starost (senioritet :)) ili "rang" sugovornika, uobičajeno neformalno obraćanje - sa "ti". Dogodilo mi se tako da sam kao novopridošli zaposlenik u jednoj velikoj kompaniji sa više stotina zaposlenih na uredskoj zabavi upoznao direktora IT odjela, gospodina sigurno dvadeset godina starijeg od mene, kojem sam se obratio sa "vi", a na što se on malo uvrijedio i rekao da smo "na ovom katu" - misleći pri tome na IT odjel koji je i sam brojao preko sto ljudi, svi na "ti". Na kraju krajeva, to je ipak "Aj ti", a ne "Ajte vi" - našalio se direktor. Šalu na stranu, ono što u svakom društvenom odnosu određuje "pravila" obraćanja je upravo kontekst. U konekstu hrvatske IT zajednice, zaista je neobično među kolegama bez obzira na dob ili status u tvrtki, čuti obraćanje s "vi". 
