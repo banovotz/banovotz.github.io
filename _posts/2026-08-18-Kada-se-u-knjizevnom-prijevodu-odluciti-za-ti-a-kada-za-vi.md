@@ -50,7 +50,7 @@ Evo jednog izvrsnog mjesta u romanu gdje vidimo upravo tu dimnamiku.
 
 *“Zašto?”*
 
-*“Ah, Joshua, pa za proslavu.”*
+*“Ah, Joshua, pa zbog proslave.”*
 
 *“Čega? Činjenice da sam potpuno potopio vašu teoriju ...”*
 
