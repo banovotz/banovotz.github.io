@@ -1,3 +1,12 @@
+---
+title: Česte zamke u književnom prevođenju
+layout: post
+date: '2026-08-25 10:10:21'
+category: prevoditeljske-biljeske
+image: assets/images/bernd-dittrich-IB00Tf3KaXg-unsplash.jpg     
+description: 'Analiza šest vrsta "zamki" u književnom prevođenju s primjerima iz prakse. Stilski, idiomatski ili sintaktički ispravci koji književni prijevod čine puno tečnijim.'
+---
+
 Dok prevodim književni tekst, ponekad upadam u zamke s kojima prijevod - stilski, idiomatski ili sintaktički - ne ispadne baš najsretnije rješenje. Nekad zamke uočim odmah, nekad u drugom čitanju, no učinilo mi se vrijednim otići korak dalje i analizirati te pogreške. Radeći na prijevodu knjige Michael Bishopa, No Enemy But Time, kod naknadnih revizija sam u komentarima dokumenta ostavio zabilježen prvi prijevod. Nakon toga sam analizom utvrdio barem šest vrsta tih zamki. Donosim ih s primjerom slabijeg, prvog prijevoda za svaku od njih, te pripadajuće revidirane verzije prijevoda uz pojašnjenja redaktorskih zahvata.  
 
 ### Jezični stil i ritam prijevoda
