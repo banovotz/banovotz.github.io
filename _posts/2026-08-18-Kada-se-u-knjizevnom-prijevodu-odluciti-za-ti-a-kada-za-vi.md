@@ -26,7 +26,7 @@ Kada u engleskom tekstu nemamo eksplicitno naveden prelazak na *"first-name basi
 
 U slučaju Joshue i Blaira, kontekstualni tragovi u romanu postavljaju vrlo jasnu, ali istovremeno i fascinantno asimetričnu dinamiku:
 
-#### 1. Upoznatost prije upoznavanja (Kronološki paradox)
+#### 1. Znaju se i prije upoznavanja - kronološki paradoks
 
 Zahvaljujući narativnoj strukturi romana, čitatelj, a i prevoditelj ako nije stigao pričitati roman od 400 kartica, prije samog čina prevođenja, prisustvuje razgovorima između Blaira i Joshue koji su se, unutar unutrašnjeg vremena lika ili kronologije priče, odvili *prije* njihova formalnog susreta u "stvarnosti".
 
