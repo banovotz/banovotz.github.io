@@ -20,6 +20,36 @@ layout: default
 <div class="container">
   <h1>404</h1>
 
-  <p><strong>Page not found :(</strong></p>
-  <p>The requested page could not be found.</p>
+  <p><strong>Stranica nije pronađena :(</strong></p>
+  <p>Ne možemo promnaći traženu stranicu.</p> 
+  <p><a href="{{ '/#' | relative_url }}">Kliknite ovdje za početnu!</a> </p>
 </div>
+
+  <footer class="post-footer">
+    <hr class="post-divider" />
+    
+{% assign random_cta = site.data.cta_messages | sample %}
+
+<div class="post-cta">
+  <h3>{{ random_cta.heading }}</h3>
+  <p>{{ random_cta.text }}</p>
+  <a href="{{ '/#contact' | relative_url }}" class="btn">{{ random_cta.button_text }}</a>
+</div>
+    <!-- Navigacija: Prethodni / Sljedeći post -->
+    <nav class="post-navigation">
+      <div class="nav-previous">
+        {% if page.previous.url %}
+          <a href="{{ page.previous.url | relative_url }}">
+            &larr; <span>{{ page.previous.title }}</span>
+          </a>
+        {% endif %}
+      </div>
+      <div class="nav-next">
+        {% if page.next.url %}
+          <a href="{{ page.next.url | relative_url }}">
+            <span>{{ page.next.title }}</span> &rarr;
+          </a>
+        {% endif %}
+      </div>
+    </nav>
+  </footer>
