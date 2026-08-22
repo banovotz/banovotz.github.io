@@ -1480,7 +1480,6 @@ async function promijeniGodinuAnalitike() {
 /**
  * Glavna funkcija za preračunavanje i prikaz tablice analitike
  */
-
 async function generirajTablicuAnalitike() {
   const tbody = document.getElementById('analitika-tablica-body');
   if (!tbody) return;
@@ -1564,19 +1563,19 @@ async function generirajTablicuAnalitike() {
       }
     });
 
-    const brojRedova = Math.max(1, aktivniProjektiUMjesecu.length);
     const imeMjeseca = naziviMjeseci[m];
-
-    // Kod modela paušalnog obrta računaju se projekti čiji je rok u ovom mjesecu
     const zavrseniUOvomMjesecu = aktivniProjektiUMjesecu.filter(p => p.jeZavrsetakProjekta);
     const mjesecniBrutoZavrsenih = zavrseniUOvomMjesecu.reduce((sum, item) => sum + item.bruto, 0);
 
+    // Proračun za obrt (Opcija A: razdvajanje po mjesecima)
     let mjesecniNetoObrt = 0;
     if (postavke.modelDoprinosa === 'obrt') {
       if (zavrseniUOvomMjesecu.length > 0) {
-        mjesecniNetoObrt = Math.max(0, mjesecniBrutoZavrsenih - postavke.fiksniIznos);
-        godisnjiNetoUkupno += mjesecniNetoObrt;
+        mjesecniNetoObrt = mjesecniBrutoZavrsenih - postavke.fiksniIznos;
+      } else {
+        mjesecniNetoObrt = 0;
       }
+      godisnjiNetoUkupno += mjesecniNetoObrt;
     }
 
     if (aktivniProjektiUMjesecu.length === 0) {
@@ -1590,12 +1589,18 @@ async function generirajTablicuAnalitike() {
       `;
       tbody.appendChild(tr);
     } else {
+      // 1. Dodavanje redaka pojedinačnih projekata
       aktivniProjektiUMjesecu.forEach((proj, idx) => {
         const tr = document.createElement('tr');
         tr.style.borderBottom = '1px solid #eee';
 
+        // Stupac Mjesec - spojen ako ima više projekata ili ako je obrt model
+        const ukupnoRedovaUMjesecu = postavke.modelDoprinosa === 'obrt' 
+          ? aktivniProjektiUMjesecu.length + 1 // +1 za rekapitulacijski redak obrta
+          : aktivniProjektiUMjesecu.length;
+
         let tdMjesec = idx === 0 
-          ? `<td rowspan="${brojRedova}" style="padding: 10px 12px; font-weight: bold; color: #333; vertical-align: top; background: #fafafa;">${imeMjeseca}</td>` 
+          ? `<td rowspan="${ukupnoRedovaUMjesecu}" style="padding: 10px 12px; font-weight: bold; color: #333; vertical-align: top; background: #fafafa;">${imeMjeseca}</td>` 
           : '';
 
         let tdProjekt = `<td style="padding: 10px 12px; font-weight: 500;">${proj.naslov}</td>`;
@@ -1604,16 +1609,18 @@ async function generirajTablicuAnalitike() {
         let tdNeto = '';
 
         if (postavke.modelDoprinosa === 'obrt') {
-          if (idx === 0) {
-            const iznosPrikaz = zavrseniUOvomMjesecu.length > 0 ? `${mjesecniNetoObrt.toFixed(2)} €` : 'n/a';
-            const stilTeksta = zavrseniUOvomMjesecu.length > 0 ? 'color: #2e7d32; font-weight: bold;' : 'color: #888; font-style: italic;';
-            
-            tdNeto = `<td rowspan="${brojRedova}" style="padding: 10px 12px; text-align: right; ${stilTeksta} vertical-align: top; background: #fafafa;">
-              ${iznosPrikaz}
+          // Kod obrta (Opcija A): U retku projekta prikazujemo puni bruto iznos ako završava u ovom mjesecu
+          if (proj.jeZavrsetakProjekta) {
+            tdNeto = `<td style="padding: 10px 12px; text-align: right; font-weight: 500; color: #333;">
+              ${proj.bruto.toFixed(2)} €
+            </td>`;
+          } else {
+            tdNeto = `<td style="padding: 10px 12px; text-align: right; color: #888; font-style: italic;">
+              n/a
             </td>`;
           }
         } else {
-          // Model: Autorski ugovor (postotak)
+          // Model: Autorski ugovor (Netaknuta originalna logika)
           if (proj.jeZavrsetakProjekta) {
             const stopaDoprinosa = (postavke.postotakIznos || 0) / 100;
             const projNeto = proj.bruto * (1 - stopaDoprinosa);
@@ -1623,7 +1630,6 @@ async function generirajTablicuAnalitike() {
               ${projNeto.toFixed(2)} €
             </td>`;
           } else {
-            // Ako projekt traje u ovom mjesecu, ali NIJE zavrsni mjesec -> prikazujemo "n/a"
             tdNeto = `<td style="padding: 10px 12px; text-align: right; color: #888; font-style: italic;">
               n/a
             </td>`;
@@ -1639,6 +1645,27 @@ async function generirajTablicuAnalitike() {
         tr.innerHTML = tdMjesec + tdProjekt + tdIzdavac + tdNeto + tdOpaska;
         tbody.appendChild(tr);
       });
+
+      // 2. Dodatni zbirni redak za Paušalni Obrt (Opcija A - Oduzimanje doprinosa na razini mjeseca)
+      if (postavke.modelDoprinosa === 'obrt') {
+        const trSuma = document.createElement('tr');
+        trSuma.style.background = '#f9fbe7';
+        trSuma.style.borderBottom = '2px solid #e0e0e0';
+
+        const opisPrikaz = zavrseniUOvomMjesecu.length > 0 
+          ? `<em>Ukupno neto za ${imeMjeseca} (nakon -${postavke.fiksniIznos.toFixed(2)} € doprinosa)</em>`
+          : `<em>Bez završenih projekata u mjesecu</em>`;
+
+        const iznosBoja = mjesecniNetoObrt >= 0 ? '#2e7d32' : '#c62828';
+        const iznosPrikaz = zavrseniUOvomMjesecu.length > 0 ? `${mjesecniNetoObrt.toFixed(2)} €` : '0.00 €';
+
+        trSuma.innerHTML = `
+          <td colspan="2" style="padding: 8px 12px; font-size: 0.88em; color: #555;">${opisPrikaz}</td>
+          <td style="padding: 8px 12px; text-align: right; font-weight: bold; color: ${iznosBoja};">${iznosPrikaz}</td>
+          <td style="padding: 8px 12px; font-size: 0.82em; color: #757575; font-style: italic;">Fiksni doprinosi obračunati na razini mjeseca</td>
+        `;
+        tbody.appendChild(trSuma);
+      }
     }
   }
 
@@ -1648,7 +1675,6 @@ async function generirajTablicuAnalitike() {
     ukupnoEl.textContent = `${godisnjiNetoUkupno.toFixed(2)} €`;
   }
 }
-
 
 function toggleMenu() {
   const sideDrawer = document.getElementById('side-drawer');
