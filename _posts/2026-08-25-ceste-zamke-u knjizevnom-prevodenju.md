@@ -1,7 +1,7 @@
 ---
 title: Česte zamke u književnom prevođenju
 layout: post
-date: '2026-08-25 10:10:21'
+date: '2026-08-26 10:10:21'
 category: prevoditeljske-biljeske
 image: assets/images/bernd-dittrich-IB00Tf3KaXg-unsplash.jpg     
 description: 'Analiza šest vrsta "zamki" u književnom prevođenju s primjerima iz prakse. Stilski, idiomatski ili sintaktički ispravci koji književni prijevod čine puno tečnijim.'
@@ -24,7 +24,7 @@ Engleski obiluje frazama i idiomima kojih je u hrvatskom manje, pa je ponekad la
 #### Primjer
 * **Izvornik:** "He was a GI who kept his nose clean by obeying orders."
 * **Prvi prijevod:** "Bio je to vojnik koji se držao po strani tako što je slušao zapovijedi."
-* **Redakcija:** "Bio je to vojnik koji je gledao svoja posla slušajući zapovijedi."
+* **Redakcija:** "Bio je to vojnik koji je gledao svoja posla i slušao zapovijedi."
 
 ### Prijevod imenice veznikom "da” uz glagol 
 
@@ -37,7 +37,7 @@ Ponekad se čini nema prikladne glagolske imenice, pa pokušamo imenicu prevesti
 
 ### Specifičnosti sintakse  
 
-Izvornu sintaksu ponekad možemo prilagoditi kako bi prevedena rečenica više bila u duhu hrvatksog jezika. U donjem primjeru zarez iza *Meantime* u hrvatskom nije potreban ako ga zamijenimo glagolom *je*. 
+Izvornu sintaksu ponekad možemo prilagoditi kako bi prevedena rečenica više bila u duhu hrvatskog jezika. U donjem primjeru zarez iza *Meantime* u hrvatskom nije potreban ako ga zamijenimo glagolom *je*. 
 
 #### Primjer
 * **Izvornik:** "Meantime, graft in Marakoi had undone the relief effort by diverting food and medical supplies to Zarakali soldiers in the frontier regions."
@@ -46,7 +46,7 @@ Izvornu sintaksu ponekad možemo prilagoditi kako bi prevedena rečenica više b
 
 ### Izbor vrste riječi
 
-Također, kako bi u prijevodu održali živost i ritam izvornika, nekad moramo zamjeniti glagolsku imenicu glagolskim prilogom sadašnjim. Tako stvaramo sliku radnje koja se događa usporedno s glavnom radnjom, čineći rečenicu življom i književnijom. U donjem primjeru: *preusmjeravanjem* \(\rightarrow \) *preusmjeravajući*
+Također, kako bi u prijevodu održali živost i ritam izvornika, nekad moramo zamjeniti glagolsku imenicu glagolskim prilogom sadašnjim. Tako stvaramo sliku radnje koja se događa usporedno s glavnom radnjom, čineći rečenicu življom i književnijom. U donjem primjeru: *preusmjeravanjem* --> *preusmjeravajući*
 
 * **Izvornik:** "Meantime, graft in Marakoi had undone the relief effort by diverting food and medical supplies to Zarakali soldiers in the frontier regions."
 * **Prvi prijevod:** "U međuvremenu, korupcija u Marakoju uništila je nastojanja za pružanje pomoći preusmjeravanjem hrane i medicinskih potrepština zarakalskim vojnicima u graničnim područjima."
@@ -60,3 +60,5 @@ Semantika ponekad zahtijeva da riječ ne prevedemo prvim ekvivalentom iz hrvatsk
 * **Izvornik:** "Meantime, graft in Marakoi had undone the relief effort by diverting food and medical supplies to Zarakali soldiers in the frontier regions."
 * **Prvi prijevod:** "U međuvremenu, korupcija u Marakoju uništila je nastojanja za pružanje pomoći preusmjeravanjem hrane i medicinskih potrepština zarakalskim vojnicima u graničnim područjima."
 * **Redakcija:** "U međuvremenu je korupcija u Marakoju *obezvrijedila* akciju humanitarne pomoći, preusmjeravajući hranu i medicinske potrepštine zarakalskim vojnicima u graničnim područjima."
+
+Književni prijevodi rijetko događaju u prvom prolazu. Književno prevođenje zahtijeva neprestano vaganje između vjernosti izvorniku i prirodnog ritma ciljnog jezika koji ima svoja vlastita obilježja. Prevoditelj je dužan izvorniku, ali je dužan vladati finesama jezika na koji prevodi. Na kraju, upravo te sitne finese u izboru riječi, sintaksi i ritmu pretvaraju test prijevoda koji se samo čita u onaj u kojem se zaista uživa.
