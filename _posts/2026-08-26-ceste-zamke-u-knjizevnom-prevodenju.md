@@ -41,8 +41,8 @@ Izvornu sintaksu ponekad možemo prilagoditi kako bi prevedena rečenica više b
 
 #### Primjer
 * **Izvornik:** "Meantime, graft in Marakoi had undone the relief effort by diverting food and medical supplies to Zarakali soldiers in the frontier regions."
-* **Prvi prijevod:** "U međuvremenu, korupcija u Marakoju uništila je nastojanja za pružanje pomoći, preusmjeravanjem hrane i medicinskih potrepština zarakalskim vojnicima u graničnim područjima."
-* **Redakcija:** "U međuvremenu *je* korupcija u Marakoju obezvrijedila akciju humanitarne pomoći, preusmjeravajući hranu i medicinske potrepštine zarakalskim vojnicima u graničnim područjima."
+* **Prvi prijevod:** "U međuvremenu, korupcija u Marakoju uništila je nastojanja za pružanje pomoći preusmjeravanjem hrane i medicinskih potrepština zarakalskim vojnicima u graničnim područjima."
+* **Redakcija:** "U međuvremenu *je* korupcija u Marakoju obezvrijedila akciju humanitarne pomoći preusmjeravajući hranu i medicinske potrepštine zarakalskim vojnicima u graničnim područjima."
 
 ### Izbor vrste riječi
 
@@ -50,7 +50,7 @@ Također, kako bi u prijevodu održali živost i ritam izvornika, nekad moramo z
 
 * **Izvornik:** "Meantime, graft in Marakoi had undone the relief effort by diverting food and medical supplies to Zarakali soldiers in the frontier regions."
 * **Prvi prijevod:** "U međuvremenu, korupcija u Marakoju uništila je nastojanja za pružanje pomoći preusmjeravanjem hrane i medicinskih potrepština zarakalskim vojnicima u graničnim područjima."
-* **Redakcija:** "U međuvremenu je korupcija u Marakoju obezvrijedila akciju humanitarne pomoći, *preusmjeravajući* hranu i medicinske potrepštine zarakalskim vojnicima u graničnim područjima."
+* **Redakcija:** "U međuvremenu je korupcija u Marakoju obezvrijedila akciju humanitarne pomoći *preusmjeravajući* hranu i medicinske potrepštine zarakalskim vojnicima u graničnim područjima."
 
 ### Izbor odgovarajuće riječi
 
@@ -59,6 +59,6 @@ Semantika ponekad zahtijeva da riječ ne prevedemo prvim ekvivalentom iz hrvatsk
 #### Primjer
 * **Izvornik:** "Meantime, graft in Marakoi had undone the relief effort by diverting food and medical supplies to Zarakali soldiers in the frontier regions."
 * **Prvi prijevod:** "U međuvremenu, korupcija u Marakoju uništila je nastojanja za pružanje pomoći preusmjeravanjem hrane i medicinskih potrepština zarakalskim vojnicima u graničnim područjima."
-* **Redakcija:** "U međuvremenu je korupcija u Marakoju *obezvrijedila* akciju humanitarne pomoći, preusmjeravajući hranu i medicinske potrepštine zarakalskim vojnicima u graničnim područjima."
+* **Redakcija:** "U međuvremenu je korupcija u Marakoju *obezvrijedila* akciju humanitarne pomoći preusmjeravajući hranu i medicinske potrepštine zarakalskim vojnicima u graničnim područjima."
 
 Književni prijevodi rijetko događaju u prvom prolazu. Književno prevođenje zahtijeva neprestano vaganje između vjernosti izvorniku i prirodnog ritma ciljnog jezika koji ima svoja vlastita obilježja. Prevoditelj je dužan izvorniku, ali je dužan vladati finesama jezika na koji prevodi. Na kraju, upravo te sitne finese u izboru riječi, sintaksi i ritmu pretvaraju test prijevoda koji se samo čita u onaj u kojem se zaista uživa.
