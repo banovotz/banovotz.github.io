@@ -10,12 +10,13 @@ if (navigator.storage && navigator.storage.persist) {
 }
 
 const DB_NAME = 'Mojih1500DB';
-const DB_VERSION = 4; // Incremented to 4 to add the 'unosi' store
+const DB_VERSION = 5; //analiza teksta 
 const STORE_NAME = 'projekti';
 const UNOSI_STORE = 'unosi';
+const KONKORDANCA_STORE = 'konkordance';
 
 /**
- * Opens IndexedDB and creates 'projekti' and 'unosi' stores.
+ * Opens IndexedDB and creates 'projekti', 'unosi' and 'konkordance' stores.
  */
 function otvoriBazu() {
   return new Promise((resolve, reject) => {
@@ -24,29 +25,316 @@ function otvoriBazu() {
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
       
-      // 1. Create project store
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         db.createObjectStore(STORE_NAME, { keyPath: 'id' });
-        console.log("IndexedDB: Created store 'projekti'");
       }
 
-      // 2. CREATE ENTRIES STORE (Fixes NotFoundError)
       if (!db.objectStoreNames.contains(UNOSI_STORE)) {
         const unosiStore = db.createObjectStore(UNOSI_STORE, { keyPath: 'id' });
         unosiStore.createIndex('projektId', 'projektId', { unique: false });
-        console.log("IndexedDB: Created store 'unosi' and index 'projektId'");
+      }
+
+      // Novi store za konkordancu i rezultate analize
+      if (!db.objectStoreNames.contains(KONKORDANCA_STORE)) {
+        db.createObjectStore(KONKORDANCA_STORE, { keyPath: 'projektId' });
       }
     };
 
-    request.onsuccess = (event) => {
-      resolve(event.target.result);
+    request.onsuccess = (event) => resolve(event.target.result);
+    request.onerror = (event) => reject(event.target.error);
+  });
+}
+
+// --- WEBLLM I LOGIKA ANALIZE TEKSTA ---
+let webLlmEngine = null;
+const SELECTED_MODEL = "Qwen2.5-3B-Instruct-q4f16_1-MLC"; // Lagan i brz model za browser
+
+async function pokreniTekstualnuAnalizu(projektId) {
+  const db = await otvoriBazu();
+  
+  // Dohvat svih potrebnih elemenata
+  const modal = document.getElementById('llm-status-modal');
+  const infoBox = document.getElementById('llm-info-box');
+  const progressContainer = document.getElementById('llm-progress-container');
+  const progressBar = document.getElementById('llm-progress-bar');
+  const statusText = document.getElementById('llm-status-text');
+  const btnDownload = document.getElementById('btn-zapocni-download');
+
+  const elementi = { modal, infoBox, progressContainer, progressBar, statusText, btnDownload };
+  let nedostajeElement = false;
+
+  for (const [naziv, el] of Object.entries(elementi)) {
+    if (!el) {
+      console.error(`❌ Element s ID-jem za '${naziv}' nije pronađen u DOM-u!`);
+      nedostajeElement = true;
+    }
+  }
+
+  if (nedostajeElement) {
+    alert("Greška u HTML strukturi modala. Otvorite F12 Console za detalje.");
+    return;
+  }
+
+  // Provjera postojeće analize...
+  const postojeciRezultat = await new Promise((res) => {
+    const tx = db.transaction(KONKORDANCA_STORE, 'readonly');
+    const req = tx.objectStore(KONKORDANCA_STORE).get(projektId);
+    req.onsuccess = () => res(req.result);
+    req.onerror = () => res(null);
+  });
+
+  if (postojeciRezultat) {
+    const potvrdi = confirm("Za ovaj projekt već postoji analiza. Nova analiza će resetirati postojeće podatke i statuse. Želite li nastaviti?");
+    if (!potvrdi) return;
+  }
+
+  const projekt = await dohvatiProjektPoId(projektId);
+  if (!projekt) {
+    alert("Projekt nije pronađen.");
+    return;
+  }
+
+  // Prikaz modala
+  modal.style.display = 'flex';
+  infoBox.style.display = 'block';
+  progressContainer.style.display = 'none';
+  statusText.innerText = 'Priprema...';
+
+  if (!webLlmEngine) {
+    infoBox.innerHTML = `
+      <div style="background: #e6f2f2; border-left: 4px solid #008080; padding: 12px; margin-bottom: 15px; border-radius: 4px;">
+        <strong>ℹ️ Preuzimanje lokalnog AI modela</strong><br>
+        Za tekstualnu analizu koristi se WebLLM koji se pokreće direktno u vašem pregledniku. 
+        Model se preuzima samo jednom, radi u potpunosti <strong>offline</strong> i <strong>bez plaćanja tokena</strong>.
+      </div>
+    `;
+    
+    btnDownload.style.display = 'inline-block';
+    btnDownload.onclick = async () => {
+      btnDownload.style.display = 'none';
+      progressContainer.style.display = 'block';
+
+      try {
+        const { CreateMLCEngine } = await import("https://esm.run/@mlc-ai/web-llm");
+        
+        webLlmEngine = await CreateMLCEngine(
+          SELECTED_MODEL,
+          {
+            initProgressCallback: (report) => {
+              const elBar = document.getElementById('llm-progress-bar');
+              const elStatus = document.getElementById('llm-status-text');
+              const postotak = Math.round(report.progress * 100);
+              
+              if (elBar) elBar.style.width = `${postotak}%`;
+              if (elStatus) elStatus.innerText = `${report.text} (${postotak}%)`;
+            }
+          }
+        );
+
+        document.getElementById('llm-status-text').innerText = "Model uspješno učitan!";
+        await zapocniAnaliziranje(projekt);
+
+      } catch (err) {
+        alert("Greška pri učitavanju WebLLM modela: " + err.message);
+        document.getElementById('llm-status-modal').style.display = 'none';
+      }
+    };
+  } else {
+    infoBox.style.display = 'none';
+    btnDownload.style.display = 'none';
+    progressContainer.style.display = 'block';
+    await zapocniAnaliziranje(projekt);
+  }
+}
+
+async function zapocniAnaliziranje(projekt) {
+ const progressBar = document.getElementById('llm-progress-bar');
+  const statusText = document.getElementById('llm-status-text');
+  
+  if (progressBar) progressBar.style.width = '100%';
+  if (statusText) statusText.innerText = "⏳ Tekstualna analiza je u tijeku... Molimo pričekajte.";
+
+  try {
+    // Simulacija/dohvat teksta izvora i prijevoda
+    const izvorTekst = projekt.tekstIzvora || "Example text paragraph one for translation alignment.\nExample paragraph two with some idiomatic expression.";
+    const prijevodTekst = projekt.tekstPrijevoda || "Primjer teksta prvog odlomka za poravnanje prijevoda.\nPrimjer drugog odlomka s idiomatskim izrazom.";
+
+    // LLM Prompt za terminologiju i idiomatske sugestije
+    const prompt = `Analiziraj sljedeći izvorni tekst i njegov prijevod. 
+    Izvuci ključne termine ili idiomatske izraze, ponudi sugestije ili napomene.
+    Odgovori isključivo u JSON formatu kao niz objekata:
+    [{"term": "riječ/idiom", "sugestija": "objašnjenje ili alternativni prijevod", "odlomakIndex": 0}]
+    
+    Izvor:
+    ${izvorTekst}
+    
+    Prijevod:
+    ${prijevodTekst}`;
+
+    const reply = await webLlmEngine.chat.completions.create({
+      messages: [
+        { 
+      role: "system", 
+      content: "Ti si vrhunski književni prevoditelj i jezikoslovac. Tvoj zadatak je pružiti stručne, elokventne i stilski besprijekorne terminološke i idiomatske sugestije na prirodnom hrvatskom jeziku. U svojim odgovorima ne spominji provođenje analize, nego samo ponudi sugestije." 
+    },
+        { role: "user", content: prompt }],
+      temperature: 0.3
+    });
+
+    let komentari = [];
+    try {
+      komentari = JSON.parse(reply.choices[0].message.content);
+    } catch (e) {
+      // Fallback ako LLM vrati tekst umjesto čistog JSON-a
+      komentari = [{ term: "Generalno", sugestija: reply.choices[0].message.content, odlomakIndex: 0 }];
+    }
+
+    // Provedba provjere diskrepancije
+    const odlomciIzvor = izvorTekst.split('\n').filter(p => p.trim() !== '');
+    const odlomciPrijevod = prijevodTekst.split('\n').filter(p => p.trim() !== '');
+
+    if (odlomciPrijevod.length === 0 || Math.abs(odlomciIzvor.length - odlomciPrijevod.length) > 10) {
+      throw new Error("Detektirana je velika diskrepancija između izvora i prijevoda ili prijevod ne odgovara izvoru.");
+    }
+
+    // Spremanje u IndexedDB
+    const rezultatObj = {
+      projektId: projekt.id,
+      datumAnalize: new Date().toISOString(),
+      odlomciIzvor,
+      odlomciPrijevod,
+      komentari
     };
 
-    request.onerror = (event) => {
-      console.error("Error opening database:", event.target.error);
-      reject(event.target.error);
-    };
+    const db = await otvoriBazu();
+    const tx = db.transaction(KONKORDANCA_STORE, 'readwrite');
+    tx.objectStore(KONKORDANCA_STORE).put(rezultatObj);
+    await new Promise(res => tx.oncomplete = res);
+
+    // Zatvori modal i preusmjeri na Konkordancu
+    const modal = document.getElementById('llm-status-modal');
+    if (modal) modal.style.display = 'none';
+    prikaziKonkordancu(projekt.id);
+
+  } catch (err) {
+    alert("Analiza nije uspjela: " + err.message);
+    const modal = document.getElementById('llm-status-modal');
+    if (modal) modal.style.display = 'none';
+  }
+}
+
+// --- PRIKAZ KONKORDANCE I SINKRONIZIRANI SKROL ---
+async function prikaziKonkordancu(projektId) {
+  prikaziStranicu('concordance-page');
+
+  const db = await otvoriBazu();
+  const tx = db.transaction(KONKORDANCA_STORE, 'readonly');
+  const req = tx.objectStore(KONKORDANCA_STORE).get(projektId);
+
+  req.onsuccess = () => {
+    const data = req.result;
+    if (!data) {
+      alert("Nema dostupnih podataka analize za ovaj projekt.");
+      prikaziDashboard();
+      return;
+    }
+
+    renderKonkordancaStupci(data);
+  };
+}
+
+function renderKonkordancaStupci(data) {
+  const colIzvor = document.getElementById('col-izvor');
+  const colPrijevod = document.getElementById('col-prijevod');
+  const colKomentari = document.getElementById('col-komentari');
+
+  colIzvor.innerHTML = '';
+  colPrijevod.innerHTML = '';
+  colKomentari.innerHTML = '';
+
+  const maxLen = Math.max(data.odlomciIzvor.length, data.odlomciPrijevod.length);
+
+  for (let i = 0; i < maxLen; i++) {
+    const pIzvorText = data.odlomciIzvor[i] || '';
+    const pPrijevodText = data.odlomciPrijevod[i] || '';
+
+    const divIzvor = document.createElement('div');
+    divIzvor.className = 'para-box';
+    divIzvor.dataset.index = i;
+    divIzvor.innerText = pIzvorText;
+
+    const divPrijevod = document.createElement('div');
+    divPrijevod.className = 'para-box';
+    divPrijevod.dataset.index = i;
+    divPrijevod.innerText = pPrijevodText;
+
+    colIzvor.appendChild(divIzvor);
+    colPrijevod.appendChild(divPrijevod);
+  }
+
+  // Poravnanje visine odlomaka
+  setTimeout(() => {
+    const izvorNodes = colIzvor.querySelectorAll('.para-box');
+    const prijevodNodes = colPrijevod.querySelectorAll('.para-box');
+
+    izvorNodes.forEach((node, idx) => {
+      if (prijevodNodes[idx]) {
+        const maxHeight = Math.max(node.offsetHeight, prijevodNodes[idx].offsetHeight);
+        node.style.minHeight = `${maxHeight}px`;
+        prijevodNodes[idx].style.minHeight = `${maxHeight}px`;
+      }
+    });
+  }, 50);
+
+  // Renderiranje komentara i terminoloških sugestija
+  data.komentari.forEach((k, idx) => {
+    const card = document.createElement('div');
+    card.className = 'comment-card';
+    card.innerHTML = `
+      <div style="font-weight: bold; color: #008080;">📌 ${k.term}</div>
+      <div style="font-size: 0.88em; margin: 4px 0;">${k.sugestija}</div>
+      <button class="btn-jump" onclick="skociNaOdlomak(${k.odlomakIndex || 0}, '${k.term}')">
+        🔍 Skoči na mjesto u tekstu
+      </button>
+    `;
+    colKomentari.appendChild(card);
   });
+
+  // Sinkronizacija skrolanja
+  sinkronizirajSkrol(colIzvor, colPrijevod);
+}
+
+function sinkronizirajSkrol(el1, el2) {
+  let isSyncing = false;
+  el1.onscroll = () => {
+    if (!isSyncing) {
+      isSyncing = true;
+      el2.scrollTop = el1.scrollTop;
+    }
+    isSyncing = false;
+  };
+  el2.onscroll = () => {
+    if (!isSyncing) {
+      isSyncing = true;
+      el1.scrollTop = el2.scrollTop;
+    }
+    isSyncing = false;
+  };
+}
+
+function skociNaOdlomak(index, term) {
+  const colIzvor = document.getElementById('col-izvor');
+  const target = colIzvor.querySelector(`.para-box[data-index="${index}"]`);
+  
+  if (target) {
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    
+    // Vizualni highlight odlomka
+    target.style.background = '#fff9c4';
+    setTimeout(() => {
+      target.style.background = '#fff';
+    }, 2000);
+  }
 }
 
 /**
@@ -332,6 +620,7 @@ async function ucitajDashboard() {
                 ${primarniGumbHtml}
                 <button onclick="urediProjekt('${p.id}')" class="btn-secondary" style="padding: 6px 12px; font-size: 0.85em;">✏️ Edit</button>
                 <button onclick="obrisiProjekt('${p.id}')" class="btn-secondary" style="padding: 6px 12px; font-size: 0.85em; color: #c62828;">🗑️ Delete</button>
+                <button onclick="pokreniTekstualnuAnalizu('${p.id}')" class="btn-secondary" style="padding: 6px 12px; font-size: 0.85em; background: #f0f7f7; color: #008080; border: 1px solid #008080;">🧠 Tekstualna analiza </button>
               </div>
             </div>
           </div>
