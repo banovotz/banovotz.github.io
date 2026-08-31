@@ -1,22 +1,22 @@
 <!DOCTYPE html>
-<html lang="hr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mojih 1500 — Prevoditeljski Ritam & Metrika</title>
+  <title>Mojih 1500 — Translation Pace & Metrics</title>
   
-  <!-- PWA Postavke -->
+  <!-- PWA Settings -->
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#008080">
   <link rel="apple-touch-icon" href="icon-192.png">
 
   <link rel="stylesheet" href="style.css">
   
-  <!-- Vanjske biblioteke: Tesseract (OCR) i JSZip (za ePub ekstrakciju) -->
+  <!-- External Libraries: Tesseract (OCR) and JSZip (ePub extraction) -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
-  <!-- Omogućuje PWA način rada na iOS-u -->
+  <!-- iOS PWA Capabilities -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="Mojih1500">
@@ -24,44 +24,40 @@
 </head>
 <body>
 
-
-<!-- Navigacijska traka -->
+<!-- Navigation Bar -->
 <nav class="navbar" style="display: flex; justify-content: center; align-items: center; background: #fff; padding: 12px 24px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); position: sticky; top: 0; z-index: 1000;">
-
   <div class="nav-right" style="display: flex; align-items: center; gap: 20px;">
-    <!-- Glavni linkovi (Desktop) -->
+    <!-- Main Links (Desktop) -->
     <ul class="nav-links" style="display: flex; list-style: none; gap: 16px; margin: 0; padding: 0;">
       <li><a href="javascript:void(0)" onclick="prikaziDashboard()" class="nav-item">🏠 Dashboard</a></li>
-      <li><a href="javascript:void(0)" onclick="ucitajAnalitiku()" class="nav-item">📊 Analitika</a></li>
-      <li><a href="javascript:void(0)" onclick="ucitajPostavke()" class="nav-item">⚙️ Postavke</a></li>
+      <li><a href="javascript:void(0)" onclick="ucitajAnalitiku()" class="nav-item">📊 Analytics</a></li>
+      <li><a href="javascript:void(0)" onclick="ucitajPostavke()" class="nav-item">⚙️ Settings</a></li>
     </ul>
-
-
   </div>
 </nav>
 
-<!-- Bočni Hamburger Izbornik (Drawer) -->
+<!-- Side Drawer Menu -->
 <aside class="side-drawer" id="side-drawer">
   <ul class="drawer-menu">
     <li><a href="javascript:void(0)" class="nav-item" onclick="prikaziDashboard(); toggleMenu();">🏠 Dashboard</a></li>
-    <li><a href="javascript:void(0)" class="nav-item" onclick="ucitajAnalitiku(); toggleMenu();">📊 Analitika</a></li>
-    <li><a href="javascript:void(0)" class="nav-item" onclick="ucitajPostavke(); toggleMenu();">⚙️ Postavke</a></li>
+    <li><a href="javascript:void(0)" class="nav-item" onclick="ucitajAnalitiku(); toggleMenu();">📊 Analytics</a></li>
+    <li><a href="javascript:void(0)" class="nav-item" onclick="ucitajPostavke(); toggleMenu();">⚙️ Settings</a></li>
   </ul>
 </aside>
 
-<!-- Zatamnjeni sloj za zatvaranje -->
+<!-- Overlay -->
 <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
 <div class="container">
   <header>
     <h1>Mojih1500</h1>
-    <div class="lbl">Jednostavno upravljanje književnim prijevodima.</div>
-    <button id="btn-novi-projekt" class="btn-primary" onclick="toggleFormaProjekta()">+ Novi Projekt</button>
+    <div class="lbl">Literary translation management simplified.</div>
+    <button id="btn-novi-projekt" class="btn-primary" onclick="toggleFormaProjekta()">+ New Project</button>
   </header>
 
-  <!-- Forma za kreiranje/uređivanje projekta -->
+  <!-- Project Form -->
   <div id="forma-projekt-container" style="display: none;">
-    <h2 id="forma-naslov">Novi Projekt</h2>
+    <h2 id="forma-naslov">New Project</h2>
     <form id="projekt-forma" onsubmit="spremiProjektForma(event)">
       <input type="hidden" id="p-id">
       <input type="hidden" id="p-naslovnica-base64">
@@ -69,235 +65,223 @@
       <input type="hidden" id="p-slova-prijevod">
       <input type="hidden" id="p-last-synced">
 
-      <!-- Izvori podataka: ePub i Google Doc -->
+      <!-- Data Sources: ePub & Google Doc -->
       <div class="grid-2">
         <div class="form-group">
-          <label for="p-epub-file">Odaberi ePub izvornika</label>
+          <label for="p-epub-file">Select source ePub</label>
           <input type="file" id="p-epub-file" accept=".epub">
         </div>
 
         <div class="form-group">
-          <label for="p-gdoc-url">Google Docs URL prijevoda</label>
+          <label for="p-gdoc-url">Translation Google Docs URL</label>
           <input type="url" id="p-gdoc-url" placeholder="https://docs.google.com/document/d/...">
         </div>
       </div>
 
-      <!-- Gumb za aktivaciju povlačenja i analize -->
+      <!-- Fetch and Analyze Action Button -->
       <div class="form-group" style="margin-bottom: 15px;">
         <button type="button" id="btn-povuci-podatke" class="btn-secondary" style="width: 100%; font-weight: bold; background: #e6f2f2; color: #008080; border: 1px solid #008080;" onclick="povuciPodatkeIzIzvora()">
-          ⚡ Povuci podatke iz ePub-a i Doc-a
+          ⚡ Fetch Data from ePub & Doc
         </button>
         <small id="fetch-status-msg" class="text-muted" style="display:none; color: #008080; font-weight: bold; margin-top: 5px; text-align: center; display: block;"></small>
       </div>
 
-      <!-- Pregled izvučenih metapodataka i izračuna -->
+      <!-- Preview Metadata Box -->
       <div id="metrika-preview" class="preview-box" style="display:none; background: #f4f8f8; padding: 12px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #008080;">
         <div style="display: flex; gap: 12px; align-items: center;">
           <img id="img-cover-preview" src="" alt="" style="display:none; width: 45px; height: 65px; object-fit: cover; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">
           <div>
-            <div><strong>Izvornik (ePub):</strong> <span id="lbl-slova-orig">0</span> slova (~<span id="lbl-kartice-orig">0</span> kartica)</div>
-            <div><strong>Prijevod (GDoc):</strong> <span id="lbl-slova-doc">0</span> slova (~<span id="lbl-kartice-doc">0</span> kartica)</div>
+            <div><strong>Source (ePub):</strong> <span id="lbl-slova-orig">0</span> characters (~<span id="lbl-kartice-orig">0</span> standard pages)</div>
+            <div><strong>Translation (GDoc):</strong> <span id="lbl-slova-doc">0</span> characters (~<span id="lbl-kartice-doc">0</span> standard pages)</div>
           </div>
         </div>
       </div>
 
-      <!-- Osnovni parametri projekta -->
+      <!-- Core Project Parameters -->
       <div class="grid-2">
         <div class="form-group">
-          <label for="p-naslov">Naslov djela / projekta *</label>
-          <input type="text" id="p-naslov" required placeholder="npr. Južni krajevi">
+          <label for="p-naslov">Book Title / Project Name *</label>
+          <input type="text" id="p-naslov" required placeholder="e.g. Southern Regions">
         </div>
         <div class="form-group">
-          <label for="p-klijent">Klijent / Izdavač</label>
-          <input type="text" id="p-klijent" placeholder="npr. Matica hrvatska">
+          <label for="p-klijent">Client / Publisher</label>
+          <input type="text" id="p-klijent" placeholder="e.g. Penguin Books">
         </div>
       </div>
 
       <div class="grid-2">
         <div class="form-group">
-          <label for="p-ukupno">Broj kartica originala * (1800 slova = 1 kartica)</label>
+          <label for="p-ukupno">Source Standard Pages * (1800 chars = 1 page)</label>
           <input type="number" step="0.01" id="p-ukupno" required placeholder="220" inputmode="decimal">
         </div>
 
         <div class="form-group">
-          <label for="p-honorar">Honorar po kartici (€) *</label>
+          <label for="p-honorar">Rate per Page (€) *</label>
           <input type="number" step="0.01" id="p-honorar" required placeholder="12.50" inputmode="decimal">
         </div>
       </div>
 
       <div class="grid-2">
         <div class="form-group">
-          <label for="p-start">Prvi dan projekta *</label>
+          <label for="p-start">Start Date *</label>
           <input type="date" id="p-start" required>
         </div>
         <div class="form-group">
-          <label for="p-rok">Ciljani zadnji dan (Rok) *</label>
+          <label for="p-rok">Target Deadline *</label>
           <input type="date" id="p-rok" required>
         </div>
       </div>
 
       <div class="grid-2">
         <div class="form-group">
-          <label for="p-cilj-dnevno">Ciljani broj kartica po danu</label>
+          <label for="p-cilj-dnevno">Daily Target (Pages/day)</label>
           <input type="number" step="0.1" id="p-cilj-dnevno" placeholder="5">
         </div>
         <div class="form-group">
-          <label for="p-vikend">Rad vikendima?</label>
+          <label for="p-vikend">Work on Weekends?</label>
           <select id="p-vikend">
-            <option value="ne">Ne (samo radni dani)</option>
-            <option value="da">Da (svi dani)</option>
+            <option value="ne">No (Business days only)</option>
+            <option value="da">Yes (All calendar days)</option>
           </select>
         </div>
       </div>
 
       <div class="form-actions">
-        <button type="submit">Spremi Projekt</button>
-        <button type="button" class="btn-secondary" onclick="toggleFormaProjekta(true)">Odustani</button>
+        <button type="submit">Save Project</button>
+        <button type="button" class="btn-secondary" onclick="toggleFormaProjekta(true)">Cancel</button>
       </div>
     </form>
   </div>
 
-  <!-- Dashboard Prikaz Projekata -->
+  <!-- Dashboard Page -->
   <div id="dashboard-page" class="page-content">
-    <!-- Projekti se dinamički učitavaju putem app.js -->
+    <!-- Projects dynamically loaded via app.js -->
   </div>
 
+  <!-- SETTINGS SCREEN -->
+  <div id="settings-page" class="page-content" style="display: none; max-width: 800px; margin: 0 auto; padding: 20px;">
+    <h2 style="color: #008080; margin-bottom: 24px;">⚙️ Application Settings</h2>
 
-<!-- EKRAN ZA POSTAVKE -->
-<div id="settings-page" class="page-content" style="display: none; max-width: 800px; margin: 0 auto; padding: 20px;">
-  <h2 style="color: #008080; margin-bottom: 24px;">⚙️ Postavke Aplikacije</h2>
+    <!-- SECTION 1: Financial Settings -->
+    <section class="settings-card" style="background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #eef2f2;">
+      <h3 style="margin-top: 0; color: #333;">💰 Financials & Deductions</h3>
+      <p style="color: #666; font-size: 0.9em; margin-bottom: 16px;">
+        These settings calculate net income on the <strong>Analytics</strong> screen and do not alter gross totals displayed on the dashboard.
+      </p>
 
-  <!-- SEKCIJA 1: Financijske postavke (Odbici) -->
-  <section class="settings-card" style="background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #eef2f2;">
-    <h3 style="margin-top: 0; color: #333;">💰 Financije i Odbici</h3>
-    <p style="color: #666; font-size: 0.9em; margin-bottom: 16px;">
-      Ove postavke služe za izračun neto prihoda na ekranu <strong>Analitike</strong> i ne utječu na prikaz bruta na glavnom dashboardu.
-    </p>
-
-    <div style="margin-bottom: 16px;">
-      <label style="font-weight: bold; display: block; margin-bottom: 8px;">Model obračuna doprinosa:</label>
-      
-      <div style="margin-bottom: 8px;">
-        <input type="radio" id="model-obrt" name="modelDoprinosa" value="obrt" onchange="osvjeziPrikazFinancija()" checked>
-        <label for="model-obrt">Obrt s fiksnim mjesečnim odbicima za doprinose</label>
+      <div style="margin-bottom: 16px;">
+        <label style="font-weight: bold; display: block; margin-bottom: 8px;">Deduction model:</label>
+        
+        <div style="margin-bottom: 8px;">
+          <input type="radio" id="model-obrt" name="modelDoprinosa" value="obrt" onchange="osvjeziPrikazFinancija()" checked>
+          <label for="model-obrt">Sole proprietorship / Business (Fixed monthly contribution deductions)</label>
+        </div>
+        
+        <div>
+          <input type="radio" id="model-postotak" name="modelDoprinosa" value="postotak" onchange="osvjeziPrikazFinancija()">
+          <label for="model-postotak">Percentage deduction per contract (Author contract / Freelance)</label>
+        </div>
       </div>
-      
-      <div>
-        <input type="radio" id="model-postotak" name="modelDoprinosa" value="postotak" onchange="osvjeziPrikazFinancija()">
-        <label for="model-postotak">Postotni udjel doprinosa po ugovoru (autorski honorar/ugovor o djelu)</label>
+
+      <!-- Option A: Fixed -->
+      <div id="polje-fiksni" style="margin-top: 12px; padding: 12px; background: #f9fbfb; border-radius: 6px;">
+        <label for="fiksni-iznos" style="display: block; font-size: 0.9em; margin-bottom: 4px;">Fixed monthly contributions (€):</label>
+        <input type="number" id="fiksni-iznos" placeholder="e.g. 200" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 200px;">
       </div>
-    </div>
 
-    <!-- Opcija A: Fiksni odbici (Obrt) -->
-    <div id="polje-fiksni" style="margin-top: 12px; padding: 12px; background: #f9fbfb; border-radius: 6px;">
-      <label for="fiksni-iznos" style="display: block; font-size: 0.9em; margin-bottom: 4px;">Fiksni mjesečni doprinosi (€):</label>
-      <input type="number" id="fiksni-iznos" placeholder="npr. 200" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 200px;">
-    </div>
+      <!-- Option B: Percentage -->
+      <div id="polje-postotak" style="display: none; margin-top: 12px; padding: 12px; background: #f9fbfb; border-radius: 6px;">
+        <label for="postotak-iznos" style="display: block; font-size: 0.9em; margin-bottom: 4px;">Contribution rate (%):</label>
+        <input type="number" id="postotak-iznos" placeholder="e.g. 15" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 200px;">
+      </div>
+    </section>
 
-    <!-- Opcija B: Postotni odbici -->
-    <div id="polje-postotak" style="display: none; margin-top: 12px; padding: 12px; background: #f9fbfb; border-radius: 6px;">
-      <label for="postotak-iznos" style="display: block; font-size: 0.9em; margin-bottom: 4px;">Stopa doprinosa (%):</label>
-      <input type="number" id="postotak-iznos" placeholder="npr. 15" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 200px;">
-    </div>
-  </section>
+    <!-- SECTION 2: Standard Page Definition -->
+    <section class="settings-card" style="background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #eef2f2;">
+      <h3 style="margin-top: 0; color: #333;">📏 Standard Page Definition</h3>
+      <p style="color: #666; font-size: 0.9em; margin-bottom: 16px;">Select the standard standard page metric for character calculations.</p>
 
-  <!-- SEKCIJA 2: Definiranje Književne Kartice -->
-  <section class="settings-card" style="background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #eef2f2;">
-    <h3 style="margin-top: 0; color: #333;">📏 Definiranje Književne Kartice</h3>
-    <p style="color: #666; font-size: 0.9em; margin-bottom: 16px;">Odaberite standard po kojem aplikacija izračunava broj kartica iz unesenog teksta.</p>
+      <div style="margin-bottom: 10px;">
+        <input type="radio" id="kartica-1800" name="vrstaKartice" value="1800" checked>
+        <label for="kartica-1800"><strong>1800 characters with spaces</strong> (Standard European translation page standard)</label>
+      </div>
 
-    <div style="margin-bottom: 10px;">
-      <input type="radio" id="kartica-1800" name="vrstaKartice" value="1800" checked>
-      <label for="kartica-1800"><strong>1800 znakova s razmacima</strong> (Standardni hrvatski književni normativ)</label>
-    </div>
+      <div style="opacity: 0.5; cursor: not-allowed;" title="Option coming soon">
+        <input type="radio" id="kartica-1500" name="vrstaKartice" value="1500" disabled>
+        <label for="kartica-1500" style="cursor: not-allowed;">1500 characters without spaces <em>(Coming soon)</em></label>
+      </div>
+    </section>
 
-    <div style="opacity: 0.5; cursor: not-allowed;" title="Ova opcija će biti dostupna u budućoj verziji">
-      <input type="radio" id="kartica-1500" name="vrstaKartice" value="1500" disabled>
-      <label for="kartica-1500" style="cursor: not-allowed;">1500 znakova bez razmaka <em>(Uskoro)</em></label>
-    </div>
-  </section>
+    <!-- SECTION 3: Backup & Restore -->
+    <section class="settings-card" style="background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #eef2f2;">
+      <h3 style="margin-top: 0; color: #333;">💾 Database Backup (Export & Import)</h3>
+      <p style="color: #666; font-size: 0.9em; margin-bottom: 16px;">
+        Export your complete projects database to a JSON file or restore a previously saved backup.
+      </p>
 
-  <!-- SEKCIJA 3: Export / Import Baze (Izmještene kontrole) -->
-  <section class="settings-card" style="background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #eef2f2;">
-    <h3 style="margin-top: 0; color: #333;">💾 Sigurnosna Kopija (Eksport & Import)</h3>
-    <p style="color: #666; font-size: 0.9em; margin-bottom: 16px;">
-      Preuzmite cjelokupnu bazu projekata u JSON datoteci ili učitajte ranije spremljenu kopiju.
-    </p>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <button onclick="izveziSigurnosnuKopiju()" class="btn-primary" style="padding: 10px 16px; background: #008080; color: #fff; border: none; border-radius: 4px; cursor: pointer;">
+          📥 Export Database (JSON)
+        </button>
 
-    <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-      <!-- Poziva postojeću eksport funkciju -->
-      <button onclick="izveziSigurnosnuKopiju()" class="btn-primary" style="padding: 10px 16px; background: #008080; color: #fff; border: none; border-radius: 4px; cursor: pointer;">
-        📥 Eksportiraj Bazu (JSON)
+        <button onclick="document.getElementById('import-file-input').click()" class="btn-secondary" style="padding: 10px 16px; background: #f0f7f7; color: #008080; border: 1px solid #008080; border-radius: 4px; cursor: pointer;">
+          📤 Import Database
+        </button>
+      </div>
+    </section>
+
+    <!-- Save Settings Button -->
+    <div style="text-align: right; margin-top: 20px;">
+      <button onclick="spremiPostavke()" style="padding: 12px 24px; background: #008080; color: #fff; font-size: 1em; font-weight: bold; border: none; border-radius: 6px; cursor: pointer;">
+        💾 Save Settings
       </button>
-
-      <!-- Okida postojeći file input za import koji već imate u aplikaciji -->
-      <button onclick="document.getElementById('import-file-input').click()" class="btn-secondary" style="padding: 10px 16px; background: #f0f7f7; color: #008080; border: 1px solid #008080; border-radius: 4px; cursor: pointer;">
-        📤 Importiraj Bazu
-      </button>
     </div>
-  </section>
-
-  <!-- Gumb za spremanje postavki -->
-  <div style="text-align: right; margin-top: 20px;">
-    <button onclick="spremiPostavke()" style="padding: 12px 24px; background: #008080; color: #fff; font-size: 1em; font-weight: bold; border: none; border-radius: 6px; cursor: pointer;">
-      💾 Spremi Postavke
-    </button>
-  </div>
-</div>
-
-<!-- EKRAN ZA ANALITIKU -->
-<div id="analytics-page" class="page-content" style="display: none; max-width: 1000px; margin: 0 auto; padding: 20px;">
-  
-  <!-- Priča 0: Naslov i obavijest -->
-  <div style="margin-bottom: 24px;">
-    <h2 style="color: #008080; margin-bottom: 6px;">📊 Analitika projekata po mjesecima</h2>
-    <p style="color: #666; font-size: 0.9em; margin: 0; background: #e6f2f2; padding: 10px 14px; border-radius: 6px; border-left: 4px solid #008080;">
-      ℹ️ <strong>Napomena:</strong> Prikazana analitika je informativne prirode i služi za internu procjenu i planiranje radnog ritma i prihoda.
-    </p>
   </div>
 
-  <!-- Priča 1: Odabir godine -->
-  <div style="background: #fff; padding: 16px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
-    <label for="odabir-godine" style="font-weight: bold; color: #333;">Odaberite godinu za pregled:</label>
-    <select id="odabir-godine" onchange="promijeniGodinuAnalitike()" style="padding: 8px 12px; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer;">
-      <!-- Dinamički će se popuniti u JS-u -->
-    </select>
+  <!-- ANALYTICS SCREEN -->
+  <div id="analytics-page" class="page-content" style="display: none; max-width: 1000px; margin: 0 auto; padding: 20px;">
+    
+    <div style="margin-bottom: 24px;">
+      <h2 style="color: #008080; margin-bottom: 6px;">📊 Monthly Project Analytics</h2>
+      <p style="color: #666; font-size: 0.9em; margin: 0; background: #e6f2f2; padding: 10px 14px; border-radius: 6px; border-left: 4px solid #008080;">
+        ℹ️ <strong>Note:</strong> Displayed analytics are informational and intended for internal planning of work pace and earnings.
+      </p>
+    </div>
+
+    <div style="background: #fff; padding: 16px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.06); margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+      <label for="odabir-godine" style="font-weight: bold; color: #333;">Select year:</label>
+      <select id="odabir-godine" onchange="promijeniGodinuAnalitike()" style="padding: 8px 12px; font-size: 1rem; border: 1px solid #ccc; border-radius: 4px; background: #fff; cursor: pointer;">
+      </select>
+    </div>
+
+    <div style="background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95em;">
+        <thead>
+          <tr style="background-color: #f0f7f7; color: #008080; border-bottom: 2px solid #008080;">
+            <th style="padding: 12px; min-width: 110px;">Month</th>
+            <th style="padding: 12px;">Translation (Title)</th>
+            <th style="padding: 12px;">Client / Publisher</th>
+            <th style="padding: 12px; text-align: right; min-width: 130px;">Net Earnings (€)</th>
+            <th style="padding: 12px; min-width: 150px;">Notes</th>
+          </tr>
+        </thead>
+        <tbody id="analitika-tablica-body">
+        </tbody>
+        <tfoot>
+          <tr style="background-color: #f9fbfb; font-weight: bold; border-top: 2px solid #ccc;">
+            <td colspan="3" style="padding: 12px; text-align: right;">Total annual net earnings:</td>
+            <td id="analitika-ukupno-neto" style="padding: 12px; text-align: right; color: #008080; font-size: 1.1em;">€0.00</td>
+            <td></td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
   </div>
-
-  <!-- Priča 2: Tablica s mjesečnim prikazom -->
-  <div style="background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow-x: auto;">
-    <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.95em;">
-      <thead>
-        <tr style="background-color: #f0f7f7; color: #008080; border-bottom: 2px solid #008080;">
-          <th style="padding: 12px; min-width: 110px;">Mjesec</th>
-          <th style="padding: 12px;">Prijevod (Naslov)</th>
-          <th style="padding: 12px;">Klijent / Izdavač</th>
-          <th style="padding: 12px; text-align: right; min-width: 130px;">Neto zarada (€)</th>
-          <th style="padding: 12px; min-width: 150px;">Opaske</th>
-        </tr>
-      </thead>
-      <tbody id="analitika-tablica-body">
-        <!-- Dinamički sadržaj tablice -->
-      </tbody>
-      <tfoot>
-        <tr style="background-color: #f9fbfb; font-weight: bold; border-top: 2px solid #ccc;">
-          <td colspan="3" style="padding: 12px; text-align: right;">Ukupna godišnja neto zarada:</td>
-          <td id="analitika-ukupno-neto" style="padding: 12px; text-align: right; color: #008080; font-size: 1.1em;">0.00 €</td>
-          <td></td>
-        </tr>
-      </tfoot>
-    </table>
-  </div>
-</div>
-
-
 
 </div>
 
-<!-- Dodana verzija v=4 radi prisilnog osvježavanja skripte u pregledniku -->
 <script src="app.js?v=4"></script>
 
-<!-- Automatsko brisanje starog Service Workera kako PWA ne bi serviorao stari cache -->
 <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.getRegistrations().then(function(registrations) {

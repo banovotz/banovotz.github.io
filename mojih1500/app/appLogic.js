@@ -29,7 +29,7 @@ document.getElementById('epub-file').addEventListener('change', async (e) => {
 
 // B) Funkcija za Sinkronizaciju (Sync) Google Doc-a
 async function syncProjectDoc(projectId) {
-  const project = getProjectById(projectId); // Vaša postojeća funkcija za dohvat projekta iz baze/localStorage-a
+  const project = getProjectById(projectId); 
   if (!project || !project.gdocUrl) {
     alert("Ovaj projekt nema postavljen Google Docs URL.");
     return;
