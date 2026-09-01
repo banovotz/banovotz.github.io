@@ -50,13 +50,167 @@ let webLlmEngine = null;
 const SELECTED_MODEL = "Qwen2.5-3B-Instruct-q4f16_1-MLC"; // Lagan i brz model za browser
 
 /**
- * Pokreće proces tekstualne analize za odabrani projekt.
- * 
- * @param {string} projektId - ID projekta koji se analizira
- * @param {Event} [event] - Opcionalni DOM event s gumba (za preventDefault)
+ * Uspoređuje i poravnava izvorni tekst i prijevod pomoću LLM-a s kliznim prozorom
+ * te automatski kompenzira i održava točan offset odlomaka.
  */
+async function poravnajTekstoveSLLM(izvorTekst, prijevodTekst, engine, onProgress = null) {
+  const odlomciIzvor = ocistiISpodijeliOdlomke(izvorTekst);
+  const odlomciPrijevod = ocistiISpodijeliOdlomke(prijevodTekst);
+
+  const ukupnoOdlomaka = odlomciIzvor.length;
+  const rezultati = [];
+
+  const skratiZaPrompt = (tekst, maxZnakova = 1500) => {
+    if (!tekst) return "";
+    return tekst.length > maxZnakova ? tekst.substring(0, maxZnakova) + "..." : tekst;
+  };
+
+  // Indeks trenutnog odlomka prijevoda
+  let prijevodIndex = 0;
+
+  for (let i = 0; i < ukupnoOdlomaka; i++) {
+    const postotak = Math.round(((i + 1) / ukupnoOdlomaka) * 100);
+
+    if (typeof onProgress === 'function') {
+      onProgress({
+        trenutni: i + 1,
+        ukupno: ukupnoOdlomaka,
+        postotak: postotak,
+        poruka: `🧠 Analiziram odlomak ${i + 1} od ${ukupnoOdlomaka} (${postotak}%)...`
+      });
+    }
+
+    const puniIzvor = odlomciIzvor[i];
+
+    // Širimo prozor na -2 do +2 kandidata kako bismo uhvatili i veće pomake
+    const kandidatePrijevoda = [];
+    for (let offset = -2; offset <= 2; offset++) {
+      const idx = prijevodIndex + offset;
+      if (idx >= 0 && idx < odlomciPrijevod.length) {
+        kandidatePrijevoda.push({
+          id: idx,
+          tekst: odlomciPrijevod[idx]
+        });
+      }
+    }
+
+    const systemPrompt = `Ti si stručni analitičar i poravnavatelj književnih prijevoda.
+Zadan je JEDAN izvorni odlomak i lista ponuđenih kandidata prijevoda (zbog mogućeg pomaka teksta).
+
+Tvoji zadaci:
+1. Odredi koji kandidat (prema njegovom ID broju) je stvarni prijevod izvornog odlomka.
+2. Ako prijevod sadrži stilske pogreške, krive termine ili propuste, napiši kratku napomenu. Ako je prijevod točan, u "napomena" stavi prazno "".
+
+Vrati ISKLJUČIVO validan JSON objekt u ovom formatu:
+{"matched_id": broj_id, "napomena": "tekst napomene ili prazno"}`;
+
+    const kandidatiFormatirani = kandidatePrijevoda
+      .map(k => `[ID: ${k.id}]\n${skratiZaPrompt(k.tekst)}`)
+      .join("\n\n");
+
+    const userPrompt = `IZVOR:\n${skratiZaPrompt(puniIzvor)}\n\nKANDIDATI PRIJEVODA:\n${kandidatiFormatirani}`;
+
+    let odabraniPrijevodTekst = odlomciPrijevod[prijevodIndex] || "";
+    let napomenaRezultat = "";
+
+    try {
+      if (engine && typeof engine.chatCompletion === 'function') {
+        const response = await engine.chatCompletion({
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userPrompt }
+          ],
+          temperature: 0.1,
+          max_tokens: 512
+        });
+
+        let llmResponseText = response.choices[0].message.content || "";
+        llmResponseText = llmResponseText.replace(/```json|```/g, '').trim();
+
+        const jsonMatch = llmResponseText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          llmResponseText = jsonMatch[0];
+        }
+
+        const parsiraniObjekt = JSON.parse(llmResponseText);
+
+        // Parsiramo ID čak i ako ga je LLM vratio kao string
+        const pronadjeniId = parseInt(parsiraniObjekt.matched_id, 10);
+
+        if (!isNaN(pronadjeniId) && pronadjeniId >= 0 && pronadjeniId < odlomciPrijevod.length) {
+          prijevodIndex = pronadjeniId;
+          odabraniPrijevodTekst = odlomciPrijevod[prijevodIndex];
+        }
+
+        napomenaRezultat = parsiraniObjekt.napomena || "";
+      }
+    } catch (err) {
+      console.warn(`Greška pri usklađivanju odlomka ${i + 1}:`, err);
+    }
+
+    // Spremanje poravnatog para u konačne rezultate
+    rezultati.push({
+      izvor: puniIzvor,
+      prijevod: odabraniPrijevodTekst,
+      napomena: napomenaRezultat
+    });
+
+    // Pomičemo pokazatelj prijevoda na idući odlomak za sljedeći krug
+    prijevodIndex++;
+  }
+
+  if (typeof onProgress === 'function') {
+    onProgress({
+      trenutni: ukupnoOdlomaka,
+      ukupno: ukupnoOdlomaka,
+      postotak: 100,
+      poruka: "✅ Analiza i poravnanje uspješno završeni!"
+    });
+  }
+
+  return rezultati;
+}
 
 
+// 2. Pomoćna funkcija koja izvodi učitavanje datoteka, poravnanje i spremanje
+async function zapocniAnaliziranje(projekt) {
+  const modal = document.getElementById('llm-status-modal');
+  const statusText = document.getElementById('llm-status-text');
+
+  try {
+    if (statusText) statusText.innerText = "Dohvaćanje izvornog i prevedenog teksta...";
+
+    // Ekstrakcija tekstova iz ePub datoteke i Google Doc-a (ili unosa)
+    const [izvorniTekst, prijevodTekst] = await Promise.all([
+      dohvatiIzvorniTekst(projekt),
+      dohvatiPrijevodTekst(projekt)
+    ]);
+
+    if (!izvorniTekst || !prijevodTekst) {
+      throw new Error("Nije moguće dohvatiti izvorni ili prevedeni tekst za analizu.");
+    }
+
+    if (statusText) statusText.innerText = "Uspoređivanje i LLM analiza tekstova u tijeku...";
+
+    // POZIV NOVE FUNKCIJE SA PROSLJEĐIVANJEM ENGINE-A
+    const poravnaniRezultat = await poravnajTekstoveSLLM(izvorniTekst, prijevodTekst, webLlmEngine);
+
+    if (statusText) statusText.innerText = "Spremanje rezultata analize...";
+
+    // Spremanje u IndexedDB i osvježavanje prikaza
+    await spremiKonkordancu(projekt.id, poravnaniRezultat);
+    prikaziKonkordancu(poravnaniRezultat);
+
+    if (modal) modal.style.display = 'none';
+
+  } catch (err) {
+    console.error("Greška tijekom analize:", err);
+    alert("Došlo je do pogreške tijekom tekstualne analize: " + err.message);
+    if (modal) modal.style.display = 'none';
+  }
+}
+
+// 3. Glavna pokretačka funkcija
 async function pokreniTekstualnuAnalizu(projektId, event) {
   if (event) {
     if (typeof event.preventDefault === 'function') event.preventDefault();
@@ -194,7 +348,6 @@ async function pokreniTekstualnuAnalizu(projektId, event) {
   }
 }
 
-
 /**
  * Dohvaća puni tekstualni sadržaj Google Doc dokumenta.
  */
@@ -239,49 +392,36 @@ async function dohvatiCijeliTekstIzEpuba(file) {
 
 
 /**
- * Normalizira tekst i dijeli ga na odlomke čisteći višestruke prijelaze redaka
+ * Razbija tekst na odlomke i implicitno uklanja sve prazne redove i suvišne bjeline.
+ * 
+ * @param {string} tekst - Ulazni tekst (izvor ili prijevod)
+ * @returns {Array<string>} Niz očišćenih odlomaka bez praznih redova
  */
 function ocistiISpodijeliOdlomke(tekst) {
-  if (!tekst) return [];
+  if (!tekst || typeof tekst !== 'string') return [];
+
   return tekst
-    .replace(/\r\n/g, '\n')       // Normalizacija Windows u Unix newlines
+    // Normalizacija novih redova (Windows/Mac/Unix)
+    .replace(/\r\n/g, '\n')
     .replace(/\r/g, '\n')
-    .split(/\n\s*\n+/)            // Dijeli po praznim redovima (pravi odlomci)
-    .map(p => p.replace(/\s+/g, ' ').trim()) // Normalizira unutrašnje razmake
-    .filter(p => p.length > 0);   // Uklanja prazne segmente
-}
+    // Razbijanje po novim redovima
+    .split('\n')
+    // Čišćenje vodećih i pratećih praznina iz svakog odlomka
+    .map(odlomak => odlomak.trim())
+    // Implicitno uklanjanje praznih redova (sve što ostane prazno se izbacuje)
+    .filter(odlomak => odlomak.length > 0);
+} 
 
-/**
- * Sigurno poravnavanje teksta s fleksibilnom normalizacijom
- */
-function poravnajTekstove(izvorTekst, prijevodTekst) {
-  const odlomciIzvor = ocistiISpodijeliOdlomke(izvorTekst);
-  const odlomciPrijevod = ocistiISpodijeliOdlomke(prijevodTekst);
-  
-  const maxLen = Math.max(odlomciIzvor.length, odlomciPrijevod.length);
-  const poravnatiSegmenti = [];
 
-  for (let i = 0; i < maxLen; i++) {
-    poravnatiSegmenti.push({
-      index: i,
-      izvor: odlomciIzvor[i] || '',
-      prijevod: odlomciPrijevod[i] || ''
-    });
-  }
 
-  return {
-    segmenti: poravnatiSegmenti,
-    odlomciIzvor,
-    odlomciPrijevod
-  };
-}
-
+// 2. Pomoćna funkcija koja izvodi učitavanje datoteka, poravnanje i spremanje
 async function zapocniAnaliziranje(projekt) {
   const progressBar = document.getElementById('llm-progress-bar');
   const statusText = document.getElementById('llm-status-text');
+  const modal = document.getElementById('llm-status-modal');
   
   if (progressBar) progressBar.style.width = '100%';
-  if (statusText) statusText.innerText = "⏳ Dohvaćanje tekstova i poravnavanje... Molimo pričekajte.";
+  if (statusText) statusText.innerText = "⏳ Dohvaćanje tekstova izvora i prijevoda...";
 
   try {
     let izvorTekst = "";
@@ -313,232 +453,161 @@ async function zapocniAnaliziranje(projekt) {
       throw new Error("Tekst prijevoda iz Google Doc-a nije pronađen ili je prazan.");
     }
 
-    // 3. PORAVNANJE TEKSTOVA
-    if (statusText) statusText.innerText = "⏳ Poravnavanje segmenata izvora i prijevoda...";
-    const { segmenti, odlomciIzvor, odlomciPrijevod } = poravnajTekstove(izvorTekst, prijevodTekst);
+    // 3. PORAVNANJE TEKSTOVA I LLM ANALIZA
+    if (statusText) statusText.innerText = "⏳ Pokretanje LLM analize...";
 
-    // 4. PRIPREMA UZORKA I INICIJALIZACIJA LLM ENGINE-A
-    if (statusText) statusText.innerText = "⏳ Pokretanje AI analize terminologije i stila...";
-    
-    const MAX_ZNAKOVA = 3500;
-    let akumuliraniIzvor = "";
-    let akumuliraniPrijevod = "";
-
-    for (const seg of segmenti) {
-      if ((akumuliraniIzvor.length + seg.izvor.length > MAX_ZNAKOVA) || 
-          (akumuliraniPrijevod.length + seg.prijevod.length > MAX_ZNAKOVA)) {
-        break;
-      }
-      akumuliraniIzvor += seg.izvor + "\n\n";
-      akumuliraniPrijevod += seg.prijevod + "\n\n";
-    }
-
-    const izvorUzorak = akumuliraniIzvor.trim() || izvorTekst.slice(0, MAX_ZNAKOVA);
-    const prijevodUzorak = akumuliraniPrijevod.trim() || prijevodTekst.slice(0, MAX_ZNAKOVA);
-
-    let komentari = [];
-
-    // 4a. Detekcija postojanja engine varijable (provjera više mogućih naziva)
-
-    // Izravno dohvaćamo globalnu webLlmEngine varijablu
-let activeEngine = webLlmEngine;
-
-// Poziv LLM-a ako je engine spreman
-if (activeEngine && typeof activeEngine.chat !== 'undefined') {
-  try {
-    const prompt = `Analiziraj sljedeći izvorni tekst i njegov prijevod. 
-    Izvuci ključne termine ili idiomatske izraze, ponudi sugestije ili napomene.
-    Odgovori isključivo u JSON formatu kao niz objekata:
-    [{"term": "riječ/idiom", "sugestija": "objašnjenje ili alternativni prijevod", "odlomakIndex": 0}]
-    
-    Izvor:
-    ${izvorUzorak}
-    
-    Prijevod:
-    ${prijevodUzorak}`;
-
-    const reply = await activeEngine.chat.completions.create({
-      messages: [
-        { 
-          role: "system", 
-          content: "Ti si vrhunski književni prevoditelj i jezikoslovac. Tvoj zadatak je pružiti stručne, elokventne i stilski besprijekorne terminološke i idiomatske sugestije na prirodnom hrvatskom jeziku. U svojim odgovorima ne spominji provođenje analize, nego samo ponudi sugestije." 
-        },
-        { role: "user", content: prompt }
-      ],
-      temperature: 0.3
-    });
-
-    const rawContent = reply.choices[0].message.content;
-    try {
-      komentari = JSON.parse(rawContent);
-    } catch (e) {
-      komentari = [{ term: "Generalno", sugestija: rawContent, odlomakIndex: 0 }];
-    }
-  } catch (llmErr) {
-    console.warn("LLM greška pri generiranju odgovora:", llmErr);
-    komentari = [{ term: "Sustav", sugestija: "Automatska AI analiza nije uspjela generirati sugestije.", odlomakIndex: 0 }];
-  }
-} else {
-  console.warn("WebLLM engine nije inicijaliziran. Nastavljam samo s prikazom konkordance.");
-  komentari = [{ term: "Sustav", sugestija: "WebLLM model nije učitan. Prikazan je poravnani tekst segmenata.", odlomakIndex: 0 }];
-}
-
-    // Ponovna provjera nakon pokušaja inicijalizacije
-    if (!activeEngine && typeof webLlmEngine !== 'undefined') activeEngine = webLlmEngine;
-    if (!activeEngine && typeof engine !== 'undefined') activeEngine = engine;
-
-    // 4c. Poziv LLM-a ako je engine spreman
-    if (activeEngine && activeEngine.chat) {
-      try {
-        const prompt = `Analiziraj sljedeći izvorni tekst i njegov prijevod. 
-        Izvuci ključne termine ili idiomatske izraze, ponudi sugestije ili napomene.
-        Odgovori isključivo u JSON formatu kao niz objekata:
-        [{"term": "riječ/idiom", "sugestija": "objašnjenje ili alternativni prijevod", "odlomakIndex": 0}]
-        
-        Izvor:
-        ${izvorUzorak}
-        
-        Prijevod:
-        ${prijevodUzorak}`;
-
-        const reply = await activeEngine.chat.completions.create({
-          messages: [
-            { 
-              role: "system", 
-              content: "Ti si vrhunski književni prevoditelj i jezikoslovac. Tvoj zadatak je pružiti stručne, elokventne i stilski besprijekorne terminološke i idiomatske sugestije na prirodnom hrvatskom jeziku. U svojim odgovorima ne spominji provođenje analize, nego samo ponudi sugestije." 
-            },
-            { role: "user", content: prompt }
-          ],
-          temperature: 0.3
-        });
-
-        const rawContent = reply.choices[0].message.content;
-        try {
-          komentari = JSON.parse(rawContent);
-        } catch (e) {
-          komentari = [{ term: "Generalno", sugestija: rawContent, odlomakIndex: 0 }];
+      const poravnaniRezultat = await poravnajTekstoveSLLM(
+        izvorTekst, 
+        prijevodTekst, 
+        webLlmEngine,
+      (napredak) => {
+    // Ažuriranje statusnog teksta i napretka u realnom vremenu
+        if (statusText) {
+          statusText.innerText = napredak.poruka;
         }
-      } catch (llmErr) {
-        console.warn("LLM greška pri generiranju odgovora:", llmErr);
-        komentari = [{ term: "Sustav", sugestija: "Automatska AI analiza nije uspjela generirati sugestije.", odlomakIndex: 0 }];
+        if (progressBar) {
+          progressBar.style.width = `${napredak.postotak}%`;
       }
-    } else {
-      console.warn("WebLLM engine nije inicijaliziran. Nastavljam samo s prikazom konkordance.");
-      komentari = [{ term: "Sustav", sugestija: "WebLLM model nije učitan. Prikazan je poravnani tekst segmenata.", odlomakIndex: 0 }];
     }
+  );  
+    // 4. SPREMANJE REZULTATA U INDEXEDDB
+    if (statusText) statusText.innerText = "⏳ Spremanje rezultata analize...";
 
-    // 5. SPREMANJE REZULTATA U INDEXEDDB
-    const rezultatObj = {
+    const odlomciIzvor = ocistiISpodijeliOdlomke(izvorTekst);
+    const odlomciPrijevod = ocistiISpodijeliOdlomke(prijevodTekst);
+
+    // Mapiramo napomene/komentare iz poravnanog rezultata za IndexedDB strukturu
+    const komentari = poravnaniRezultat
+      .map((item, idx) => item.napomena ? { term: "AI Napomena", sugestija: item.napomena, odlomakIndex: idx } : null)
+      .filter(Boolean);
+
+    const rezultatObjekt = {
       projektId: projekt.id,
       datumAnalize: new Date().toISOString(),
-      segmenti,
-      odlomciIzvor,
-      odlomciPrijevod,
-      komentari
+      segmenti: poravnaniRezultat,
+      odlomciIzvor: odlomciIzvor,
+      odlomciPrijevod: odlomciPrijevod,
+      komentari: komentari
     };
 
-// 1. Pripremite objekt s podacima
-  const rezultatObjekt = {
-    projektId: projekt.id,
-    datumAnalize: new Date().toISOString(),
-    komentari: komentari,
-    segmenti: segmenti,
-    odlomciIzvor: odlomciIzvor,
-    odlomciPrijevod: odlomciPrijevod
-  };
+    const db = await otvoriBazu();
+    const storeName = typeof KONKORDANCA_STORE !== 'undefined' ? KONKORDANCA_STORE : 'konkordance';
+    const tx = db.transaction(storeName, 'readwrite');
+    const store = tx.objectStore(storeName);
+    
+    const request = store.put(rezultatObjekt);
 
-  // 2. PRVO dovatite 'db' instancu (pričekajte asinkroni otvaranje)
-  const db = await otvoriBazu();
+    await new Promise((resolve, reject) => {
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+      request.onerror = () => reject(request.error);
+    });
 
-  // 3. ODMAH nakon toga otvorite transakciju i pozovite put() bez ikakvog await-a između
-  const storeName = typeof KONKORDANCA_STORE !== 'undefined' ? KONKORDANCA_STORE : 'konkordance';
-  const tx = db.transaction(storeName, 'readwrite');
-  const store = tx.objectStore(storeName);
-  
-  // Spremanje vraća IDBRequest
-  const request = store.put(rezultatObjekt);
+    // 5. ZAVRŠETAK I PRIKAZ
+    if (modal) modal.style.display = 'none';
 
-  // 4. Pretvorite IDBRequest u Promise ili pričekajte završetak transakcije
-  await new Promise((resolve, reject) => {
-    tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(tx.error);
-    request.onerror = () => reject(request.error);
-  });
-
-  // 5. Prebacivanje na ekran konkordance
-  if (typeof sakrijUcitavanje === 'function') sakrijUcitavanje();
-  if (typeof prikaziEkran === 'function') prikaziEkran('konkordanca');
-  await prikaziKonkordancu(projekt.id);  
-
+    if (typeof sakrijUcitavanje === 'function') sakrijUcitavanje();
+    if (typeof prikaziEkran === 'function') prikaziEkran('konkordanca');
+    
+    await prikaziKonkordancu(projekt.id);  
 
   } catch (err) {
-    alert("Analiza nije uspjela: " + err.message);
-    const modal = document.getElementById('llm-status-modal');
+    console.error("Greška tijekom analize:", err);
+    alert("Došlo je do pogreške tijekom tekstualne analize: " + err.message);
     if (modal) modal.style.display = 'none';
   }
 }
-
 // --- PRIKAZ KONKORDANCE I SINKRONIZIRANI SKROL ---
 
 async function prikaziKonkordancu(projektId) {
+  console.log("Otvori konkordancu za projekt ID:", projektId, typeof projektId);
+
   const db = await otvoriBazu();
   const tx = db.transaction(KONKORDANCA_STORE, 'readonly');
   const store = tx.objectStore(KONKORDANCA_STORE);
   
-  const rezultat = await new Promise((resolve) => {
+  // Try dohvatiti s originalnim i parsiranim ID-jem
+  let rezultat = await new Promise((resolve) => {
     const req = store.get(projektId);
     req.onsuccess = () => resolve(req.result);
     req.onerror = () => resolve(null);
   });
 
-  // 1. Prebacivanje vidljivosti ekrana (sakrij dashboard, prikaži konkordancu)
-  const dashboardSekcija = document.getElementById('dashboard-view'); // Prilagodite ID po potrebi
-  const konkordancaSekcija = document.getElementById('konkordanca-view'); // Prilagodite ID po potrebi
+  if (!rezultat && typeof projektId === 'string' && !isNaN(projektId)) {
+    rezultat = await new Promise((resolve) => {
+      const req = store.get(Number(projektId));
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => resolve(null);
+    });
+  }
 
-  if (dashboardSekcija) dashboardSekcija.style.display = 'none';
-  if (konkordancaSekcija) konkordancaSekcija.style.display = 'block';
+  console.log("Dohvaćeni rezultat analize:", rezultat);
 
-  // 2. Renderiranje sadržaja
-  const konContainer = document.getElementById('konkordanca-kontejner');
-  if (!konContainer) return;
+  // 1. Prebacivanje stranice
+  if (typeof prikaziStranicu === 'function') {
+    prikaziStranicu('konkordanca-page');
+  } else if (typeof prikaziEkran === 'function') {
+    prikaziEkran('konkordanca');
+  }
 
-  if (!rezultat || !rezultat.segmenti || rezultat.segmenti.length === 0) {
-    konContainer.innerHTML = "<p>Nema dostupnih podataka analize za ovaj projekt.</p>";
+  // Osiguravamo da je sam kontejner/stranica vidljiva
+  const stranica = document.getElementById('konkordanca-page') || document.getElementById('konkordanca-view');
+  if (stranica) {
+    stranica.style.display = 'block';
+  }
+
+  // 2. Traženje kontejnera u koji se upisuju segmenti
+  const konContainer = document.getElementById('konkordanca-kontejner') || document.getElementById('konkordanca-sadrzaj');
+  if (!konContainer) {
+    console.error("Kontejner 'konkordanca-kontejner' nije pronađen u HTML DOM-u!");
     return;
   }
 
+  if (!rezultat || !rezultat.segmenti || rezultat.segmenti.length === 0) {
+    konContainer.innerHTML = `
+      <div style="padding: 20px; background: #fff3cd; color: #856404; border-radius: 6px;">
+        ⚠️ Nema dostupnih podataka analize ili segmenti nisu pronađeni za ovaj projekt (ID: ${projektId}).
+      </div>`;
+    return;
+  }
+
+  // 3. Generiranje prikaza segmenata
   let html = `
-    <div class="konkordanca-wrapper" style="display: flex; flex-direction: column; gap: 12px; max-height: 80vh; overflow-y: auto;">
+    <div style="margin-bottom: 15px; background: #f8f9fa; padding: 12px; border-radius: 6px;">
+      <h3 style="margin: 0 0 6px 0;">📊 Rezultati poravnanja i analize</h3>
+      <p style="margin: 0; color: #666; font-size: 0.9em;">Ukupno segmenata: <strong>${rezultat.segmenti.length}</strong></p>
+    </div>
+    <div class="konkordanca-wrapper" style="display: flex; flex-direction: column; gap: 12px; max-height: 75vh; overflow-y: auto; padding-right: 5px;">
   `;
 
   rezultat.segmenti.forEach((seg, idx) => {
     const komentarZaOdlomak = rezultat.komentari ? rezultat.komentari.find(k => k.odlomakIndex === idx) : null;
 
     html += `
-      <div class="segment-row" style="display: flex; gap: 16px; border-bottom: 1px solid #e0e0e0; padding: 8px 0;">
-        <div class="segment-num" style="width: 40px; color: #888; font-size: 0.85em;">#${idx + 1}</div>
-        <div class="segment-izvor" style="flex: 1; width: 50%; padding-right: 8px;">
-          ${seg.izvor ? seg.izvor : '<em style="color:#aaa;">(Prazan odlomak u izvoru)</em>'}
+      <div class="segment-card" style="background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px;">
+        <div style="font-size: 0.75em; color: #888; font-weight: bold; margin-bottom: 6px;">SEGMENT #${idx + 1}</div>
+        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 250px; background: #fafafa; padding: 8px; border-radius: 4px; border-left: 3px solid #008080;">
+            <strong style="font-size: 0.8em; color: #008080; display: block; margin-bottom: 4px;">IZVOR:</strong>
+            ${seg.izvor ? seg.izvor : '<em style="color:#aaa;">(Prazan odlomak)</em>'}
+          </div>
+          <div style="flex: 1; min-width: 250px; background: #fafafa; padding: 8px; border-radius: 4px; border-left: 3px solid #2e7d32;">
+            <strong style="font-size: 0.8em; color: #2e7d32; display: block; margin-bottom: 4px;">PRIJEVOD:</strong>
+            ${seg.prijevod ? seg.prijevod : '<em style="color:#aaa;">(Prazan odlomak)</em>'}
+          </div>
         </div>
-        <div class="segment-prijevod" style="flex: 1; width: 50%; padding-left: 8px; border-left: 2px solid #f0f0f0;">
-          ${seg.prijevod ? seg.prijevod : '<em style="color:#aaa;">(Prazan odlomak u prijevodu)</em>'}
-        </div>
+        ${komentarZaOdlomak ? `
+          <div style="margin-top: 8px; background: #f3e5f5; border-left: 3px solid #8e24aa; padding: 6px 10px; border-radius: 4px; font-size: 0.88em;">
+            💡 <strong>Napomena / Term:</strong> ${komentarZaOdlomak.term || ''} — ${komentarZaOdlomak.sugestija || ''}
+          </div>
+        ` : ''}
       </div>
     `;
-
-    if (komentarZaOdlomak) {
-      html += `
-        <div class="segment-ai-note" style="background: #f9f8ff; border-left: 4px solid #6c5ce7; padding: 6px 12px; margin-bottom: 8px; font-size: 0.9em;">
-          <strong>💡 Term / Napomena:</strong> ${komentarZaOdlomak.term} — ${komentarZaOdlomak.sugestija}
-        </div>
-      `;
-    }
   });
 
   html += `</div>`;
   konContainer.innerHTML = html;
 }
-
 function renderKonkordancaStupci(data) {
   const colIzvor = document.getElementById('col-izvor');
   const colPrijevod = document.getElementById('col-prijevod');
@@ -2055,3 +2124,199 @@ function prikaziDashboard() {
   ucitajDashboard();
 }
 
+/**
+ * Prikazuje stranicu sa svim spremljenim analizama i pokreće učitavanje iz baze.
+ */
+async function prikaziSveAnalize() {
+  if (typeof prikaziStranicu === 'function') {
+    prikaziStranicu('analize-page');
+  } else {
+    const sveStranice = document.querySelectorAll('.page-content');
+    sveStranice.forEach(p => p.style.display = 'none');
+    const analizePage = document.getElementById('analize-page');
+    if (analizePage) analizePage.style.display = 'block';
+  }
+
+  await ucitajListuAnaliza();
+}
+
+/**
+ * Dohvaća sve zapise iz KONKORDANCA_STORE i povezuje ih s nazivima projekata iz STORE_NAME.
+ */
+async function ucitajListuAnaliza() {
+  const container = document.getElementById('lista-analiza-container');
+  if (!container) return;
+
+  container.innerHTML = '<p class="text-muted">Učitavanje analiza...</p>';
+
+  try {
+    const db = await otvoriBazu();
+
+    // 1. Dohvaćanje svih spremljenih konkordanci / analiza
+    const txKonkordance = db.transaction(KONKORDANCA_STORE, 'readonly');
+    const storeKonkordance = txKonkordance.objectStore(KONKORDANCA_STORE);
+    const sveAnalize = await new Promise((res, rej) => {
+      const req = storeKonkordance.getAll();
+      req.onsuccess = () => res(req.result || []);
+      req.onerror = () => rej(req.error);
+    });
+
+    if (sveAnalize.length === 0) {
+      container.innerHTML = '<p class="text-muted">Trenutno nema spremljenih analiza. Pokrenite tekstualnu analizu s kartice projekta na dashboardu.</p>';
+      return;
+    }
+
+    // 2. Dohvaćanje svih projekata radi prikaza naziva
+    const txProjekti = db.transaction(STORE_NAME, 'readonly');
+    const storeProjekti = txProjekti.objectStore(STORE_NAME);
+    const sviProjekti = await new Promise((res, rej) => {
+      const req = storeProjekti.getAll();
+      req.onsuccess = () => res(req.result || []);
+      req.onerror = () => rej(req.error);
+    });
+
+    const projektiMapa = new Map(sviProjekti.map(p => [p.id, p]));
+
+    // 3. Renderiranje kartica
+    container.innerHTML = '';
+    const fragment = document.createDocumentFragment();
+
+    sveAnalize.forEach(analiza => {
+      const projekt = projektiMapa.get(analiza.projektId);
+      const naslovProjekta = projekt ? projekt.naslov : `Projekt ID: ${analiza.projektId}`;
+      const klijent = projekt && projekt.klijent ? projekt.klijent : null;
+      
+      const datumAnalizeStr = analiza.datumAnalize 
+        ? new Date(analiza.datumAnalize).toLocaleString('hr-HR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+        : 'Nepoznat datum';
+
+      const brojSegmenta = analiza.segmenti ? analiza.segmenti.length : 0;
+      const brojKomentara = analiza.komentari ? analiza.komentari.length : 0;
+
+      const card = document.createElement('div');
+      card.className = 'card-analiza';
+      card.style = 'background: #fff; border-radius: 8px; padding: 16px; border: 1px solid #eef2f2; box-shadow: 0 2px 6px rgba(0,0,0,0.06); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;';
+      
+      card.innerHTML = `
+        <div>
+          <h3 style="margin: 0 0 4px 0; color: #008080; font-size: 1.1em;">${naslovProjekta}</h3>
+          ${klijent ? `<div style="font-size: 0.85em; color: #666; margin-bottom: 6px;">🏢 ${klijent}</div>` : ''}
+          <div style="font-size: 0.85em; color: #777;">
+            📅 Datum analize: <strong>${datumAnalizeStr}</strong> | 
+            📄 Segmenta: <strong>${brojSegmenta}</strong> | 
+            💡 Napomena: <strong>${brojKomentara}</strong>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button onclick="otvoriSpremljenuKonkordancu('${analiza.projektId}')" style="padding: 8px 14px; background: #008080; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-size: 0.88em;">
+            👁️ Otvori pregled
+          </button>
+          <button onclick="obrisiAnalizirano('${analiza.projektId}')" style="padding: 8px 12px; background: #fff; color: #c62828; border: 1px solid #c62828; border-radius: 4px; cursor: pointer; font-size: 0.88em;">
+            🗑️ Obriši
+          </button>
+        </div>
+      `;
+
+      fragment.appendChild(card);
+    });
+
+    container.appendChild(fragment);
+
+  } catch (err) {
+    console.error("Greška pri učitavanju liste analiza:", err);
+    container.innerHTML = '<p style="color: #c62828;">Došlo je do pogreške pri učitavanju analiza iz baze.</p>';
+  }
+}
+
+async function otvoriSpremljenuKonkordancu(projektId) {
+  // Pretvorba ID-a u broj ako je spremljen kao broj u bazi
+  const parsedId = isNaN(projektId) ? projektId : Number(projektId);
+  await prikaziKonkordancu(parsedId);
+}
+
+async function prikaziKonkordancu(projektId) {
+  const db = await otvoriBazu();
+  const tx = db.transaction(KONKORDANCA_STORE, 'readonly');
+  const store = tx.objectStore(KONKORDANCA_STORE);
+
+  // Dohvaćanje zapisa (podržava i broj i string ID)
+  let rezultat = await new Promise((resolve) => {
+    const req = store.get(projektId);
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => resolve(null);
+  });
+
+  if (!rezultat && typeof projektId === 'string' && !isNaN(projektId)) {
+    rezultat = await new Promise((resolve) => {
+      const req = store.get(Number(projektId));
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => resolve(null);
+    });
+  }
+
+  // 1. Prebacivanje na točan ID stranice iz index.html ('concordance-page')
+  if (typeof prikaziStranicu === 'function') {
+    prikaziStranicu('concordance-page');
+  } else {
+    document.querySelectorAll('.page-content').forEach(el => el.style.display = 'none');
+    const concPage = document.getElementById('concordance-page');
+    if (concPage) concPage.style.display = 'block';
+  }
+
+  // 2. Dohvaćanje 3 stupca iz vašeg DOM-a
+  const colIzvor = document.getElementById('col-izvor');
+  const colPrijevod = document.getElementById('col-prijevod');
+  const colKomentari = document.getElementById('col-komentari');
+
+  if (!colIzvor || !colPrijevod || !colKomentari) {
+    console.error("Stupci konkordance nisu pronađeni u DOM-u!");
+    return;
+  }
+
+  // Prazni stupce prije punjenja
+  colIzvor.innerHTML = '';
+  colPrijevod.innerHTML = '';
+  colKomentari.innerHTML = '';
+
+  if (!rezultat || !rezultat.segmenti || rezultat.segmenti.length === 0) {
+    colIzvor.innerHTML = '<p class="text-muted">Nema podataka za prikaz.</p>';
+    return;
+  }
+
+  // 3. Popunjavanje stupaca podacima
+  rezultat.segmenti.forEach((seg, idx) => {
+    const komentarZaOdlomak = rezultat.komentari 
+      ? rezultat.komentari.find(k => k.odlomakIndex === idx) 
+      : null;
+
+    // Stupac 1: Izvor
+    const divIzvor = document.createElement('div');
+    divIzvor.className = 'segment-item';
+    divIzvor.style = 'padding: 8px; border-bottom: 1px solid #eee; min-height: 48px;';
+    divIzvor.innerHTML = `<small style="color:#888;">#${idx + 1}</small><br>${seg.izvor || '<em>(Prazno)</em>'}`;
+    colIzvor.appendChild(divIzvor);
+
+    // Stupac 2: Prijevod
+    const divPrijevod = document.createElement('div');
+    divPrijevod.className = 'segment-item';
+    divPrijevod.style = 'padding: 8px; border-bottom: 1px solid #eee; min-height: 48px;';
+    divPrijevod.innerHTML = `<small style="color:#888;">#${idx + 1}</small><br>${seg.prijevod || '<em>(Prazno)</em>'}`;
+    colPrijevod.appendChild(divPrijevod);
+
+    // Stupac 3: Komentari / Sugestije
+    const divKomentar = document.createElement('div');
+    divKomentar.className = 'segment-item';
+    divKomentar.style = 'padding: 8px; border-bottom: 1px solid #eee; min-height: 48px;';
+    
+    if (komentarZaOdlomak) {
+      divKomentar.innerHTML = `
+        <div style="background: #e6f2f2; border-left: 3px solid #008080; padding: 6px; border-radius: 4px; font-size: 0.85em;">
+          <strong>💡 ${komentarZaOdlomak.term || 'Sugestija'}:</strong> ${komentarZaOdlomak.sugestija || ''}
+        </div>
+      `;
+    } else {
+      divKomentar.innerHTML = `<span style="color:#ccc;">—</span>`;
+    }
+    colKomentari.appendChild(divKomentar);
+  });
+}

@@ -30,8 +30,10 @@
     <!-- Main Links (Desktop) -->
     <ul class="nav-links" style="display: flex; list-style: none; gap: 16px; margin: 0; padding: 0;">
       <li><a href="javascript:void(0)" onclick="prikaziDashboard()" class="nav-item">🏠 Dashboard</a></li>
-      <li><a href="javascript:void(0)" onclick="ucitajAnalitiku()" class="nav-item">📊 Analytics</a></li>
+      <li><a href="javascript:void(0)" onclick="ucitajAnalitiku()" class="nav-item">📊 Financial Analytics</a></li>
+      <li><a href="javascript:void(0)" onclick="prikaziSveAnalize()" class="nav-item">🌐 Tanslations Analytics</a></li>
       <li><a href="javascript:void(0)" onclick="ucitajPostavke()" class="nav-item">⚙️ Settings</a></li>
+
     </ul>
   </div>
 </nav>
@@ -281,7 +283,16 @@
 </div>
 
 
-
+<!-- OČIŠĆENA SEKCIJA U index.html -->
+<div id="analize-page" class="page-content" style="display: none; padding: 20px;">
+  <h2>📊 Pregled spremljenih tekstualnih analiza</h2>
+  <p class="text-muted">Popis svih projekata za koje je dosad generirana analiza i poravnanje.</p>
+  
+  <div id="lista-analiza-container" style="margin-top: 20px; display: flex; flex-direction: column; gap: 12px;">
+    <!-- Ovdje se dinamički učitavaju kartice analiza -->
+  </div>
+</div>
+ 
 
 
 <!-- STRANICA KONKORDANCE (3 STUPCA) -->
@@ -311,6 +322,8 @@
     </div>
   </div>
 </div>
+
+
 
 
 <script src="app.js?v=4"></script>
