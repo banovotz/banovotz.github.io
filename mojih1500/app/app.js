@@ -45,6 +45,22 @@ function otvoriBazu() {
   });
 }
 
+// --- UPRAVLJANJE GEMINI API KLJUČEM ---
+
+function spremiGeminiKluc() {
+  const input = document.getElementById('gemini-api-key');
+  if (!input || !input.value.trim()) {
+    alert("Molimo unesite valjan Gemini API ključ.");
+    return;
+  }
+  localStorage.setItem('gemini_api_key', input.value.trim());
+  alert("Gemini API ključ je uspješno spremljen!");
+}
+
+function dohvatiGeminiKluc() {
+  return localStorage.getItem('gemini_api_key') || "";
+}
+
 // --- DOHVAT GOOGLE DOCS TEKSTA ---
 
 /**
@@ -53,7 +69,6 @@ function otvoriBazu() {
 async function dohvatiCijeliTekstIzGDoca(gdocUrl) {
   if (!gdocUrl || typeof gdocUrl !== 'string') return "";
 
-  // Ekstrakcija Document ID-a iz standardnog Google Docs URL-a
   const match = gdocUrl.match(/\/d\/([a-zA-Z0-9-_]+)/);
   if (!match || !match[1]) {
     throw new Error("Nevažeći Google Docs URL format.");
@@ -75,21 +90,79 @@ async function dohvatiCijeliTekstIzGDoca(gdocUrl) {
   }
 }
 
-// --- WEBLLM I LOGIKA ANALIZE TEKSTA ---
-let webLlmEngine = null;
-const SELECTED_MODEL = "Qwen2.5-3B-Instruct-q4f16_1-MLC"; // Lagan i brz model za browser
+// --- GEMINI API INTEGRACIJA I LOGIKA ANALIZE TEKSTA ---
 
 /**
- * Uspoređuje izvorne i prevedene odlomke 1:1 pomoću WebLLM-a bez offseta.
+ * Poziva Google Gemini REST API za analizu odlomka.
  */
-async function poravnajTekstoveSLLM(izvorTekst, prijevodTekst, engine, onProgress = null) {
+async function pozoviGeminiAPI(izvor, prijevod, apiKey) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
+
+  const systemInstruction = `Ti si stručni analitičar i poravnavatelj književnih prijevoda.
+Zadani su JEDAN izvorni odlomak i njegov izravni prijevod.
+
+Tvoj zadatak:
+Analiziraj prijevod s obzirom na izvorni tekst. Ako prijevod sadrži stilske pogreške, krive termine ili propuste, napiši kratku napomenu na hrvatskom jeziku. Ako je prijevod točan i bez zamjerki, u "napomena" stavi prazan niz "".
+
+Vrati ISKLJUČIVO validan JSON objekt bez ikakvog dodatnog markdown oblikovanja u ovom formatu:
+{"napomena": "tekst napomene ili prazno"}`;
+
+  const promptText = `IZVOR:\n${izvor}\n\nPRIJEVOD:\n${prijevod}`;
+
+  const payload = {
+    contents: [
+      {
+        role: "user",
+        parts: [{ text: promptText }]
+      }
+    ],
+    systemInstruction: {
+      parts: [{ text: systemInstruction }]
+    },
+    generationConfig: {
+      temperature: 0.1,
+      responseMimeType: "application/json"
+    }
+  };
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.error?.message || `Gemini API vraća status ${response.status}`);
+  }
+
+  const data = await response.json();
+  const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
+  
+  try {
+    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+    const jsonString = jsonMatch ? jsonMatch[0] : rawText;
+    const parsed = JSON.parse(jsonString);
+    return parsed.napomena || "";
+  } catch (e) {
+    console.warn("Greška pri parsiranju JSON-a iz Gemini odgovora:", e, rawText);
+    return "";
+  }
+}
+
+/**
+ * Uspoređuje izvorne i prevedene odlomke 1:1 pomoću Gemini API-ja.
+ */
+async function poravnajTekstoveSGemini(izvorTekst, prijevodTekst, apiKey, onProgress = null) {
   const odlomciIzvor = ocistiISpodijeliOdlomke(izvorTekst);
   const odlomciPrijevod = ocistiISpodijeliOdlomke(prijevodTekst);
 
   const ukupnoOdlomaka = Math.max(odlomciIzvor.length, odlomciPrijevod.length);
   const rezultati = [];
 
-  const skratiZaPrompt = (tekst, maxZnakova = 1500) => {
+  const skratiZaPrompt = (tekst, maxZnakova = 2000) => {
     if (!tekst) return "";
     return tekst.length > maxZnakova ? tekst.substring(0, maxZnakova) + "..." : tekst;
   };
@@ -102,50 +175,26 @@ async function poravnajTekstoveSLLM(izvorTekst, prijevodTekst, engine, onProgres
         trenutni: i + 1,
         ukupno: ukupnoOdlomaka,
         postotak: postotak,
-        poruka: `🧠 Analiziram odlomak ${i + 1} od ${ukupnoOdlomaka} (${postotak}%)...`
+        poruka: `✨ Gemini analizira odlomak ${i + 1} od ${ukupnoOdlomaka} (${postotak}%)...`
       });
     }
 
     const puniIzvor = odlomciIzvor[i] || "";
     const puniPrijevod = odlomciPrijevod[i] || "";
 
-    const systemPrompt = `Ti si stručni analitičar i poravnavatelj književnih prijevoda.
-Zadani su JEDAN izvorni odlomak i njegov izravni prijevod.
-
-Tvoj zadatak:
-Analiziraj prijevod s obzirom na izvorni tekst. Ako prijevod sadrži stilske pogreške, krive termine ili propuste, napiši kratku napomenu na hrvatskom jeziku. Ako je prijevod točan i bez zamjerki, u "napomena" stavi prazan niz "".
-
-Vrati ISKLJUČIVO validan JSON objekt u ovom formatu:
-{"napomena": "tekst napomene ili prazno"}`;
-
-    const userPrompt = `IZVOR:\n${skratiZaPrompt(puniIzvor)}\n\nPRIJEVOD:\n${skratiZaPrompt(puniPrijevod)}`;
-
     let napomenaRezultat = "";
 
-    try {
-      if (engine && typeof engine.chatCompletion === 'function' && puniIzvor && puniPrijevod) {
-        const response = await engine.chatCompletion({
-          messages: [
-            { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt }
-          ],
-          temperature: 0.1,
-          max_tokens: 512
-        });
-
-        let llmResponseText = response.choices[0].message.content || "";
-        llmResponseText = llmResponseText.replace(/```json|```/g, '').trim();
-
-        const jsonMatch = llmResponseText.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          llmResponseText = jsonMatch[0];
-        }
-
-        const parsiraniObjekt = JSON.parse(llmResponseText);
-        napomenaRezultat = parsiraniObjekt.napomena || "";
+    if (puniIzvor && puniPrijevod) {
+      try {
+        napomenaRezultat = await pozoviGeminiAPI(
+          skratiZaPrompt(puniIzvor),
+          skratiZaPrompt(puniPrijevod),
+          apiKey
+        );
+      } catch (err) {
+        console.warn(`Greška pri Gemini analizi odlomka ${i + 1}:`, err);
+        napomenaRezultat = `[Greška u analizi: ${err.message}]`;
       }
-    } catch (err) {
-      console.warn(`Greška pri usklađivanju odlomka ${i + 1}:`, err);
     }
 
     rezultati.push({
@@ -160,19 +209,26 @@ Vrati ISKLJUČIVO validan JSON objekt u ovom formatu:
       trenutni: ukupnoOdlomaka,
       ukupno: ukupnoOdlomaka,
       postotak: 100,
-      poruka: "✅ Analiza i poravnanje uspješno završeni!"
+      poruka: "✅ Gemini analiza uspješno završena!"
     });
   }
 
   return rezultati;
 }
 
-// 2. Glavna funkcija za analizu s integriranom stvoriNormaliziraneSegmente
+// Glavna funkcija za analizu
 async function zapocniAnaliziranje(projekt) {
   const progressBar = document.getElementById('llm-progress-bar');
   const statusText = document.getElementById('llm-status-text');
   const modal = document.getElementById('llm-status-modal');
   
+  const apiKey = dohvatiGeminiKluc();
+  if (!apiKey) {
+    alert("Nije pronađen Gemini API ključ. Molimo unesite ključ u Postavkama.");
+    if (modal) modal.style.display = 'none';
+    return;
+  }
+
   if (progressBar) progressBar.style.width = '10%';
   if (statusText) statusText.innerText = "⏳ Dohvaćanje tekstova izvora i prijevoda...";
 
@@ -191,7 +247,6 @@ async function zapocniAnaliziranje(projekt) {
     }
 
     // 2. DOHVAT TEKSTA PRIJEVODA IZ GOOGLE DOCS-A ILI PROJEKTA
-  // Prioritet dajemo već spremljenom tekstu ili URL-u iz objekta projekt
     const gdocInput = document.getElementById('p-gdoc-url');
     const inputUrl = (gdocInput && gdocInput.value.trim() !== "") ? gdocInput.value.trim() : null;
     const gdocUrl = projekt.gdocUrl || inputUrl;
@@ -199,41 +254,31 @@ async function zapocniAnaliziranje(projekt) {
     if (projekt.tekstPrijevoda && projekt.tekstPrijevoda.trim().length > 0) {
       prijevodTekst = projekt.tekstPrijevoda;
     } else if (gdocUrl) {
-    if (statusText) statusText.innerText = "⏳ Dohvaćanje prijevoda s Google Docsa...";
+      if (statusText) statusText.innerText = "⏳ Dohvaćanje prijevoda s Google Docsa...";
       prijevodTekst = await dohvatiCijeliTekstIzGDoca(gdocUrl);
       projekt.tekstPrijevoda = prijevodTekst;
       projekt.gdocUrl = gdocUrl;
     }
+
     // 3. NORMALIZACIJA I STRUKTURIRANJE TEKSTOVA
-    if (statusText) statusText.innerText = "⏳ Normalizacija i struktuiranje tekstova...";
+    if (statusText) statusText.innerText = "⏳ Normalizacija i strukturiranje tekstova...";
     const normaliziraniSegmenti = stvoriNormaliziraneSegmente(izvorTekst, prijevodTekst);
 
-    let poravnaniRezultat = [];
+    // 4. GEMINI ANALIZA
+    if (statusText) statusText.innerText = "⏳ Slanje na Gemini API...";
 
-    // 4. WEBLM ANALIZA
-    if (webLlmEngine) {
-      if (statusText) statusText.innerText = "⏳ Pokretanje LLM analize...";
+    const procisceniIzvor = normaliziraniSegmenti.map(s => s.izvor).join("\n\n");
+    const procisceniPrijevod = normaliziraniSegmenti.map(s => s.prijevod).join("\n\n");
 
-      const procisceniIzvor = normaliziraniSegmenti.map(s => s.izvor).join("\n\n");
-      const procisceniPrijevod = normaliziraniSegmenti.map(s => s.prijevod).join("\n\n");
-
-      poravnaniRezultat = await poravnajTekstoveSLLM(
-        procisceniIzvor, 
-        procisceniPrijevod, 
-        webLlmEngine,
-        (napredak) => {
-          if (statusText) statusText.innerText = napredak.poruka;
-          if (progressBar) progressBar.style.width = `${napredak.postotak}%`;
-        }
-      );
-    } else {
-      // Fallback ako se izvođenje vrši bez LLM-a
-      poravnaniRezultat = normaliziraniSegmenti.map(s => ({
-        izvor: s.izvor,
-        prijevod: s.prijevod,
-        napomena: ""
-      }));
-    }
+    const poravnaniRezultat = await poravnajTekstoveSGemini(
+      procisceniIzvor, 
+      procisceniPrijevod, 
+      apiKey,
+      (napredak) => {
+        if (statusText) statusText.innerText = napredak.poruka;
+        if (progressBar) progressBar.style.width = `${napredak.postotak}%`;
+      }
+    );
 
     // 5. SPREMANJE REZULTATA U INDEXEDDB
     if (statusText) statusText.innerText = "⏳ Spremanje rezultata analize...";
@@ -242,7 +287,7 @@ async function zapocniAnaliziranje(projekt) {
     const odlomciPrijevod = normaliziraniSegmenti.map(s => s.prijevod);
 
     const komentari = poravnaniRezultat
-      .map((item, idx) => item.napomena ? { term: "AI Napomena", sugestija: item.napomena, odlomakIndex: idx } : null)
+      .map((item, idx) => item.napomena ? { term: "Gemini Napomena", sugestija: item.napomena, odlomakIndex: idx } : null)
       .filter(Boolean);
 
     const rezultatObjekt = {
@@ -281,11 +326,18 @@ async function zapocniAnaliziranje(projekt) {
   }
 }
 
-// 3. Glavna pokretačka funkcija s interfejsom modala
+// Pokretačka funkcija s interfejsom modala
 async function pokreniTekstualnuAnalizu(projektId, event) {
   if (event) {
     if (typeof event.preventDefault === 'function') event.preventDefault();
     if (typeof event.stopPropagation === 'function') event.stopPropagation();
+  }
+
+  const apiKey = dohvatiGeminiKluc();
+  if (!apiKey) {
+    alert("U postavkama niste unijeli Gemini API ključ!");
+    prikaziStranicu('settings-page');
+    return;
   }
 
   const modal = document.getElementById('llm-status-modal');
@@ -294,21 +346,6 @@ async function pokreniTekstualnuAnalizu(projektId, event) {
   const progressBar = document.getElementById('llm-progress-bar');
   const statusText = document.getElementById('llm-status-text');
   const btnDownload = document.getElementById('btn-zapocni-download');
-
-  const elementi = { modal, infoBox, progressContainer, progressBar, statusText, btnDownload };
-  let nedostajeElement = false;
-
-  for (const [naziv, el] of Object.entries(elementi)) {
-    if (!el) {
-      console.error(`❌ Element s ID-jem za '${naziv}' nije pronađen u DOM-u!`);
-      nedostajeElement = true;
-    }
-  }
-
-  if (nedostajeElement) {
-    alert("Greška u HTML strukturi modala. Otvorite F12 Console za detalje.");
-    return;
-  }
 
   const storeProjekti = typeof STORE_NAME !== 'undefined' ? STORE_NAME : 'projekti';
   const storeKonkordanca = typeof KONKORDANCA_STORE !== 'undefined' ? KONKORDANCA_STORE : 'konkordance';
@@ -329,7 +366,7 @@ async function pokreniTekstualnuAnalizu(projektId, event) {
     });
 
     if (postojeciRezultat) {
-      const potvrdi = confirm("Za ovaj projekt već postoji analiza. Nova analiza će resetirati postojeće podatke i statuse. Želite li nastaviti?");
+      const potvrdi = confirm("Za ovaj projekt već postoji analiza. Nova analiza će resetirati postojeće podatke. Želite li nastaviti?");
       if (!potvrdi) return;
     }
 
@@ -346,65 +383,12 @@ async function pokreniTekstualnuAnalizu(projektId, event) {
       return;
     }
 
-    modal.style.display = 'flex';
+    if (modal) modal.style.display = 'flex';
+    if (infoBox) infoBox.style.display = 'none';
+    if (btnDownload) btnDownload.style.display = 'none';
+    if (progressContainer) progressContainer.style.display = 'block';
 
-    const ucitaIAnaliziraj = async () => {
-      btnDownload.style.display = 'none';
-      infoBox.style.display = 'none';
-      progressContainer.style.display = 'block';
-
-      try {
-        if (!webLlmEngine) {
-          const { CreateMLCEngine } = await import("https://esm.run/@mlc-ai/web-llm");
-          const modelToUse = typeof SELECTED_MODEL !== 'undefined' ? SELECTED_MODEL : "Qwen2.5-3B-Instruct-q4f16_1-MLC";
-
-          webLlmEngine = await CreateMLCEngine(
-            modelToUse,
-            {
-              initProgressCallback: (report) => {
-                const elBar = document.getElementById('llm-progress-bar');
-                const elStatus = document.getElementById('llm-status-text');
-                const postotak = Math.round((report.progress || 0) * 100);
-                
-                if (elBar) elBar.style.width = `${postotak}%`;
-                if (elStatus) elStatus.innerText = `${report.text || 'Učitavanje...'} (${postotak}%)`;
-              }
-            }
-          );
-        }
-
-        if (statusText) statusText.innerText = "Model uspješno učitan!";
-        await zapocniAnaliziranje(projekt);
-
-      } catch (err) {
-        console.error("Greška pri učitavanju WebLLM modela:", err);
-        alert("Greška pri učitavanju WebLLM modela: " + err.message);
-        modal.style.display = 'none';
-      }
-    };
-
-    if (!webLlmEngine) {
-      infoBox.style.display = 'block';
-      progressContainer.style.display = 'none';
-      statusText.innerText = 'Priprema...';
-      
-      infoBox.innerHTML = `
-        <div style="background: #e6f2f2; border-left: 4px solid #008080; padding: 12px; margin-bottom: 15px; border-radius: 4px;">
-          <strong>ℹ️ Preuzimanje lokalnog AI modela</strong><br>
-          Za tekstualnu analizu koristi se WebLLM koji se pokreće direktno u vašem pregledniku. 
-          Model se preuzima samo jednom, radi u potpunosti <strong>offline</strong> i <strong>bez plaćanja tokena</strong>.
-        </div>
-      `;
-      
-      btnDownload.style.display = 'inline-block';
-      btnDownload.onclick = ucitaIAnaliziraj;
-    } else {
-      infoBox.style.display = 'none';
-      btnDownload.style.display = 'none';
-      progressContainer.style.display = 'block';
-      if (progressBar) progressBar.style.width = '100%';
-      await zapocniAnaliziranje(projekt);
-    }
+    await zapocniAnaliziranje(projekt);
 
   } catch (err) {
     console.error("Greška u pokreniTekstualnuAnalizu:", err);
@@ -465,7 +449,7 @@ function pripremiTekstZaPoravnanje(rawTekst) {
 }
 
 /**
- * Normalizira i spaja izvor i prijevod bez kliznih prozora.
+ * Normalizira i spaja izvor i prijevod.
  */
 function stvoriNormaliziraneSegmente(rawIzvor, rawPrijevod) {
   let izvorLinije = pripremiTekstZaPoravnanje(rawIzvor);
@@ -556,7 +540,7 @@ async function prikaziKonkordancu(projektId) {
       divPrijevod.innerHTML = `<small style="color:#2e7d32; font-weight:bold;">#${pIndex}</small><br>${seg.prijevod || '<em>(Prazno)</em>'}`;
       colPrijevod.appendChild(divPrijevod);
 
-      // 3. Stupac LLM Komentara (Poravnat i tagiran sa #N)
+      // 3. Stupac LLM Komentara
       const divKomentar = document.createElement('div');
       divKomentar.className = 'segment-item para-box';
       divKomentar.dataset.index = idx;
@@ -564,7 +548,7 @@ async function prikaziKonkordancu(projektId) {
       if (komentarZaOdlomak && (komentarZaOdlomak.sugestija || komentarZaOdlomak.term)) {
         divKomentar.innerHTML = `
           <div style="background: #f3e5f5; border-left: 3px solid #8e24aa; padding: 6px; border-radius: 4px; font-size: 0.85em;">
-            <strong style="color: #8e24aa;">💡 LLM Napomena #${pIndex}:</strong><br>
+            <strong style="color: #8e24aa;">✨ Gemini Napomena #${pIndex}:</strong><br>
             ${komentarZaOdlomak.sugestija || komentarZaOdlomak.term}
           </div>
         `;
@@ -574,7 +558,6 @@ async function prikaziKonkordancu(projektId) {
       colKomentari.appendChild(divKomentar);
     });
 
-    // Izjednačavanje visine redova radi savršenog vizualnog poravnanja
     setTimeout(() => {
       const iNodes = colIzvor.querySelectorAll('.para-box');
       const pNodes = colPrijevod.querySelectorAll('.para-box');
@@ -592,13 +575,10 @@ async function prikaziKonkordancu(projektId) {
       });
     }, 50);
 
-    // Sinhronizacija skrolovanja između sva 3 stupca
     sinkronizirajTrostrukiSkrol(colIzvor, colPrijevod, colKomentari);
   }
 }
-/**
- * Sinhronizira skrolovanje između 3 stupca (Izvornik, Prijevod, LLM Komentari).
- */
+
 function sinkronizirajTrostrukiSkrol(...elements) {
   let isSyncing = false;
   elements.forEach(el => {
@@ -776,6 +756,12 @@ async function pokreniAplikaciju() {
   try {
     await otvoriBazu();
     await ucitajDashboard();
+
+    const savedKey = dohvatiGeminiKluc();
+    const input = document.getElementById('gemini-api-key');
+    if (savedKey && input) {
+      input.value = savedKey;
+    }
   } catch (err) {
     console.error("Error starting application:", err);
   }
@@ -2044,7 +2030,7 @@ async function otvoriSpremljenuKonkordancu(projektId) {
 }
 
 async function obrisiAnalizirano(projektId) {
-  if (!confirm("Jeste li sigurni da želite obrisati spremeljenu analizu?")) return;
+  if (!confirm("Jeste li sigurni da želite obrisati spremljenu analizu?")) return;
 
   try {
     const db = await otvoriBazu();
