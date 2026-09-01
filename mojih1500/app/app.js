@@ -498,7 +498,7 @@ function stvoriNormaliziraneSegmente(rawIzvor, rawPrijevod) {
 // --- PRIKAZ KONKORDANCE I SINKRONIZIRANI SKROL ---
 
 async function prikaziKonkordancu(projektId) {
-  console.log("Otvori konkordancu za projekt ID:", projektId, typeof projektId);
+  console.log("Otvori konkordancu za projekt ID:", projektId);
 
   const db = await otvoriBazu();
   const tx = db.transaction(KONKORDANCA_STORE, 'readonly');
@@ -518,12 +518,8 @@ async function prikaziKonkordancu(projektId) {
     });
   }
 
-  console.log("Dohvaćeni rezultat analize:", rezultat);
-
   if (typeof prikaziStranicu === 'function') {
     prikaziStranicu('concordance-page');
-  } else if (typeof prikaziEkran === 'function') {
-    prikaziEkran('konkordanca');
   }
 
   const colIzvor = document.getElementById('col-izvor');
@@ -541,91 +537,85 @@ async function prikaziKonkordancu(projektId) {
     }
 
     rezultat.segmenti.forEach((seg, idx) => {
+      const pIndex = idx + 1;
       const komentarZaOdlomak = rezultat.komentari 
         ? rezultat.komentari.find(k => k.odlomakIndex === idx) 
         : null;
 
+      // 1. Stupac Izvornika
       const divIzvor = document.createElement('div');
-      divIzvor.className = 'segment-item';
-      divIzvor.style = 'padding: 8px; border-bottom: 1px solid #eee; min-height: 48px;';
-      divIzvor.innerHTML = `<small style="color:#888;">#${idx + 1}</small><br>${seg.izvor || '<em>(Prazno)</em>'}`;
+      divIzvor.className = 'segment-item para-box';
+      divIzvor.dataset.index = idx;
+      divIzvor.innerHTML = `<small style="color:#008080; font-weight:bold;">#${pIndex}</small><br>${seg.izvor || '<em>(Prazno)</em>'}`;
       colIzvor.appendChild(divIzvor);
 
+      // 2. Stupac Prijevoda
       const divPrijevod = document.createElement('div');
-      divPrijevod.className = 'segment-item';
-      divPrijevod.style = 'padding: 8px; border-bottom: 1px solid #eee; min-height: 48px;';
-      divPrijevod.innerHTML = `<small style="color:#888;">#${idx + 1}</small><br>${seg.prijevod || '<em>(Prazno)</em>'}`;
+      divPrijevod.className = 'segment-item para-box';
+      divPrijevod.dataset.index = idx;
+      divPrijevod.innerHTML = `<small style="color:#2e7d32; font-weight:bold;">#${pIndex}</small><br>${seg.prijevod || '<em>(Prazno)</em>'}`;
       colPrijevod.appendChild(divPrijevod);
 
+      // 3. Stupac LLM Komentara (Poravnat i tagiran sa #N)
       const divKomentar = document.createElement('div');
-      divKomentar.className = 'segment-item';
-      divKomentar.style = 'padding: 8px; border-bottom: 1px solid #eee; min-height: 48px;';
+      divKomentar.className = 'segment-item para-box';
+      divKomentar.dataset.index = idx;
       
-      if (komentarZaOdlomak) {
+      if (komentarZaOdlomak && (komentarZaOdlomak.sugestija || komentarZaOdlomak.term)) {
         divKomentar.innerHTML = `
-          <div style="background: #e6f2f2; border-left: 3px solid #008080; padding: 6px; border-radius: 4px; font-size: 0.85em;">
-            <strong>💡 ${komentarZaOdlomak.term || 'Sugestija'}:</strong> ${komentarZaOdlomak.sugestija || ''}
+          <div style="background: #f3e5f5; border-left: 3px solid #8e24aa; padding: 6px; border-radius: 4px; font-size: 0.85em;">
+            <strong style="color: #8e24aa;">💡 LLM Napomena #${pIndex}:</strong><br>
+            ${komentarZaOdlomak.sugestija || komentarZaOdlomak.term}
           </div>
         `;
       } else {
-        divKomentar.innerHTML = `<span style="color:#ccc;">—</span>`;
+        divKomentar.innerHTML = `<small style="color:#ccc;">#${pIndex}</small> <span style="color:#eee;">—</span>`;
       }
       colKomentari.appendChild(divKomentar);
     });
 
-    sinkronizirajSkrol(colIzvor, colPrijevod);
-    return;
+    // Izjednačavanje visine redova radi savršenog vizualnog poravnanja
+    setTimeout(() => {
+      const iNodes = colIzvor.querySelectorAll('.para-box');
+      const pNodes = colPrijevod.querySelectorAll('.para-box');
+      const kNodes = colKomentari.querySelectorAll('.para-box');
+
+      iNodes.forEach((node, idx) => {
+        const h1 = node.offsetHeight;
+        const h2 = pNodes[idx] ? pNodes[idx].offsetHeight : 0;
+        const h3 = kNodes[idx] ? kNodes[idx].offsetHeight : 0;
+        const maxHeight = Math.max(h1, h2, h3);
+
+        node.style.minHeight = `${maxHeight}px`;
+        if (pNodes[idx]) pNodes[idx].style.minHeight = `${maxHeight}px`;
+        if (kNodes[idx]) kNodes[idx].style.minHeight = `${maxHeight}px`;
+      });
+    }, 50);
+
+    // Sinhronizacija skrolovanja između sva 3 stupca
+    sinkronizirajTrostrukiSkrol(colIzvor, colPrijevod, colKomentari);
   }
-
-  const konContainer = document.getElementById('konkordanca-kontejner') || document.getElementById('konkordanca-sadrzaj');
-  if (!konContainer) {
-    console.error("Kontejner 'konkordanca-kontejner' nije pronađen u HTML DOM-u!");
-    return;
-  }
-
-  if (!rezultat || !rezultat.segmenti || rezultat.segmenti.length === 0) {
-    konContainer.innerHTML = `
-      <div style="padding: 20px; background: #fff3cd; color: #856404; border-radius: 6px;">
-        ⚠️ Nema dostupnih podataka analize ili segmenti nisu pronađeni za ovaj projekt (ID: ${projektId}).
-      </div>`;
-    return;
-  }
-
-  let html = `
-    <div style="margin-bottom: 15px; background: #f8f9fa; padding: 12px; border-radius: 6px;">
-      <h3 style="margin: 0 0 6px 0;">📊 Rezultati poravnanja i analize</h3>
-      <p style="margin: 0; color: #666; font-size: 0.9em;">Ukupno segmenata: <strong>${rezultat.segmenti.length}</strong></p>
-    </div>
-    <div class="konkordanca-wrapper" style="display: flex; flex-direction: column; gap: 12px; max-height: 75vh; overflow-y: auto; padding-right: 5px;">
-  `;
-
-  rezultat.segmenti.forEach((seg, idx) => {
-    const komentarZaOdlomak = rezultat.komentari ? rezultat.komentari.find(k => k.odlomakIndex === idx) : null;
-
-    html += `
-      <div class="segment-card" style="background: #fff; border: 1px solid #e0e0e0; border-radius: 6px; padding: 12px;">
-        <div style="font-size: 0.75em; color: #888; font-weight: bold; margin-bottom: 6px;">SEGMENT #${idx + 1}</div>
-        <div style="display: flex; gap: 16px; flex-wrap: wrap;">
-          <div style="flex: 1; min-width: 250px; background: #fafafa; padding: 8px; border-radius: 4px; border-left: 3px solid #008080;">
-            <strong style="font-size: 0.8em; color: #008080; display: block; margin-bottom: 4px;">IZVOR:</strong>
-            ${seg.izvor ? seg.izvor : '<em style="color:#aaa;">(Prazan odlomak)</em>'}
-          </div>
-          <div style="flex: 1; min-width: 250px; background: #fafafa; padding: 8px; border-radius: 4px; border-left: 3px solid #2e7d32;">
-            <strong style="font-size: 0.8em; color: #2e7d32; display: block; margin-bottom: 4px;">PRIJEVOD:</strong>
-            ${seg.prijevod ? seg.prijevod : '<em style="color:#aaa;">(Prazan odlomak)</em>'}
-          </div>
-        </div>
-        ${komentarZaOdlomak ? `
-          <div style="margin-top: 8px; background: #f3e5f5; border-left: 3px solid #8e24aa; padding: 6px 10px; border-radius: 4px; font-size: 0.88em;">
-            💡 <strong>Napomena / Term:</strong> ${komentarZaOdlomak.term || ''} — ${komentarZaOdlomak.sugestija || ''}
-          </div>
-        ` : ''}
-      </div>
-    `;
+}
+/**
+ * Sinhronizira skrolovanje između 3 stupca (Izvornik, Prijevod, LLM Komentari).
+ */
+function sinkronizirajTrostrukiSkrol(...elements) {
+  let isSyncing = false;
+  elements.forEach(el => {
+    if (!el) return;
+    el.onscroll = () => {
+      if (!isSyncing) {
+        isSyncing = true;
+        const currentTop = el.scrollTop;
+        elements.forEach(target => {
+          if (target && target !== el) {
+            target.scrollTop = currentTop;
+          }
+        });
+        isSyncing = false;
+      }
+    };
   });
-
-  html += `</div>`;
-  konContainer.innerHTML = html;
 }
 
 function renderKonkordancaStupci(data) {

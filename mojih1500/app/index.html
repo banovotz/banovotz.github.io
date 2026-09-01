@@ -213,8 +213,22 @@
         <label for="kartica-1500" style="cursor: not-allowed;">1500 characters without spaces <em>(Coming soon)</em></label>
       </div>
     </section>
+<!-- SECTION 3: Gemini -->
+     <section class="settings-card" style="background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #eef2f2;">
+      <h3 style="margin-top: 0; color: #333;"><svg class="fWWlmf JzISke" height="24" width="24" aria-hidden="true" viewBox="0 0 471 471" xmlns="http://www.w3.org/2000/svg"><path fill="var(--m3c23)" d="M235.5 471C235.5 438.423 229.22 407.807 216.66 379.155C204.492 350.503 187.811 325.579 166.616 304.384C145.421 283.189 120.498 266.508 91.845 254.34C63.1925 241.78 32.5775 235.5 0 235.5C32.5775 235.5 63.1925 229.416 91.845 217.249C120.498 204.689 145.421 187.811 166.616 166.616C187.811 145.421 204.492 120.497 216.66 91.845C229.22 63.1925 235.5 32.5775 235.5 0C235.5 32.5775 241.584 63.1925 253.751 91.845C266.311 120.497 283.189 145.421 304.384 166.616C325.579 187.811 350.503 204.689 379.155 217.249C407.807 229.416 438.423 235.5 471 235.5C438.423 235.5 407.807 241.78 379.155 254.34C350.503 266.508 325.579 283.189 304.384 304.384C283.189 325.579 266.311 350.503 253.751 379.155C241.584 407.807 235.5 438.423 235.5 471Z"></path></svg> Gemini integration</h3>
+    
+      <div class="mb-3">
+  <label for="gemini-api-key" class="form-label">Gemini API Ključ</label>
+  <input type="password" class="form-control" id="gemini-api-key" placeholder="AIzaSy..." />
+  <div class="form-text">
+    Ključ možete besplatno izraditi na <a href="https://aistudio.google.com/app/apikey" target="_blank">Google AI Studio</a>.
+    Sprema se isključivo lokalno u vašem pregledniku.
+  </div>
+</div>
+<button class="btn btn-primary" onclick="spremiGeminiKluc()">Spremi postavke</button>
 
-    <!-- SECTION 3: Backup & Restore -->
+</section>
+    <!-- SECTION 4: Backup & Restore -->
     <section class="settings-card" style="background: #fff; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 1px solid #eef2f2;">
       <h3 style="margin-top: 0; color: #333;">💾 Database Backup (Export & Import)</h3>
       <p style="color: #666; font-size: 0.9em; margin-bottom: 16px;">
@@ -295,34 +309,30 @@
  
 
 
-<!-- STRANICA KONKORDANCE (3 STUPCA) -->
+<!-- STRANICA ZA PREGLED KONKORDANCE I AI KOMENTARA -->
 <div id="concordance-page" class="page-content" style="display: none; padding: 20px;">
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-    <h2>📖 Konkordanca & Sugestije</h2>
-    <button onclick="prikaziDashboard()" class="btn-secondary">⬅ Natrag na Dashboard</button>
-  </div>
-
-  <div class="concordance-grid">
-    <!-- Stupac 1: Izvorni tekst -->
-    <div class="concordance-col">
-      <div class="col-header">Izvorni tekst</div>
-      <div id="col-izvor" class="col-body"></div>
+  <h2>🌐 Analiza i Poravnanje Teksta</h2>
+  
+  <div class="concordance-grid" style="display: flex; gap: 12px; height: 75vh;">
+    <!-- STUPAC 1: IZVORNIK -->
+    <div style="flex: 1; display: flex; flex-direction: column;">
+      <h3 style="color: #008080; margin-bottom: 8px;">Izvornik</h3>
+      <div id="col-izvor" style="flex: 1; overflow-y: auto; border: 1px solid #ddd; background: #fff; padding: 8px; border-radius: 6px;"></div>
     </div>
 
-    <!-- Stupac 2: Prijevod -->
-    <div class="concordance-col">
-      <div class="col-header">Prijevod</div>
-      <div id="col-prijevod" class="col-body"></div>
+    <!-- STUPAC 2: PRIJEVOD -->
+    <div style="flex: 1; display: flex; flex-direction: column;">
+      <h3 style="color: #2e7d32; margin-bottom: 8px;">Prijevod</h3>
+      <div id="col-prijevod" style="flex: 1; overflow-y: auto; border: 1px solid #ddd; background: #fff; padding: 8px; border-radius: 6px;"></div>
     </div>
 
-    <!-- Stupac 3: Terminološki / Idiomatski komentari -->
-    <div class="concordance-col">
-      <div class="col-header">Sugestije & Komentari</div>
-      <div id="col-komentari" class="col-body"></div>
+    <!-- STUPAC 3: LLM KOMENTARI -->
+    <div style="flex: 1; display: flex; flex-direction: column;">
+      <h3 style="color: #8e24aa; margin-bottom: 8px;">LLM Komentari</h3>
+      <div id="col-komentari" style="flex: 1; overflow-y: auto; border: 1px solid #ddd; background: #fff; padding: 8px; border-radius: 6px;"></div>
     </div>
   </div>
 </div>
-
 
 
 

@@ -728,3 +728,22 @@ ul.unosi-list li {
     height: auto;
   }
 }
+.para-box {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  box-sizing: border-box;
+  word-wrap: break-word;
+}
+
+.concordance-grid #col-izvor::-webkit-scrollbar,
+.concordance-grid #col-prijevod::-webkit-scrollbar,
+.concordance-grid #col-komentari::-webkit-scrollbar {
+  width: 6px;
+}
+
+.concordance-grid #col-izvor::-webkit-scrollbar-thumb,
+.concordance-grid #col-prijevod::-webkit-scrollbar-thumb,
+.concordance-grid #col-komentari::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 3px;
+}
