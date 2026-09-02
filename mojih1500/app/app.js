@@ -14,7 +14,13 @@ const DB_VERSION = 6; // glossar
 const STORE_NAME = 'projekti';
 const UNOSI_STORE = 'unosi';
 const KONKORDANCA_STORE = 'konkordance';
+const GLOSAR_STORE = "glosari";
 
+// Pomoćna funkcija za skraćivanje teksta
+function skratiZaPrompt(tekst, maxZnakova = 2000) {
+  if (!tekst) return "";
+  return tekst.length > maxZnakova ? tekst.substring(0, maxZnakova) + "..." : tekst;
+}
 /**
  * Opens IndexedDB and creates 'projekti', 'unosi' and 'konkordance' stores.
  */
@@ -38,6 +44,12 @@ function otvoriBazu() {
       if (!db.objectStoreNames.contains(KONKORDANCA_STORE)) {
         db.createObjectStore(KONKORDANCA_STORE, { keyPath: 'projektId' });
       }
+
+      // Stvaranje store-a za glosare ako već ne postoji
+      if (!db.objectStoreNames.contains(GLOSAR_STORE)) {
+        db.createObjectStore(GLOSAR_STORE, { keyPath: "id" });
+       }
+
     };
 
     request.onsuccess = (event) => resolve(event.target.result);
@@ -95,77 +107,63 @@ async function dohvatiCijeliTekstIzGDoca(gdocUrl) {
 /**
  * Poziva Google Gemini REST API za analizu odlomka.
  */
-async function pozoviGeminiAPI(izvor, prijevod, apiKey) {
+
+async function pozoviGeminiAPI(izvor, prijevod, glosar, apiKey) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
-  const systemInstruction = `Ti si stručni analitičar i poravnavatelj književnih prijevoda.
+  const systemInstructionText = `
+Ti si stručni analitičar i poravnavatelj književnih prijevoda.
 Zadani su JEDAN izvorni odlomak i njegov izravni prijevod.
 
-Tvoj zadatak:
-Analiziraj prijevod s obzirom na izvorni tekst. Ako prijevod sadrži stilske pogreške, krive termine ili propuste, napiši kratku napomenu na hrvatskom jeziku. Ako je prijevod točan i bez zamjerki, u "napomena" stavi prazan niz "".
+Pri analizi OBAVEZNO koristi priloženi GLOSAR dokumenta kako bi provjerio konzistentnost terminologije i uočio eventualna odstupanja ili nepravilne alternativne prijevode.
 
-Vrati ISKLJUČIVO validan JSON objekt bez ikakvog dodatnog markdown oblikovanja u ovom formatu:
-{"napomena": "tekst napomene ili prazno"}`;
+GLOSAR DOKUMENTA:
+${JSON.stringify(glosar, null, 2)}
+`;
 
-  const promptText = `IZVOR:\n${izvor}\n\nPRIJEVOD:\n${prijevod}`;
+  const promptText = `
+Analiziraj sljedeći odlomak:
+
+IZVORNIK:
+${izvor}
+
+PRIJEVOD:
+${prijevod}
+
+Navedi stilsku analizu, točnost te istakni ako se uočava nekonzistentnost s priloženim glosarom.
+`;
 
   const payload = {
+    systemInstruction: {
+      parts: [{ text: systemInstructionText }]
+    },
     contents: [
       {
         role: "user",
         parts: [{ text: promptText }]
       }
-    ],
-    systemInstruction: {
-      parts: [{ text: systemInstruction }]
-    },
-    generationConfig: {
-      temperature: 0.1,
-      responseMimeType: "application/json"
-    }
+    ]
   };
 
   const response = await fetch(url, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   });
 
-  if (!response.ok) {
-    const errData = await response.json().catch(() => ({}));
-    throw new Error(errData.error?.message || `Gemini API vraća status ${response.status}`);
-  }
-
   const data = await response.json();
-  const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-  
-  try {
-    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-    const jsonString = jsonMatch ? jsonMatch[0] : rawText;
-    const parsed = JSON.parse(jsonString);
-    return parsed.napomena || "";
-  } catch (e) {
-    console.warn("Greška pri parsiranju JSON-a iz Gemini odgovora:", e, rawText);
-    return "";
-  }
+  return data.candidates[0].content.parts[0].text;
 }
 
 /**
  * Uspoređuje izvorne i prevedene odlomke 1:1 pomoću Gemini API-ja.
  */
-async function poravnajTekstoveSGemini(izvorTekst, prijevodTekst, apiKey, onProgress = null) {
+async function poravnajTekstoveSGemini(izvorTekst, prijevodTekst, glosar, apiKey, onProgress = null) {
   const odlomciIzvor = ocistiISpodijeliOdlomke(izvorTekst);
   const odlomciPrijevod = ocistiISpodijeliOdlomke(prijevodTekst);
 
   const ukupnoOdlomaka = Math.max(odlomciIzvor.length, odlomciPrijevod.length);
   const rezultati = [];
-
-  const skratiZaPrompt = (tekst, maxZnakova = 2000) => {
-    if (!tekst) return "";
-    return tekst.length > maxZnakova ? tekst.substring(0, maxZnakova) + "..." : tekst;
-  };
 
   for (let i = 0; i < ukupnoOdlomaka; i++) {
     const postotak = Math.round(((i + 1) / ukupnoOdlomaka) * 100);
@@ -189,6 +187,7 @@ async function poravnajTekstoveSGemini(izvorTekst, prijevodTekst, apiKey, onProg
         napomenaRezultat = await pozoviGeminiAPI(
           skratiZaPrompt(puniIzvor),
           skratiZaPrompt(puniPrijevod),
+          glosar,
           apiKey
         );
       } catch (err) {
@@ -216,7 +215,7 @@ async function poravnajTekstoveSGemini(izvorTekst, prijevodTekst, apiKey, onProg
   return rezultati;
 }
 
-// Glavna funkcija za analizu
+// Glavna funkcija za analizu s integriranim glosarom
 async function zapocniAnaliziranje(projekt) {
   const progressBar = document.getElementById('llm-progress-bar');
   const statusText = document.getElementById('llm-status-text');
@@ -229,7 +228,7 @@ async function zapocniAnaliziranje(projekt) {
     return;
   }
 
-  if (progressBar) progressBar.style.width = '10%';
+  if (progressBar) progressBar.style.width = '5%';
   if (statusText) statusText.innerText = "⏳ Dohvaćanje tekstova izvora i prijevoda...";
 
   try {
@@ -262,26 +261,52 @@ async function zapocniAnaliziranje(projekt) {
 
     // 3. NORMALIZACIJA I STRUKTURIRANJE TEKSTOVA
     if (statusText) statusText.innerText = "⏳ Normalizacija i strukturiranje tekstova...";
+    if (progressBar) progressBar.style.width = '10%';
     const normaliziraniSegmenti = stvoriNormaliziraneSegmente(izvorTekst, prijevodTekst);
-
-    // 4. GEMINI ANALIZA
-    if (statusText) statusText.innerText = "⏳ Slanje na Gemini API...";
 
     const procisceniIzvor = normaliziraniSegmenti.map(s => s.izvor).join("\n\n");
     const procisceniPrijevod = normaliziraniSegmenti.map(s => s.prijevod).join("\n\n");
 
+    // 4. PROVJERA / STVARANJE GLOSARA (PROLAZ 1)
+    if (statusText) statusText.innerText = "⏳ Provjera glosara u bazi...";
+    if (progressBar) progressBar.style.width = '15%';
+
+    let glosar = await dohvatiGlosarIzIndexedDB(projekt.id);
+
+    if (!glosar) {
+      if (statusText) statusText.innerText = "⏳ Generiranje glosara i terminologije (Prolaz 1)...";
+      if (progressBar) progressBar.style.width = '20%';
+
+      glosar = await stvoriGlosar(
+        skratiZaPrompt(procisceniIzvor), 
+        skratiZaPrompt(procisceniPrijevod), 
+        apiKey
+      );
+
+      await spremiGlosarUIndexedDB(projekt.id, glosar);
+      if (statusText) statusText.innerText = "✅ Glosar uspješno stvoren i spremljen.";
+    }
+
+    // 5. GEMINI ANALIZA PO ODLOMCIMA UZ GLOSAR (PROLAZ 2)
+    if (statusText) statusText.innerText = "⏳ Pokretanje analize odlomaka uz glosar...";
+    if (progressBar) progressBar.style.width = '30%';
+
     const poravnaniRezultat = await poravnajTekstoveSGemini(
       procisceniIzvor, 
       procisceniPrijevod, 
+      glosar,
       apiKey,
       (napredak) => {
         if (statusText) statusText.innerText = napredak.poruka;
-        if (progressBar) progressBar.style.width = `${napredak.postotak}%`;
+        // Skaliranje napretka poravnanja s 30% na 90% na traci napretka
+        const prilagodjeniPostotak = 30 + Math.round((napredak.postotak / 100) * 60);
+        if (progressBar) progressBar.style.width = `${prilagodjeniPostotak}%`;
       }
     );
 
-    // 5. SPREMANJE REZULTATA U INDEXEDDB
+    // 6. SPREMANJE REZULTATA ANALIZE U INDEXEDDB
     if (statusText) statusText.innerText = "⏳ Spremanje rezultata analize...";
+    if (progressBar) progressBar.style.width = '95%';
 
     const odlomciIzvor = normaliziraniSegmenti.map(s => s.izvor);
     const odlomciPrijevod = normaliziraniSegmenti.map(s => s.prijevod);
@@ -296,7 +321,8 @@ async function zapocniAnaliziranje(projekt) {
       segmenti: poravnaniRezultat,
       odlomciIzvor: odlomciIzvor,
       odlomciPrijevod: odlomciPrijevod,
-      komentari: komentari
+      komentari: komentari,
+      glosar: glosar // Opcionalno spremanje reference na glosar unutar analize
     };
 
     const db = await otvoriBazu();
@@ -312,7 +338,9 @@ async function zapocniAnaliziranje(projekt) {
       request.onerror = () => reject(request.error);
     });
 
-    // 6. ZAVRŠETAK I PRIKAZ
+    if (progressBar) progressBar.style.width = '100%';
+
+    // 7. ZAVRŠETAK I PRIKAZ
     if (modal) modal.style.display = 'none';
 
     if (typeof sakrijUcitavanje === 'function') sakrijUcitavanje();
@@ -2046,4 +2074,98 @@ async function obrisiAnalizirano(projektId) {
   } catch (err) {
     console.error("Greška pri brisanju analize:", err);
   }
+}
+
+//funkcije za rad s glosarima
+
+async function stvoriGlosar(izvorniTekst, prevedeniTekst, apiKey) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
+
+  const prompt = `
+Analiziraj sljedeći izvorni tekst i njegov prijevod. 
+Tvoj je zadatak izraditi detaljan rječnik/glosar ključnih pojmova, imena, fraza i specifične terminologije.
+
+Za svaki pojam u izvorniku pronađi sve načine na koje je preveden u tekstu (uključujući sve alternativne prijevode ili varijacije za istu riječ).
+
+Vrati isključivo validan JSON u sljedećem formatu bez dodatnog Markdown teksta ili objašnjenja:
+{
+  "terms": [
+    {
+      "source_term": "izvorna riječ ili fraza",
+      "primary_translation": "glavni prijevod",
+      "alternatives": [
+        {
+          "translation": "alternativni prijevod",
+          "context": "kratak opis konteksta u kojem se koristi"
+        }
+      ],
+      "has_inconsistency": true/false
+    }
+  ]
+}
+
+IZVORNI TEKST:
+${izvorniTekst}
+
+PREVEDENI TEKST:
+${prevedeniTekst}
+`;
+
+  const payload = {
+    contents: [
+      {
+        role: "user",
+        parts: [{ text: prompt }]
+      }
+    ],
+    generationConfig: {
+      responseMimeType: "application/json"
+    }
+  };
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    throw new Error(`Greška pri izradi glosara: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  const rawText = data.candidates[0].content.parts[0].text;
+  return JSON.parse(rawText);
+}
+
+async function spremiGlosarUIndexedDB(idProjekta, glosarData) {
+  const db = await otvoriBazu();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(GLOSAR_STORE, "readwrite");
+    const store = tx.objectStore(GLOSAR_STORE);
+    
+    const zapis = {
+      id: idProjekta,
+      glosar: glosarData,
+      datum: new Date().toISOString()
+    };
+    
+    const request = store.put(zapis);
+    request.onsuccess = () => resolve(true);
+    request.onerror = (event) => reject(event.target.error);
+  });
+}
+
+async function dohvatiGlosarIzIndexedDB(idProjekta) {
+  const db = await otvoriBazu();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(GLOSAR_STORE, "readonly");
+    const store = tx.objectStore(GLOSAR_STORE);
+    const request = store.get(idProjekta);
+
+    request.onsuccess = (event) => {
+      resolve(event.target.result ? event.target.result.glosar : null);
+    };
+    request.onerror = (event) => reject(event.target.error);
+  });
 }
