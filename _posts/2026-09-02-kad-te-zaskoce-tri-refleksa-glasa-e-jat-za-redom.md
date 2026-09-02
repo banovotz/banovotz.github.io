@@ -21,5 +21,5 @@ Onda sam pročitao sve alternative:
 
 Pročitao sam tiho, a onda i naglas sve tri varijante, pa se odlučio za prvu iako su u njoj čak dva druga izbora. 
 
-Ponekad se eto, bez obzira na pravopis, u pisanju (a time i književnom prevođenju) služimo, kao krajnjim mjerilom mjerilom, onim "zvukom" kako nam neka sintagma "zvoni u glavi". 
+Ponekad se eto, uz konzultaciju pravopisa, naravno :), u pisanju (a time i književnom prevođenju) služimo, kao krajnjim mjerilom, onim "zvukom" kako nam neka sintagma "zvoni u glavi". 
 
