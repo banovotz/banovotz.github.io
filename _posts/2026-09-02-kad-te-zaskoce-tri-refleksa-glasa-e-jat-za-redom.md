@@ -13,13 +13,15 @@ S riječju "vrijedan" smo nekako došli do konsenzusa da se tako piše, pa sam j
 
 Ostala je "prijevara" koja, ovako na prvu, a i provjerom na HJP, ima kratki refleks ê, i time bi "ispravniji" oblik pisanja bio "prevara". Dakle, "prijezira vrijedna prevara" bi bio "najispravniji" način. 
 
-Onda sam pročitao sve alternative:
+Ostao sam dakle na ovim alternativama, podsvjesno ignorirajući "prezira vrijednu prevaru":
 
-"prezira vrijedna prijevara" - ovako sam prvo preveo pa sam išao čačkati mečku.
-"prijezira vrijedna prijevara" - ovako je ispalo kad sam se sjetio da treba provjeriti refleks ê za prvu riječ - koji je dugi.
-"prijezira vrijedna prevara" - ovako je ispalo kada sam provjerio refleks za treću riječ koji je kratak. 
+"Prezira vrijedna prijevara" - ovako sam prvo preveo pa sam išao čačkati mečku.
 
-Pročitao sam tiho, a onda i naglas sve tri varijante, pa se odlučio za prvu iako su u njoj čak dva druga izbora. 
+"Prijezira vrijedna prijevara" - ovako je ispalo kad sam se sjetio da treba provjeriti refleks ê za prvu riječ - koji je dugi.
+
+"Prijezira vrijedna prevara" - ovako je ispalo kada sam provjerio refleks za treću riječ koji je kratak. 
+
+Prvo sam pročitao tiho, a onda i naglas sve tri varijante, pa se odlučio za prvu iako su u njoj čak dva druga izbora. **"Prezira vrijedna prijevara"** it is. Ili je možda ipak bolja *"prezira vrijedna prevara"* 😱
 
 Ponekad se eto, uz konzultaciju pravopisa, naravno :), u pisanju (a time i književnom prevođenju) služimo, kao krajnjim mjerilom, onim "zvukom" kako nam neka sintagma "zvoni u glavi". 
 
