@@ -14,7 +14,7 @@ const DB_VERSION = 6; // glossar
 const STORE_NAME = 'projekti';
 const UNOSI_STORE = 'unosi';
 const KONKORDANCA_STORE = 'konkordance';
-const GLOSAR_STORE = "glosari";
+const GLOSAR_STORE = 'glosari';
 
 // Pomoćna funkcija za skraćivanje teksta
 function skratiZaPrompt(tekst, maxZnakova = 2000) {
@@ -22,7 +22,7 @@ function skratiZaPrompt(tekst, maxZnakova = 2000) {
   return tekst.length > maxZnakova ? tekst.substring(0, maxZnakova) + "..." : tekst;
 }
 /**
- * Opens IndexedDB and creates 'projekti', 'unosi' and 'konkordance' stores.
+ * Opens IndexedDB and creates 'projekti', 'unosi', 'glosari' and 'konkordance' stores.
  */
 function otvoriBazu() {
   return new Promise((resolve, reject) => {
