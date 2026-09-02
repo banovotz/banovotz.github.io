@@ -10,7 +10,7 @@ if (navigator.storage && navigator.storage.persist) {
 }
 
 const DB_NAME = 'Mojih1500DB';
-const DB_VERSION = 5; // analiza teksta 
+const DB_VERSION = 6; // glossar 
 const STORE_NAME = 'projekti';
 const UNOSI_STORE = 'unosi';
 const KONKORDANCA_STORE = 'konkordance';
