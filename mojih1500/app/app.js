@@ -109,7 +109,7 @@ async function dohvatiCijeliTekstIzGDoca(gdocUrl) {
  */
 
 async function pozoviGeminiAPI(izvor, prijevod, glosar, apiKey) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent?key=${apiKey}`;
 
   const systemInstructionText = `
 Ti si stručni analitičar i poravnavatelj književnih prijevoda.
@@ -2079,7 +2079,7 @@ async function obrisiAnalizirano(projektId) {
 //funkcije za rad s glosarima
 
 async function stvoriGlosar(izvorniTekst, prevedeniTekst, apiKey) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent?key=${apiKey}`;
 
   const prompt = `
 Analiziraj sljedeći izvorni tekst i njegov prijevod. 
