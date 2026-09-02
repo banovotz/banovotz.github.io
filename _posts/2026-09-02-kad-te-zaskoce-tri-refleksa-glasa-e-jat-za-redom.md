@@ -1,7 +1,7 @@
 ---
 title: Kad te zaskoče tri refleksa glasa jat za redom
 layout: post
-date: '2026-09-02 10:20:01'
+date: '2026-09-02 08:20:01'
 category: case-study
 image: assets/images/lucas-santos-XIIsv6AshJY-unsplash.jpg  
 description: 'Što kada u jednoj rečenici zaredom imamo tri riječi koje u sebi zadrže "ije"'
