@@ -108,11 +108,12 @@ async function dohvatiCijeliTekstIzGDoca(gdocUrl) {
  * Poziva Google Gemini REST API za analizu odlomka.
  */
 
-async function pozoviGeminiAPI(izvor, prijevod, glosar, apiKey) {
+async function pozoviGeminiAPI(izvor, prijevod, glosar, apiKey, pokusaj = 1) {
+  // Napomena: Promijenjen model na važeći gemini-1.5-flash
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`;
 
   const systemInstructionText = `
-Ti si stručnjak za književno prievođenje.
+Ti si stručnjak za književno prevođenje.
 Zadani su JEDAN izvorni odlomak i njegov izravni prijevod.
 
 Pri analizi OBAVEZNO koristi priloženi GLOSAR dokumenta kako bi provjerio konzistentnost terminologije i uočio eventualna odstupanja ili nepravilne alternativne prijevode.
@@ -130,8 +131,7 @@ ${izvor}
 PRIJEVOD:
 ${prijevod}
 
-
-Ako prijevod sadrži stilske pogreške, kriive prijevode, nekonzistentnost s priloženim glosarom za isti termin u izvorniku ili propuste u prijevodu idioma, napiši kratke napomene na jeziku prijevoda. 
+Ako prijevod sadrži stilske pogreške, krive prijevode, nekonzistentnost s priloženim glosarom za isti termin u izvorniku ili propuste u prijevodu idioma, napiši kratke natuknice na jeziku prijevoda.
 `;
 
   const payload = {
@@ -146,22 +146,47 @@ Ako prijevod sadrži stilske pogreške, kriive prijevode, nekonzistentnost s pri
     ]
   };
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  });
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
 
-  const data = await response.json();
-  return data.candidates[0].content.parts[0].text;
+    // 1. Obrada Rate Limita (Error 429)
+    if (response.status === 429) {
+      if (pokusaj > 3) {
+        throw new Error("Premašen limit zahtjeva (Error 429). Pokušajte ponovno kasnije.");
+      }
+      
+      const odgoda = pokusaj * 2000;
+      console.warn(`Ograničenje brzine (429). Čekam ${odgoda / 1000}s pa pokušavam ponovno (pokušaj ${pokusaj})...`);
+      await new Promise(r => setTimeout(r, odgoda));
+      
+      return await pozoviGeminiAPI(izvor, prijevod, glosar, apiKey, pokusaj + 1);
+    }
+
+    // 2. Obrada ostalih HTTP grešaka (npr. 400, 403, 500)
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error?.message || `HTTP greška! Status: ${response.status}`);
+    }
+
+    // 3. Obrada i povratak ispravnog odgovora (unutar try bloka)
+    const data = await response.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Nema generirane analize.";
+
+  } catch (err) {
+    throw err;
+  }
 }
-
 /**
  * Uspoređuje izvorne i prevedene odlomke 1:1 pomoću Gemini API-ja.
  */
 async function poravnajTekstoveSGemini(izvorTekst, prijevodTekst, glosar, apiKey, onProgress = null) {
   const odlomciIzvor = ocistiISpodijeliOdlomke(izvorTekst);
   const odlomciPrijevod = ocistiISpodijeliOdlomke(prijevodTekst);
+  const pricekaj = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const ukupnoOdlomaka = Math.max(odlomciIzvor.length, odlomciPrijevod.length);
   const rezultati = [];
@@ -191,6 +216,7 @@ async function poravnajTekstoveSGemini(izvorTekst, prijevodTekst, glosar, apiKey
           glosar,
           apiKey
         );
+        await pricekaj(3000);
       } catch (err) {
         console.warn(`Greška pri Gemini analizi odlomka ${i + 1}:`, err);
         napomenaRezultat = `[Greška u analizi: ${err.message}]`;
