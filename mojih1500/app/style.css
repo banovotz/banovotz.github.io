@@ -747,3 +747,32 @@ ul.unosi-list li {
   background-color: #ccc;
   border-radius: 3px;
 }
+
+/* Osigurava da se modal i pozadina prikazuju preko svih kolona i fiksnih zaglavlja */
+#modal-glosar {
+  max-height: 70vh; /* Maksimalna visina: 70% visine ekrana */
+  overflow-y: auto;  /* Automatski prikaži scrollbar ako sadržaj prelazi max-height */
+  background-color: #ccc;
+  position: fixed;
+  top: 0;
+  left: 30%;
+  padding-top: 5%;
+  padding-bottom: 5%;
+  padding-left: 20%;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1055 !important; /* Viši z-index od Bootstrapovih zaglavlja i tablica */
+  overflow-x: hidden;
+  overflow-y: auto;
+  outline: 0;
+}
+
+#glosar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.149);
+  z-index: 1050 !important;
+}

@@ -2315,3 +2315,208 @@ async function dohvatiGlosarIzIndexedDB(idProjekta) {
     request.onerror = (event) => reject(event.target.error);
   });
 }
+
+/**
+ * Otvara modal i dohvaća glosar iz IndexedDB-a ili aktivne analize.
+ */
+async function otvoriModalGlosar(projektId) {
+  const modal = document.getElementById('modal-glosar');
+  const tbody = document.getElementById('glosar-modal-body');
+  const porukaPrazno = document.getElementById('prazan-glosar-poruka');
+  const tablica = document.getElementById('tablica-glosara');
+
+  if (!modal || !tbody) return;
+
+  if (modal.parentElement !== document.body) {
+    document.body.appendChild(modal);
+  }
+
+  tbody.innerHTML = '<tr><td colspan="2" class="text-center py-3">Učitavanje glosara...</td></tr>';
+  porukaPrazno.style.display = 'none';
+  tablica.style.display = 'table';
+  prikaziModalSloj(modal);
+
+  try {
+    let rawGlosar = window.trenutniGlosar || window.glosar;
+
+    if (!rawGlosar || Object.keys(rawGlosar).length === 0) {
+    if (projektId) {
+      rawGlosar = await dohvatiGlosarIzIndexedDB(projektId);
+    }
+  }
+
+    tbody.innerHTML = '';
+
+    // NORMALIACIJA STRUKTURE GLOSARA:
+    // Rukuje slučajevima ako je glosar objekt s ključem 'terms', 'items', 'entries' ili obavezni niz/objekt
+    let podaciZaPrikaz = [];
+
+    if (rawGlosar) {
+      if (Array.isArray(rawGlosar)) {
+        podaciZaPrikaz = rawGlosar;
+      } else if (typeof rawGlosar === 'object') {
+        if (Array.isArray(rawGlosar.terms)) {
+          podaciZaPrikaz = rawGlosar.terms;
+        } else if (Array.isArray(rawGlosar.items)) {
+          podaciZaPrikaz = rawGlosar.items;
+        } else if (Array.isArray(rawGlosar.entries)) {
+          podaciZaPrikaz = rawGlosar.entries;
+        } else {
+          // Standardni k/v objekt: { "term1": "prijevod1", "term2": "prijevod2" }
+          podaciZaPrikaz = Object.entries(rawGlosar);
+        }
+      }
+    }
+
+    if (!podaciZaPrikaz || podaciZaPrikaz.length === 0) {
+      porukaPrazno.style.display = 'block';
+      tablica.style.display = 'none';
+      return;
+    }
+
+    porukaPrazno.style.display = 'none';
+    tablica.style.display = 'table';
+
+// POPUNJAVANJE REDOVA TABLICE:
+    podaciZaPrikaz.forEach((stavka) => {
+      let izvorTekst = '';
+      let prijevodTekst = '';
+
+      if (Array.isArray(stavka)) {
+        // Format [ "Izvor", "Prijevod" ] iz Object.entries()
+        izvorTekst = stavka[0];
+        prijevodTekst = stavka[1];
+      } else if (typeof stavka === 'object' && stavka !== null) {
+        // Dodani su ključevi koje vraća stvoriGlosar(): source_term i primary_translation
+        izvorTekst = stavka.source_term || stavka.izvor || stavka.source || stavka.term || stavka.original || '';
+        prijevodTekst = stavka.primary_translation || stavka.prijevod || stavka.target || stavka.translation || stavka.definition || '';
+      }
+
+      if (izvorTekst || prijevodTekst) {
+        const tr = document.createElement('tr');
+        
+        const tdIzvor = document.createElement('td');
+        tdIzvor.className = 'fw-bold';
+        tdIzvor.textContent = izvorTekst;
+
+        const tdPrijevod = document.createElement('td');
+        tdPrijevod.textContent = prijevodTekst;
+
+        tr.appendChild(tdIzvor);
+        tr.appendChild(tdPrijevod);
+        tbody.appendChild(tr);
+      }
+    });
+
+  } catch (err) {
+    console.error("Greška pri dohvatu/prikazu glosara:", err);
+    tbody.innerHTML = '';
+    porukaPrazno.textContent = "Greška pri učitavanju glosara.";
+    porukaPrazno.style.display = 'block';
+    tablica.style.display = 'none';
+  }
+}
+
+
+/**
+ * Pomoćna funkcija za dohvaćanje glosara iz IndexedDB baze
+ */
+async function dohvatiGlosarIzIndexedDB() {
+  // Ako već imate u aplikaciji aktivni ID projekta/analize (npr. window.trenutniAnalizaId ili window.trenutniProjektId)
+  const trenutniId = window.trenutniAnalizaId || window.trenutniProjektId;
+
+  // Primjer pretpostavljene baze (prilagodite naziv vaše IndexedDB baze i objektnog spremnika)
+  return new Promise((resolve, reject) => {
+    // Ako imate postojeću funkciju ili DB instancu u aplikaciji, iskoristite je:
+    if (typeof dohvatiProjektIzBaze === 'function' && trenutniId) {
+      dohvatiProjektIzBaze(trenutniId)
+        .then(projekt => resolve(projekt?.glosar || {}))
+        .catch(reject);
+      return;
+    }
+
+    // Izravan pristup IndexedDB-u ako nemate pomoćne funkcije
+    const request = indexedDB.open('Mojih1500DB'); // Zamijenite točnim nazivom vaše baze
+
+    request.onerror = () => reject('Neuspješno otvaranje IndexedDB baze');
+    
+    request.onsuccess = (e) => {
+      const db = e.target.result;
+      
+      // Provjera postojanja store-a za glosar ili analize
+      const storeName = db.objectStoreNames.contains('glosari') ? 'glosari' : 
+                        (db.objectStoreNames.contains('analize') ? 'analize' : null);
+
+      if (!storeName) {
+        resolve({});
+        return;
+      }
+
+      const tx = db.transaction(storeName, 'readonly');
+      const store = tx.objectStore(storeName);
+
+      // Ako imamo ID dohvaćamo po ključu, u suprotnom uzimamo posljednji zapis
+      if (trenutniId) {
+        const getReq = store.get(trenutniId);
+        getReq.onsuccess = () => resolve(getReq.result?.glosar || getReq.result || {});
+        getReq.onerror = () => resolve({});
+      } else {
+        const getAllReq = store.getAll();
+        getAllReq.onsuccess = () => {
+          const rezultati = getAllReq.result;
+          if (rezultati && rezultati.length > 0) {
+            const zadnji = rezultati[rezultati.length - 1];
+            resolve(zadnji.glosar || zadnji);
+          } else {
+            resolve({});
+          }
+        };
+        getAllReq.onerror = () => resolve({});
+      }
+    };
+  });
+}
+
+/**
+ * Prikazuje modalne slojeve (backdrop i stilove)
+ */
+function prikaziModalSloj(modal) {
+  let backdrop = document.getElementById('glosar-backdrop');
+  if (!backdrop) {
+    backdrop = document.createElement('div');
+    backdrop.id = 'glosar-backdrop';
+    backdrop.className = 'modal-backdrop fade show';
+    document.body.appendChild(backdrop);
+  }
+
+  modal.style.display = 'block';
+  modal.classList.add('show');
+  document.body.classList.add('modal-open');
+}
+
+
+/**
+ * Zatvara modalni prozor s glosarom.
+ */
+function zatvoriModalGlosar() {
+  const modal = document.getElementById('modal-glosar');
+  const backdrop = document.getElementById('glosar-backdrop');
+
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.remove('show');
+  }
+
+  if (backdrop) {
+    backdrop.remove();
+  }
+
+  document.body.classList.remove('modal-open');
+}
+
+// Zatvaranje modala na tipku ESC
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    zatvoriModalGlosar();
+  }
+});
