@@ -10,13 +10,19 @@ if (navigator.storage && navigator.storage.persist) {
 }
 
 const DB_NAME = 'Mojih1500DB';
-const DB_VERSION = 5; // analiza teksta 
+const DB_VERSION = 6; // glossar 
 const STORE_NAME = 'projekti';
 const UNOSI_STORE = 'unosi';
 const KONKORDANCA_STORE = 'konkordance';
+const GLOSAR_STORE = 'glosari';
 
+// Pomoćna funkcija za skraćivanje teksta
+function skratiZaPrompt(tekst, maxZnakova = 2000) {
+  if (!tekst) return "";
+  return tekst.length > maxZnakova ? tekst.substring(0, maxZnakova) + "..." : tekst;
+}
 /**
- * Opens IndexedDB and creates 'projekti', 'unosi' and 'konkordance' stores.
+ * Opens IndexedDB and creates 'projekti', 'unosi', 'glosari' and 'konkordance' stores.
  */
 function otvoriBazu() {
   return new Promise((resolve, reject) => {
@@ -38,6 +44,12 @@ function otvoriBazu() {
       if (!db.objectStoreNames.contains(KONKORDANCA_STORE)) {
         db.createObjectStore(KONKORDANCA_STORE, { keyPath: 'projektId' });
       }
+
+      // Stvaranje store-a za glosare ako već ne postoji
+      if (!db.objectStoreNames.contains(GLOSAR_STORE)) {
+        db.createObjectStore(GLOSAR_STORE, { keyPath: "id" });
+       }
+
     };
 
     request.onsuccess = (event) => resolve(event.target.result);
@@ -95,114 +107,189 @@ async function dohvatiCijeliTekstIzGDoca(gdocUrl) {
 /**
  * Poziva Google Gemini REST API za analizu odlomka.
  */
-async function pozoviGeminiAPI(izvor, prijevod, apiKey) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
 
-  const systemInstruction = `Ti si stručni analitičar i poravnavatelj književnih prijevoda.
-Zadani su JEDAN izvorni odlomak i njegov izravni prijevod.
 
-Tvoj zadatak:
-Analiziraj prijevod s obzirom na izvorni tekst. Ako prijevod sadrži stilske pogreške, krive termine ili propuste, napiši kratku napomenu na hrvatskom jeziku. Ako je prijevod točan i bez zamjerki, u "napomena" stavi prazan niz "".
 
-Vrati ISKLJUČIVO validan JSON objekt bez ikakvog dodatnog markdown oblikovanja u ovom formatu:
-{"napomena": "tekst napomene ili prazno"}`;
+/**
+ * Poziva Google Gemini REST API za analizu paketa (batcha) odlomaka odjednom.
+ */
+async function pozoviGeminiAPI(paketOdlomaka, glosar, apiKey, pokusaj = 1) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`;
 
-  const promptText = `IZVOR:\n${izvor}\n\nPRIJEVOD:\n${prijevod}`;
+  const systemInstructionText = `
+Ti si stručnjak za književno prevođenje.
+Dat ti je niz odlomaka u obliku JSON liste. Svaki element sadrži 'index', 'izvor' (izvorni tekst) i 'prijevod' (prevedeni tekst).
+
+Tvoj je zadatak analizirati svaki odlomak i, ako u prijevodu postoje stilske pogreške, krivi prijevodi, nekonzistentnost s priloženim glosarom ili propusti u prijevodu idioma, napiši kratku napomenu/komentar na jeziku prijevoda.
+
+UVIJEK vrati odgovor u obliku validnog JSON objekta s ključem "analiza" koji sadrži niz objekata formata:
+{
+  "analiza": [
+    {
+      "index": broj_indeksa_odlomka,
+      "komentar": "Kratka napomena..." // ako nema pogrešaka, ostavi prazan string ""
+    }
+  ]
+}
+
+Nemoj koristiti newline znakove unutar JSON stringova (koristi <br> za prijelom u novi red, <p> za paragrafe i <b>, <i> za formatiranje teksta.).
+
+GLOSAR DOKUMENTA:
+${JSON.stringify(glosar, null, 2)}
+`;
+
+  const promptText = `Analiziraj sljedeći paket odlomaka:\n\n${JSON.stringify(paketOdlomaka, null, 2)}`;
 
   const payload = {
+    systemInstruction: {
+      parts: [{ text: systemInstructionText }]
+    },
     contents: [
       {
         role: "user",
         parts: [{ text: promptText }]
       }
     ],
-    systemInstruction: {
-      parts: [{ text: systemInstruction }]
-    },
     generationConfig: {
-      temperature: 0.1,
       responseMimeType: "application/json"
     }
   };
 
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  });
-
-  if (!response.ok) {
-    const errData = await response.json().catch(() => ({}));
-    throw new Error(errData.error?.message || `Gemini API vraća status ${response.status}`);
-  }
-
-  const data = await response.json();
-  const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
-  
   try {
-    const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-    const jsonString = jsonMatch ? jsonMatch[0] : rawText;
-    const parsed = JSON.parse(jsonString);
-    return parsed.napomena || "";
-  } catch (e) {
-    console.warn("Greška pri parsiranju JSON-a iz Gemini odgovora:", e, rawText);
-    return "";
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (response.status === 429) {
+      if (pokusaj > 3) {
+        throw new Error("Premašen limit zahtjeva (Error 429). Pokušajte ponovno kasnije.");
+      }
+      const odgoda = pokusaj * 2000;
+      console.warn(`Ograničenje brzine (429). Čekam ${odgoda / 1000}s pa pokušavam ponovno (pokušaj ${pokusaj})...`);
+      await new Promise(r => setTimeout(r, odgoda));
+      return await pozoviGeminiAPI(paketOdlomaka, glosar, apiKey, pokusaj + 1);
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error?.message || `HTTP greška! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    
+    if (!rawText) return [];
+    
+    const parsed = JSON.parse(rawText);
+    return parsed.analiza || [];
+
+  } catch (err) {
+    console.error("Greška unutar pozoviGeminiAPI:", err);
+    throw err;
   }
 }
 
 /**
- * Uspoređuje izvorne i prevedene odlomke 1:1 pomoću Gemini API-ja.
+ * Uspoređuje izvorne i prevedene odlomke grupirajući ih u pakete (batch)
+ * radi smanjenja broja API poziva i maksimiziranja payload-a.
  */
-async function poravnajTekstoveSGemini(izvorTekst, prijevodTekst, apiKey, onProgress = null) {
+async function poravnajTekstoveSGemini(izvorTekst, prijevodTekst, glosar, apiKey, onProgress = null) {
   const odlomciIzvor = ocistiISpodijeliOdlomke(izvorTekst);
   const odlomciPrijevod = ocistiISpodijeliOdlomke(prijevodTekst);
+  const pricekaj = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const ukupnoOdlomaka = Math.max(odlomciIzvor.length, odlomciPrijevod.length);
-  const rezultati = [];
-
-  const skratiZaPrompt = (tekst, maxZnakova = 2000) => {
-    if (!tekst) return "";
-    return tekst.length > maxZnakova ? tekst.substring(0, maxZnakova) + "..." : tekst;
-  };
-
+  
+  // Priprema svih odlomaka za mapiranje
+  const sviSegmenti = [];
   for (let i = 0; i < ukupnoOdlomaka; i++) {
-    const postotak = Math.round(((i + 1) / ukupnoOdlomaka) * 100);
+    sviSegmenti.push({
+      index: i,
+      izvor: odlomciIzvor[i] || "",
+      prijevod: odlomciPrijevod[i] || ""
+    });
+  }
+
+  // Grupiranje u pakete (npr. max 15 odlomaka ili max 8000 znakova po pozivu)
+  const MAX_BATCH_SIZE = 15;
+  const MAX_BATCH_CHARS = 8000;
+  
+  const paketi = [];
+  let trenutniPaket = [];
+  let trenutniZnakovi = 0;
+
+  for (const seg of sviSegmenti) {
+    const duljina = seg.izvor.length + seg.prijevod.length;
+    
+    if (
+      trenutniPaket.length >= MAX_BATCH_SIZE || 
+      (trenutniZnakovi + duljina > MAX_BATCH_CHARS && trenutniPaket.length > 0)
+    ) {
+      paketi.push(trenutniPaket);
+      trenutniPaket = [];
+      trenutniZnakovi = 0;
+    }
+    
+    trenutniPaket.push({
+      index: seg.index,
+      izvor: skratiZaPrompt(seg.izvor, 1500),
+      prijevod: skratiZaPrompt(seg.prijevod, 1500)
+    });
+    trenutniZnakovi += duljina;
+  }
+  
+  if (trenutniPaket.length > 0) {
+    paketi.push(trenutniPaket);
+  }
+
+  const komentariMap = new Map();
+
+  for (let i = 0; i < paketi.length; i++) {
+    const paket = paketi[i];
+    const obradjeniOdlomci = Math.min((i + 1) * MAX_BATCH_SIZE, ukupnoOdlomaka);
+    const postotak = Math.round(((i + 1) / paketi.length) * 100);
 
     if (typeof onProgress === 'function') {
       onProgress({
-        trenutni: i + 1,
+        trenutni: obradjeniOdlomci,
         ukupno: ukupnoOdlomaka,
         postotak: postotak,
-        poruka: `✨ Gemini analizira odlomak ${i + 1} od ${ukupnoOdlomaka} (${postotak}%)...`
+        poruka: `✨ Gemini analizira paket ${i + 1} od ${paketi.length} (${postotak}%)...`
       });
     }
 
-    const puniIzvor = odlomciIzvor[i] || "";
-    const puniPrijevod = odlomciPrijevod[i] || "";
-
-    let napomenaRezultat = "";
-
-    if (puniIzvor && puniPrijevod) {
-      try {
-        napomenaRezultat = await pozoviGeminiAPI(
-          skratiZaPrompt(puniIzvor),
-          skratiZaPrompt(puniPrijevod),
-          apiKey
-        );
-      } catch (err) {
-        console.warn(`Greška pri Gemini analizi odlomka ${i + 1}:`, err);
-        napomenaRezultat = `[Greška u analizi: ${err.message}]`;
+    try {
+      const analizePaketa = await pozoviGeminiAPI(paket, glosar, apiKey);
+      
+      // Pridruživanje dobivenih komentara odgovarajućem indeksu
+      if (Array.isArray(analizePaketa)) {
+        analizePaketa.forEach(item => {
+          if (item && item.index !== undefined) {
+            komentariMap.set(item.index, item.komentar || "");
+          }
+        });
       }
-    }
+      
+      // Mala stanka između paketa za izbjegavanje spajka na API-ju
+      await pricekaj(1500);
 
-    rezultati.push({
-      izvor: puniIzvor,
-      prijevod: puniPrijevod,
-      napomena: napomenaRezultat
-    });
+    } catch (err) {
+      console.warn(`Greška pri Gemini analizi paketa ${i + 1}:`, err);
+      // U slučaju greške paketa, označavamo te odlomke porukom o grešci
+      paket.forEach(p => {
+        komentariMap.set(p.index, `[Greška u analizi paketa: ${err.message}]`);
+      });
+    }
   }
+
+  // Rekonstrukcija konačnog niza koji se poklapa s izvornim formatom prikaza
+  const rezultati = sviSegmenti.map(seg => ({
+    izvor: seg.izvor,
+    prijevod: seg.prijevod,
+    napomena: komentariMap.get(seg.index) || ""
+  }));
 
   if (typeof onProgress === 'function') {
     onProgress({
@@ -216,7 +303,7 @@ async function poravnajTekstoveSGemini(izvorTekst, prijevodTekst, apiKey, onProg
   return rezultati;
 }
 
-// Glavna funkcija za analizu
+// Glavna funkcija za analizu s integriranim glosarom
 async function zapocniAnaliziranje(projekt) {
   const progressBar = document.getElementById('llm-progress-bar');
   const statusText = document.getElementById('llm-status-text');
@@ -229,21 +316,31 @@ async function zapocniAnaliziranje(projekt) {
     return;
   }
 
-  if (progressBar) progressBar.style.width = '10%';
+  if (progressBar) progressBar.style.width = '5%';
   if (statusText) statusText.innerText = "⏳ Dohvaćanje tekstova izvora i prijevoda...";
 
   try {
     let izvorTekst = "";
     let prijevodTekst = "";
 
-    // 1. DOHVAT IZVORNOG TEKSTA IZ EPUB-A
+    // 1. DOHVAT IZVORNOG TEKSTA IZ EPUB-A (Aktivna datoteka -> Baza Blob -> Tekst iz projekta)
     const epubInput = document.getElementById('p-epub-file');
-    if (epubInput && epubInput.files && epubInput.files[0]) {
+    let epubDatoteka = (epubInput && epubInput.files && epubInput.files[0]) ? epubInput.files[0] : projekt.epubBlob;
+
+    if (epubDatoteka) {
       if (statusText) statusText.innerText = "⏳ Čitanje izvornog ePub-a...";
-      izvorTekst = await dohvatiCijeliTekstIzEpuba(epubInput.files[0]);
+      izvorTekst = await dohvatiCijeliTekstIzEpuba(epubDatoteka);
+      
+      // Ažuriranje i spremanje projekta s pročitanim tekstom i blobom
       projekt.tekstIzvora = izvorTekst;
+      projekt.epubBlob = epubDatoteka;
+      await spremiUStorage(projekt);
     } else if (projekt.tekstIzvora) {
       izvorTekst = projekt.tekstIzvora;
+    }
+
+    if (!izvorTekst || izvorTekst.trim().length === 0) {
+      throw new Error("Nije pronađen tekst izvornika. Priložite EPUB datoteku u formi ili projektne podatke.");
     }
 
     // 2. DOHVAT TEKSTA PRIJEVODA IZ GOOGLE DOCS-A ILI PROJEKTA
@@ -258,30 +355,61 @@ async function zapocniAnaliziranje(projekt) {
       prijevodTekst = await dohvatiCijeliTekstIzGDoca(gdocUrl);
       projekt.tekstPrijevoda = prijevodTekst;
       projekt.gdocUrl = gdocUrl;
+      await spremiUStorage(projekt);
+    }
+
+    if (!prijevodTekst || prijevodTekst.trim().length === 0) {
+      throw new Error("Nije pronađen tekst prijevoda. Unesite Google Docs URL ili spremljeni prijevod.");
     }
 
     // 3. NORMALIZACIJA I STRUKTURIRANJE TEKSTOVA
     if (statusText) statusText.innerText = "⏳ Normalizacija i strukturiranje tekstova...";
+    if (progressBar) progressBar.style.width = '10%';
     const normaliziraniSegmenti = stvoriNormaliziraneSegmente(izvorTekst, prijevodTekst);
-
-    // 4. GEMINI ANALIZA
-    if (statusText) statusText.innerText = "⏳ Slanje na Gemini API...";
 
     const procisceniIzvor = normaliziraniSegmenti.map(s => s.izvor).join("\n\n");
     const procisceniPrijevod = normaliziraniSegmenti.map(s => s.prijevod).join("\n\n");
 
+    // 4. PROVJERA / STVARANJE GLOSARA (PROLAZ 1)
+    if (statusText) statusText.innerText = "⏳ Provjera glosara u bazi...";
+    if (progressBar) progressBar.style.width = '15%';
+
+    let glosar = await dohvatiGlosarIzIndexedDB(projekt.id);
+
+    if (!glosar) {
+      if (statusText) statusText.innerText = "⏳ Generiranje glosara i terminologije (Prolaz 1)...";
+      if (progressBar) progressBar.style.width = '20%';
+
+      glosar = await stvoriGlosar(
+        skratiZaPrompt(procisceniIzvor), 
+        skratiZaPrompt(procisceniPrijevod), 
+        apiKey
+      );
+
+      await spremiGlosarUIndexedDB(projekt.id, glosar);
+      if (statusText) statusText.innerText = "✅ Glosar uspješno stvoren i spremljen.";
+    }
+
+    // 5. GEMINI ANALIZA PO ODLOMCIMA UZ GLOSAR (PROLAZ 2)
+    if (statusText) statusText.innerText = "⏳ Pokretanje analize odlomaka uz glosar...";
+    if (progressBar) progressBar.style.width = '30%';
+
     const poravnaniRezultat = await poravnajTekstoveSGemini(
       procisceniIzvor, 
       procisceniPrijevod, 
+      glosar,
       apiKey,
       (napredak) => {
         if (statusText) statusText.innerText = napredak.poruka;
-        if (progressBar) progressBar.style.width = `${napredak.postotak}%`;
+        // Skaliranje napretka poravnanja s 30% na 90% na traci napretka
+        const prilagodjeniPostotak = 30 + Math.round((napredak.postotak / 100) * 60);
+        if (progressBar) progressBar.style.width = `${prilagodjeniPostotak}%`;
       }
     );
 
-    // 5. SPREMANJE REZULTATA U INDEXEDDB
+    // 6. SPREMANJE REZULTATA ANALIZE U INDEXEDDB
     if (statusText) statusText.innerText = "⏳ Spremanje rezultata analize...";
+    if (progressBar) progressBar.style.width = '95%';
 
     const odlomciIzvor = normaliziraniSegmenti.map(s => s.izvor);
     const odlomciPrijevod = normaliziraniSegmenti.map(s => s.prijevod);
@@ -296,7 +424,8 @@ async function zapocniAnaliziranje(projekt) {
       segmenti: poravnaniRezultat,
       odlomciIzvor: odlomciIzvor,
       odlomciPrijevod: odlomciPrijevod,
-      komentari: komentari
+      komentari: komentari,
+      glosar: glosar
     };
 
     const db = await otvoriBazu();
@@ -312,7 +441,9 @@ async function zapocniAnaliziranje(projekt) {
       request.onerror = () => reject(request.error);
     });
 
-    // 6. ZAVRŠETAK I PRIKAZ
+    if (progressBar) progressBar.style.width = '100%';
+
+    // 7. ZAVRŠETAK I PRIKAZ
     if (modal) modal.style.display = 'none';
 
     if (typeof sakrijUcitavanje === 'function') sakrijUcitavanje();
@@ -325,7 +456,6 @@ async function zapocniAnaliziranje(projekt) {
     if (modal) modal.style.display = 'none';
   }
 }
-
 // Pokretačka funkcija s interfejsom modala
 async function pokreniTekstualnuAnalizu(projektId, event) {
   if (event) {
@@ -783,7 +913,17 @@ async function spremiProjektForma(event) {
   event.preventDefault();
 
   const id = document.getElementById('p-id').value || 'proj_' + Date.now();
+  const postojeciProjekt = await dohvatiProjektPoId(id);
+  const epubInput = document.getElementById('p-epub-file');
   
+  let epubBlob = postojeciProjekt ? postojeciProjekt.epubBlob || null : null;
+  let epubNazivDatoteke = postojeciProjekt ? postojeciProjekt.epubNazivDatoteke || null : null;
+
+  if (epubInput && epubInput.files && epubInput.files[0]) {
+    epubBlob = epubInput.files[0];
+    epubNazivDatoteke = epubInput.files[0].name;
+  }
+
   const noviProjekt = {
     id: id,
     naslov: document.getElementById('p-naslov').value,
@@ -799,7 +939,12 @@ async function spremiProjektForma(event) {
     slovaOriginal: parseInt(document.getElementById('p-slova-original').value) || 0,
     slovaPrijevod: parseInt(document.getElementById('p-slova-prijevod').value) || 0,
     gdocUrl: document.getElementById('p-gdoc-url') ? document.getElementById('p-gdoc-url').value : null,
-    lastSynced: document.getElementById('p-last-synced').value || null
+    lastSynced: document.getElementById('p-last-synced').value || null,
+    
+    // Spremanje Blob-a i izvornog naziva datoteke
+    epubBlob: epubBlob,
+    epubNazivDatoteke: epubNazivDatoteke,
+    tekstIzvora: postojeciProjekt ? postojeciProjekt.tekstIzvora || null : null
   };
 
   await spremiUStorage(noviProjekt);
@@ -1017,6 +1162,24 @@ async function urediProjekt(id) {
     document.getElementById('p-naslovnica-base64').value = p.naslovnicaBase64 || '';
     document.getElementById('p-slova-original').value = p.slovaOriginal || 0;
     document.getElementById('p-slova-prijevod').value = p.slovaPrijevod || 0;
+
+    const epubInput = document.getElementById('p-epub-file');
+  if (epubInput) epubInput.value = '';
+
+  // Prikaz naziva uvezanog EPUB-a
+  const epubNameLabel = document.getElementById('p-epub-file-name');
+  if (epubNameLabel) {
+    if (p.epubBlob) {
+      // Ako je File/Blob, dohvaćamo name svojstvo ili proizvoljni naziv
+      const fileName = p.epubBlob.name || p.epubNazivDatoteke || "Učitani EPUB spremljen u bazi";
+      epubNameLabel.innerHTML = `📄 Učitana datoteka: <strong>${fileName}</strong>`;
+      epubNameLabel.style.color = '#2e7d32'; // Diskretna zelena boja za potvrdu
+    } else {
+      epubNameLabel.innerText = "Nije priložena EPUB datoteka.";
+      epubNameLabel.style.color = '#777';
+    }
+  }
+    
     if (document.getElementById('p-gdoc-url')) {
       document.getElementById('p-gdoc-url').value = p.gdocUrl || '';
     }
@@ -1039,6 +1202,17 @@ async function urediProjekt(id) {
       formaContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
+}
+
+function azurirajePrikazImenaEpuba(input) {
+  const epubNameLabel = document.getElementById('p-epub-file-name');
+  if (!epubNameLabel) return;
+
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    epubNameLabel.innerHTML = `📄 Odabrana nova datoteka: <strong>${file.name}</strong>`;
+    epubNameLabel.style.color = '#1976d2'; // Plava boja za novi odabir
+  }
 }
 
 async function obrisiProjekt(id) {
@@ -2047,3 +2221,302 @@ async function obrisiAnalizirano(projektId) {
     console.error("Greška pri brisanju analize:", err);
   }
 }
+
+//funkcije za rad s glosarima
+
+async function stvoriGlosar(izvorniTekst, prevedeniTekst, apiKey) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`;
+
+  const prompt = `
+Analiziraj sljedeći izvorni tekst i njegov prijevod. 
+Tvoj je zadatak izraditi detaljan rječnik/glosar ključnih pojmova, imena, fraza i specifične terminologije.
+
+Za svaki pojam u izvorniku pronađi sve načine na koje je preveden u tekstu (uključujući sve alternativne prijevode ili varijacije za istu riječ).
+
+Vrati isključivo validan JSON u sljedećem formatu bez dodatnog Markdown teksta ili objašnjenja:
+{
+  "terms": [
+    {
+      "source_term": "izvorna riječ ili fraza",
+      "primary_translation": "glavni prijevod",
+      "alternatives": [
+        {
+          "translation": "alternativni prijevod",
+          "context": "kratak opis konteksta u kojem se koristi"
+        }
+      ],
+      "has_inconsistency": true/false
+    }
+  ]
+}
+
+IZVORNI TEKST:
+${izvorniTekst}
+
+PREVEDENI TEKST:
+${prevedeniTekst}
+`;
+
+  const payload = {
+    contents: [
+      {
+        role: "user",
+        parts: [{ text: prompt }]
+      }
+    ],
+    generationConfig: {
+      responseMimeType: "application/json"
+    }
+  };
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  if (!response.ok) {
+    throw new Error(`Greška pri izradi glosara: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  const rawText = data.candidates[0].content.parts[0].text;
+  return JSON.parse(rawText);
+}
+
+async function spremiGlosarUIndexedDB(idProjekta, glosarData) {
+  const db = await otvoriBazu();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(GLOSAR_STORE, "readwrite");
+    const store = tx.objectStore(GLOSAR_STORE);
+    
+    const zapis = {
+      id: idProjekta,
+      glosar: glosarData,
+      datum: new Date().toISOString()
+    };
+    
+    const request = store.put(zapis);
+    request.onsuccess = () => resolve(true);
+    request.onerror = (event) => reject(event.target.error);
+  });
+}
+
+async function dohvatiGlosarIzIndexedDB(idProjekta) {
+  const db = await otvoriBazu();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(GLOSAR_STORE, "readonly");
+    const store = tx.objectStore(GLOSAR_STORE);
+    const request = store.get(idProjekta);
+
+    request.onsuccess = (event) => {
+      resolve(event.target.result ? event.target.result.glosar : null);
+    };
+    request.onerror = (event) => reject(event.target.error);
+  });
+}
+
+/**
+ * Otvara modal i dohvaća glosar iz IndexedDB-a ili aktivne analize.
+ */
+async function otvoriModalGlosar(projektId) {
+  const modal = document.getElementById('modal-glosar');
+  const tbody = document.getElementById('glosar-modal-body');
+  const porukaPrazno = document.getElementById('prazan-glosar-poruka');
+  const tablica = document.getElementById('tablica-glosara');
+
+  if (!modal || !tbody) return;
+
+  if (modal.parentElement !== document.body) {
+    document.body.appendChild(modal);
+  }
+
+  tbody.innerHTML = '<tr><td colspan="2" class="text-center py-3">Učitavanje glosara...</td></tr>';
+  porukaPrazno.style.display = 'none';
+  tablica.style.display = 'table';
+  prikaziModalSloj(modal);
+
+  try {
+    let rawGlosar = window.trenutniGlosar || window.glosar;
+
+    if (!rawGlosar || Object.keys(rawGlosar).length === 0) {
+    if (projektId) {
+      rawGlosar = await dohvatiGlosarIzIndexedDB(projektId);
+    }
+  }
+
+    tbody.innerHTML = '';
+
+    // NORMALIACIJA STRUKTURE GLOSARA:
+    // Rukuje slučajevima ako je glosar objekt s ključem 'terms', 'items', 'entries' ili obavezni niz/objekt
+    let podaciZaPrikaz = [];
+
+    if (rawGlosar) {
+      if (Array.isArray(rawGlosar)) {
+        podaciZaPrikaz = rawGlosar;
+      } else if (typeof rawGlosar === 'object') {
+        if (Array.isArray(rawGlosar.terms)) {
+          podaciZaPrikaz = rawGlosar.terms;
+        } else if (Array.isArray(rawGlosar.items)) {
+          podaciZaPrikaz = rawGlosar.items;
+        } else if (Array.isArray(rawGlosar.entries)) {
+          podaciZaPrikaz = rawGlosar.entries;
+        } else {
+          // Standardni k/v objekt: { "term1": "prijevod1", "term2": "prijevod2" }
+          podaciZaPrikaz = Object.entries(rawGlosar);
+        }
+      }
+    }
+
+    if (!podaciZaPrikaz || podaciZaPrikaz.length === 0) {
+      porukaPrazno.style.display = 'block';
+      tablica.style.display = 'none';
+      return;
+    }
+
+    porukaPrazno.style.display = 'none';
+    tablica.style.display = 'table';
+
+// POPUNJAVANJE REDOVA TABLICE:
+    podaciZaPrikaz.forEach((stavka) => {
+      let izvorTekst = '';
+      let prijevodTekst = '';
+
+      if (Array.isArray(stavka)) {
+        // Format [ "Izvor", "Prijevod" ] iz Object.entries()
+        izvorTekst = stavka[0];
+        prijevodTekst = stavka[1];
+      } else if (typeof stavka === 'object' && stavka !== null) {
+        // Dodani su ključevi koje vraća stvoriGlosar(): source_term i primary_translation
+        izvorTekst = stavka.source_term || stavka.izvor || stavka.source || stavka.term || stavka.original || '';
+        prijevodTekst = stavka.primary_translation || stavka.prijevod || stavka.target || stavka.translation || stavka.definition || '';
+      }
+
+      if (izvorTekst || prijevodTekst) {
+        const tr = document.createElement('tr');
+        
+        const tdIzvor = document.createElement('td');
+        tdIzvor.className = 'fw-bold';
+        tdIzvor.textContent = izvorTekst;
+
+        const tdPrijevod = document.createElement('td');
+        tdPrijevod.textContent = prijevodTekst;
+
+        tr.appendChild(tdIzvor);
+        tr.appendChild(tdPrijevod);
+        tbody.appendChild(tr);
+      }
+    });
+
+  } catch (err) {
+    console.error("Greška pri dohvatu/prikazu glosara:", err);
+    tbody.innerHTML = '';
+    porukaPrazno.textContent = "Greška pri učitavanju glosara.";
+    porukaPrazno.style.display = 'block';
+    tablica.style.display = 'none';
+  }
+}
+
+
+/**
+ * Pomoćna funkcija za dohvaćanje glosara iz IndexedDB baze
+ */
+async function dohvatiGlosarIzIndexedDB() {
+  // Ako već imate u aplikaciji aktivni ID projekta/analize (npr. window.trenutniAnalizaId ili window.trenutniProjektId)
+  const trenutniId = window.trenutniAnalizaId || window.trenutniProjektId;
+
+  // Primjer pretpostavljene baze (prilagodite naziv vaše IndexedDB baze i objektnog spremnika)
+  return new Promise((resolve, reject) => {
+    // Ako imate postojeću funkciju ili DB instancu u aplikaciji, iskoristite je:
+    if (typeof dohvatiProjektIzBaze === 'function' && trenutniId) {
+      dohvatiProjektIzBaze(trenutniId)
+        .then(projekt => resolve(projekt?.glosar || {}))
+        .catch(reject);
+      return;
+    }
+
+    // Izravan pristup IndexedDB-u ako nemate pomoćne funkcije
+    const request = indexedDB.open('Mojih1500DB'); // Zamijenite točnim nazivom vaše baze
+
+    request.onerror = () => reject('Neuspješno otvaranje IndexedDB baze');
+    
+    request.onsuccess = (e) => {
+      const db = e.target.result;
+      
+      // Provjera postojanja store-a za glosar ili analize
+      const storeName = db.objectStoreNames.contains('glosari') ? 'glosari' : 
+                        (db.objectStoreNames.contains('analize') ? 'analize' : null);
+
+      if (!storeName) {
+        resolve({});
+        return;
+      }
+
+      const tx = db.transaction(storeName, 'readonly');
+      const store = tx.objectStore(storeName);
+
+      // Ako imamo ID dohvaćamo po ključu, u suprotnom uzimamo posljednji zapis
+      if (trenutniId) {
+        const getReq = store.get(trenutniId);
+        getReq.onsuccess = () => resolve(getReq.result?.glosar || getReq.result || {});
+        getReq.onerror = () => resolve({});
+      } else {
+        const getAllReq = store.getAll();
+        getAllReq.onsuccess = () => {
+          const rezultati = getAllReq.result;
+          if (rezultati && rezultati.length > 0) {
+            const zadnji = rezultati[rezultati.length - 1];
+            resolve(zadnji.glosar || zadnji);
+          } else {
+            resolve({});
+          }
+        };
+        getAllReq.onerror = () => resolve({});
+      }
+    };
+  });
+}
+
+/**
+ * Prikazuje modalne slojeve (backdrop i stilove)
+ */
+function prikaziModalSloj(modal) {
+  let backdrop = document.getElementById('glosar-backdrop');
+  if (!backdrop) {
+    backdrop = document.createElement('div');
+    backdrop.id = 'glosar-backdrop';
+    backdrop.className = 'modal-backdrop fade show';
+    document.body.appendChild(backdrop);
+  }
+
+  modal.style.display = 'block';
+  modal.classList.add('show');
+  document.body.classList.add('modal-open');
+}
+
+
+/**
+ * Zatvara modalni prozor s glosarom.
+ */
+function zatvoriModalGlosar() {
+  const modal = document.getElementById('modal-glosar');
+  const backdrop = document.getElementById('glosar-backdrop');
+
+  if (modal) {
+    modal.style.display = 'none';
+    modal.classList.remove('show');
+  }
+
+  if (backdrop) {
+    backdrop.remove();
+  }
+
+  document.body.classList.remove('modal-open');
+}
+
+// Zatvaranje modala na tipku ESC
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    zatvoriModalGlosar();
+  }
+});

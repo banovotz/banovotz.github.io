@@ -71,7 +71,8 @@
       <div class="grid-2">
         <div class="form-group">
           <label for="p-epub-file">Select source ePub</label>
-          <input type="file" id="p-epub-file" accept=".epub">
+          <input type="file" id="p-epub-file" accept=".epub" onchange="azurirajePrikazImenaEpuba(this)">
+          <div id="p-epub-file-name" style="margin-top: 5px; font-size: 0.9em; color: #555; font-style: italic;">Nije odabrana datoteka  </div>
         </div>
 
         <div class="form-group">
@@ -328,9 +329,18 @@
 
     <!-- STUPAC 3: LLM KOMENTARI -->
     <div style="flex: 1; display: flex; flex-direction: column;">
-      <h3 style="color: #8e24aa; margin-bottom: 8px;">LLM Komentari</h3>
+      <h3 style="color: #8e24aa; margin-bottom: 8px;">LLM Komentari  <button 
+  type="button" 
+  class="btn-sync-small" 
+  data-projekt-id="12345" 
+  onclick="otvoriModalGlosar(this)">
+  📖 Pogledaj glosar
+</button>
+</h3>
+     
       <div id="col-komentari" style="flex: 1; overflow-y: auto; border: 1px solid #ddd; background: #fff; padding: 8px; border-radius: 6px;"></div>
     </div>
+    
   </div>
 </div>
 
@@ -370,6 +380,45 @@
     </div>
   </div>
 </div>
+<!-- Modal za prikaz cijelog glosara -->
+<div id="modal-glosar" class="modal" tabindex="-1" style="display: none;">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+    
+      <div class="modal-header">
+    
+        <h5 class="modal-title">📖 Glosar projekta
+        </h5>
+           </div>
+      <div class="modal-body">
+       
+        <div id="prazan-glosar-poruka" class="text-center text-muted my-3" style="display: none;">
+          Glosar je prazan ili nije učitan za trenutnu analizu.
+        </div>
+        <div class="table-responsive">
+          <table class="table table-striped table-hover" id="tablica-glosara">
+            <thead>
+       
+              <tr>
+                <th scope="col" style="width: 30%;">Izvorni termin</th>
+                <th scope="col" style="width: 30%;">Prevedeni termin</th>
+                <th scope="col" style="width: 30%"><button type="button" class="btn-sync-small" onclick="zatvoriModalGlosar()">❎ Zatvori</button></th>
+              </tr>
+            </thead>
+            <tbody id="glosar-modal-body">
+              <!-- Dinamički sadržaj glosara -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer">
+        
+         </div>
+    </div>
+  </div>
+</div>
+
+
 
 </body>
 </html>
