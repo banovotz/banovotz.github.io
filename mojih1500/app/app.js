@@ -108,39 +108,37 @@ async function dohvatiCijeliTekstIzGDoca(gdocUrl) {
  * Poziva Google Gemini REST API za analizu odlomka.
  */
 
-async function pozoviGeminiAPI(izvor, prijevod, glosar, apiKey, pokusaj = 1) {
-  // Napomena: Promijenjen model na važeći gemini-1.5-flash
+
+
+/**
+ * Poziva Google Gemini REST API za analizu paketa (batcha) odlomaka odjednom.
+ */
+async function pozoviGeminiAPI(paketOdlomaka, glosar, apiKey, pokusaj = 1) {
   const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`;
 
   const systemInstructionText = `
 Ti si stručnjak za književno prevođenje.
-Zadani su JEDAN izvorni odlomak i njegov izravni prijevod.
+Dat ti je niz odlomaka u obliku JSON liste. Svaki element sadrži 'index', 'izvor' (izvorni tekst) i 'prijevod' (prevedeni tekst).
 
-Pri analizi OBAVEZNO koristi priloženi GLOSAR dokumenta kako bi provjerio konzistentnost terminologije i uočio eventualna odstupanja ili nepravilne alternativne prijevode.
+Tvoj je zadatak analizirati svaki odlomak i, ako u prijevodu postoje stilske pogreške, krivi prijevodi, nekonzistentnost s priloženim glosarom ili propusti u prijevodu idioma, napiši kratku napomenu/komentar na jeziku prijevoda.
+
+UVIJEK vrati odgovor u obliku validnog JSON objekta s ključem "analiza" koji sadrži niz objekata formata:
+{
+  "analiza": [
+    {
+      "index": broj_indeksa_odlomka,
+      "komentar": "Kratka napomena..." // ako nema pogrešaka, ostavi prazan string ""
+    }
+  ]
+}
+
+Nemoj koristiti newline znakove unutar JSON stringova (koristi <br> za prijelom u novi red, <p> za paragrafe i <b>, <i> za formatiranje teksta.).
 
 GLOSAR DOKUMENTA:
 ${JSON.stringify(glosar, null, 2)}
 `;
 
-  const promptText = `
-Analiziraj sljedeći odlomak:
-
-IZVORNIK:
-${izvor}
-
-PRIJEVOD:
-${prijevod}
-
-Ako prijevod sadrži stilske pogreške, krive prijevode, nekonzistentnost s priloženim glosarom za isti termin u izvorniku ili propuste u prijevodu idioma, napiši kratke natuknice na jeziku prijevoda.
-Kada polje u JSON-u (npr. komentar ili sugestija) sadrži tekst u više redaka:
-
-Koristi <br> tagove za označavanje prijeloma u novi red (npr. "Prvi red.<br>Drugi red.").
-
-Ako oblikuješ ulomke, omotaj ih u <p> tagove.
-
-Nemoj koristiti sirove, nepobjegnute (unescaped) newline znakove u JSON stringu koji bi mogli narušiti strukturu JSON-a.
-
-`;
+  const promptText = `Analiziraj sljedeći paket odlomaka:\n\n${JSON.stringify(paketOdlomaka, null, 2)}`;
 
   const payload = {
     systemInstruction: {
@@ -151,7 +149,10 @@ Nemoj koristiti sirove, nepobjegnute (unescaped) newline znakove u JSON stringu 
         role: "user",
         parts: [{ text: promptText }]
       }
-    ]
+    ],
+    generationConfig: {
+      responseMimeType: "application/json"
+    }
   };
 
   try {
@@ -161,35 +162,38 @@ Nemoj koristiti sirove, nepobjegnute (unescaped) newline znakove u JSON stringu 
       body: JSON.stringify(payload)
     });
 
-    // 1. Obrada Rate Limita (Error 429)
     if (response.status === 429) {
       if (pokusaj > 3) {
         throw new Error("Premašen limit zahtjeva (Error 429). Pokušajte ponovno kasnije.");
       }
-      
       const odgoda = pokusaj * 2000;
       console.warn(`Ograničenje brzine (429). Čekam ${odgoda / 1000}s pa pokušavam ponovno (pokušaj ${pokusaj})...`);
       await new Promise(r => setTimeout(r, odgoda));
-      
-      return await pozoviGeminiAPI(izvor, prijevod, glosar, apiKey, pokusaj + 1);
+      return await pozoviGeminiAPI(paketOdlomaka, glosar, apiKey, pokusaj + 1);
     }
 
-    // 2. Obrada ostalih HTTP grešaka (npr. 400, 403, 500)
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.error?.message || `HTTP greška! Status: ${response.status}`);
     }
 
-    // 3. Obrada i povratak ispravnog odgovora (unutar try bloka)
     const data = await response.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Nema generirane analize.";
+    const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    
+    if (!rawText) return [];
+    
+    const parsed = JSON.parse(rawText);
+    return parsed.analiza || [];
 
   } catch (err) {
+    console.error("Greška unutar pozoviGeminiAPI:", err);
     throw err;
   }
 }
+
 /**
- * Uspoređuje izvorne i prevedene odlomke 1:1 pomoću Gemini API-ja.
+ * Uspoređuje izvorne i prevedene odlomke grupirajući ih u pakete (batch)
+ * radi smanjenja broja API poziva i maksimiziranja payload-a.
  */
 async function poravnajTekstoveSGemini(izvorTekst, prijevodTekst, glosar, apiKey, onProgress = null) {
   const odlomciIzvor = ocistiISpodijeliOdlomke(izvorTekst);
@@ -197,46 +201,95 @@ async function poravnajTekstoveSGemini(izvorTekst, prijevodTekst, glosar, apiKey
   const pricekaj = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const ukupnoOdlomaka = Math.max(odlomciIzvor.length, odlomciPrijevod.length);
-  const rezultati = [];
-
+  
+  // Priprema svih odlomaka za mapiranje
+  const sviSegmenti = [];
   for (let i = 0; i < ukupnoOdlomaka; i++) {
-    const postotak = Math.round(((i + 1) / ukupnoOdlomaka) * 100);
+    sviSegmenti.push({
+      index: i,
+      izvor: odlomciIzvor[i] || "",
+      prijevod: odlomciPrijevod[i] || ""
+    });
+  }
+
+  // Grupiranje u pakete (npr. max 15 odlomaka ili max 8000 znakova po pozivu)
+  const MAX_BATCH_SIZE = 15;
+  const MAX_BATCH_CHARS = 8000;
+  
+  const paketi = [];
+  let trenutniPaket = [];
+  let trenutniZnakovi = 0;
+
+  for (const seg of sviSegmenti) {
+    const duljina = seg.izvor.length + seg.prijevod.length;
+    
+    if (
+      trenutniPaket.length >= MAX_BATCH_SIZE || 
+      (trenutniZnakovi + duljina > MAX_BATCH_CHARS && trenutniPaket.length > 0)
+    ) {
+      paketi.push(trenutniPaket);
+      trenutniPaket = [];
+      trenutniZnakovi = 0;
+    }
+    
+    trenutniPaket.push({
+      index: seg.index,
+      izvor: skratiZaPrompt(seg.izvor, 1500),
+      prijevod: skratiZaPrompt(seg.prijevod, 1500)
+    });
+    trenutniZnakovi += duljina;
+  }
+  
+  if (trenutniPaket.length > 0) {
+    paketi.push(trenutniPaket);
+  }
+
+  const komentariMap = new Map();
+
+  for (let i = 0; i < paketi.length; i++) {
+    const paket = paketi[i];
+    const obradjeniOdlomci = Math.min((i + 1) * MAX_BATCH_SIZE, ukupnoOdlomaka);
+    const postotak = Math.round(((i + 1) / paketi.length) * 100);
 
     if (typeof onProgress === 'function') {
       onProgress({
-        trenutni: i + 1,
+        trenutni: obradjeniOdlomci,
         ukupno: ukupnoOdlomaka,
         postotak: postotak,
-        poruka: `✨ Gemini analizira odlomak ${i + 1} od ${ukupnoOdlomaka} (${postotak}%)...`
+        poruka: `✨ Gemini analizira paket ${i + 1} od ${paketi.length} (${postotak}%)...`
       });
     }
 
-    const puniIzvor = odlomciIzvor[i] || "";
-    const puniPrijevod = odlomciPrijevod[i] || "";
-
-    let napomenaRezultat = "";
-
-    if (puniIzvor && puniPrijevod) {
-      try {
-        napomenaRezultat = await pozoviGeminiAPI(
-          skratiZaPrompt(puniIzvor),
-          skratiZaPrompt(puniPrijevod),
-          glosar,
-          apiKey
-        );
-        await pricekaj(3000);
-      } catch (err) {
-        console.warn(`Greška pri Gemini analizi odlomka ${i + 1}:`, err);
-        napomenaRezultat = `[Greška u analizi: ${err.message}]`;
+    try {
+      const analizePaketa = await pozoviGeminiAPI(paket, glosar, apiKey);
+      
+      // Pridruživanje dobivenih komentara odgovarajućem indeksu
+      if (Array.isArray(analizePaketa)) {
+        analizePaketa.forEach(item => {
+          if (item && item.index !== undefined) {
+            komentariMap.set(item.index, item.komentar || "");
+          }
+        });
       }
-    }
+      
+      // Mala stanka između paketa za izbjegavanje spajka na API-ju
+      await pricekaj(1500);
 
-    rezultati.push({
-      izvor: puniIzvor,
-      prijevod: puniPrijevod,
-      napomena: napomenaRezultat
-    });
+    } catch (err) {
+      console.warn(`Greška pri Gemini analizi paketa ${i + 1}:`, err);
+      // U slučaju greške paketa, označavamo te odlomke porukom o grešci
+      paket.forEach(p => {
+        komentariMap.set(p.index, `[Greška u analizi paketa: ${err.message}]`);
+      });
+    }
   }
+
+  // Rekonstrukcija konačnog niza koji se poklapa s izvornim formatom prikaza
+  const rezultati = sviSegmenti.map(seg => ({
+    izvor: seg.izvor,
+    prijevod: seg.prijevod,
+    napomena: komentariMap.get(seg.index) || ""
+  }));
 
   if (typeof onProgress === 'function') {
     onProgress({
@@ -250,7 +303,6 @@ async function poravnajTekstoveSGemini(izvorTekst, prijevodTekst, glosar, apiKey
   return rezultati;
 }
 
-// Glavna funkcija za analizu s integriranim glosarom
 // Glavna funkcija za analizu s integriranim glosarom
 async function zapocniAnaliziranje(projekt) {
   const progressBar = document.getElementById('llm-progress-bar');
