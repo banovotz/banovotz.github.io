@@ -132,6 +132,14 @@ PRIJEVOD:
 ${prijevod}
 
 Ako prijevod sadrži stilske pogreške, krive prijevode, nekonzistentnost s priloženim glosarom za isti termin u izvorniku ili propuste u prijevodu idioma, napiši kratke natuknice na jeziku prijevoda.
+Kada polje u JSON-u (npr. komentar ili sugestija) sadrži tekst u više redaka:
+
+Koristi <br> tagove za označavanje prijeloma u novi red (npr. "Prvi red.<br>Drugi red.").
+
+Ako oblikuješ ulomke, omotaj ih u <p> tagove.
+
+Nemoj koristiti sirove, nepobjegnute (unescaped) newline znakove u JSON stringu koji bi mogli narušiti strukturu JSON-a.
+
 `;
 
   const payload = {
