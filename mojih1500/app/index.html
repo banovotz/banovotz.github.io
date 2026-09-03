@@ -71,7 +71,8 @@
       <div class="grid-2">
         <div class="form-group">
           <label for="p-epub-file">Select source ePub</label>
-          <input type="file" id="p-epub-file" accept=".epub">
+          <input type="file" id="p-epub-file" accept=".epub" onchange="azurirajePrikazImenaEpuba(this)">
+          <div id="p-epub-file-name" style="margin-top: 5px; font-size: 0.9em; color: #555; font-style: italic;">Nije odabrana datoteka  </div>
         </div>
 
         <div class="form-group">

@@ -243,6 +243,7 @@ async function poravnajTekstoveSGemini(izvorTekst, prijevodTekst, glosar, apiKey
 }
 
 // Glavna funkcija za analizu s integriranim glosarom
+// Glavna funkcija za analizu s integriranim glosarom
 async function zapocniAnaliziranje(projekt) {
   const progressBar = document.getElementById('llm-progress-bar');
   const statusText = document.getElementById('llm-status-text');
@@ -262,14 +263,24 @@ async function zapocniAnaliziranje(projekt) {
     let izvorTekst = "";
     let prijevodTekst = "";
 
-    // 1. DOHVAT IZVORNOG TEKSTA IZ EPUB-A
+    // 1. DOHVAT IZVORNOG TEKSTA IZ EPUB-A (Aktivna datoteka -> Baza Blob -> Tekst iz projekta)
     const epubInput = document.getElementById('p-epub-file');
-    if (epubInput && epubInput.files && epubInput.files[0]) {
+    let epubDatoteka = (epubInput && epubInput.files && epubInput.files[0]) ? epubInput.files[0] : projekt.epubBlob;
+
+    if (epubDatoteka) {
       if (statusText) statusText.innerText = "⏳ Čitanje izvornog ePub-a...";
-      izvorTekst = await dohvatiCijeliTekstIzEpuba(epubInput.files[0]);
+      izvorTekst = await dohvatiCijeliTekstIzEpuba(epubDatoteka);
+      
+      // Ažuriranje i spremanje projekta s pročitanim tekstom i blobom
       projekt.tekstIzvora = izvorTekst;
+      projekt.epubBlob = epubDatoteka;
+      await spremiUStorage(projekt);
     } else if (projekt.tekstIzvora) {
       izvorTekst = projekt.tekstIzvora;
+    }
+
+    if (!izvorTekst || izvorTekst.trim().length === 0) {
+      throw new Error("Nije pronađen tekst izvornika. Priložite EPUB datoteku u formi ili projektne podatke.");
     }
 
     // 2. DOHVAT TEKSTA PRIJEVODA IZ GOOGLE DOCS-A ILI PROJEKTA
@@ -284,6 +295,11 @@ async function zapocniAnaliziranje(projekt) {
       prijevodTekst = await dohvatiCijeliTekstIzGDoca(gdocUrl);
       projekt.tekstPrijevoda = prijevodTekst;
       projekt.gdocUrl = gdocUrl;
+      await spremiUStorage(projekt);
+    }
+
+    if (!prijevodTekst || prijevodTekst.trim().length === 0) {
+      throw new Error("Nije pronađen tekst prijevoda. Unesite Google Docs URL ili spremljeni prijevod.");
     }
 
     // 3. NORMALIZACIJA I STRUKTURIRANJE TEKSTOVA
@@ -349,7 +365,7 @@ async function zapocniAnaliziranje(projekt) {
       odlomciIzvor: odlomciIzvor,
       odlomciPrijevod: odlomciPrijevod,
       komentari: komentari,
-      glosar: glosar // Opcionalno spremanje reference na glosar unutar analize
+      glosar: glosar
     };
 
     const db = await otvoriBazu();
@@ -380,7 +396,6 @@ async function zapocniAnaliziranje(projekt) {
     if (modal) modal.style.display = 'none';
   }
 }
-
 // Pokretačka funkcija s interfejsom modala
 async function pokreniTekstualnuAnalizu(projektId, event) {
   if (event) {
@@ -838,7 +853,17 @@ async function spremiProjektForma(event) {
   event.preventDefault();
 
   const id = document.getElementById('p-id').value || 'proj_' + Date.now();
+  const postojeciProjekt = await dohvatiProjektPoId(id);
+  const epubInput = document.getElementById('p-epub-file');
   
+  let epubBlob = postojeciProjekt ? postojeciProjekt.epubBlob || null : null;
+  let epubNazivDatoteke = postojeciProjekt ? postojeciProjekt.epubNazivDatoteke || null : null;
+
+  if (epubInput && epubInput.files && epubInput.files[0]) {
+    epubBlob = epubInput.files[0];
+    epubNazivDatoteke = epubInput.files[0].name;
+  }
+
   const noviProjekt = {
     id: id,
     naslov: document.getElementById('p-naslov').value,
@@ -854,7 +879,12 @@ async function spremiProjektForma(event) {
     slovaOriginal: parseInt(document.getElementById('p-slova-original').value) || 0,
     slovaPrijevod: parseInt(document.getElementById('p-slova-prijevod').value) || 0,
     gdocUrl: document.getElementById('p-gdoc-url') ? document.getElementById('p-gdoc-url').value : null,
-    lastSynced: document.getElementById('p-last-synced').value || null
+    lastSynced: document.getElementById('p-last-synced').value || null,
+    
+    // Spremanje Blob-a i izvornog naziva datoteke
+    epubBlob: epubBlob,
+    epubNazivDatoteke: epubNazivDatoteke,
+    tekstIzvora: postojeciProjekt ? postojeciProjekt.tekstIzvora || null : null
   };
 
   await spremiUStorage(noviProjekt);
@@ -1072,6 +1102,24 @@ async function urediProjekt(id) {
     document.getElementById('p-naslovnica-base64').value = p.naslovnicaBase64 || '';
     document.getElementById('p-slova-original').value = p.slovaOriginal || 0;
     document.getElementById('p-slova-prijevod').value = p.slovaPrijevod || 0;
+
+    const epubInput = document.getElementById('p-epub-file');
+  if (epubInput) epubInput.value = '';
+
+  // Prikaz naziva uvezanog EPUB-a
+  const epubNameLabel = document.getElementById('p-epub-file-name');
+  if (epubNameLabel) {
+    if (p.epubBlob) {
+      // Ako je File/Blob, dohvaćamo name svojstvo ili proizvoljni naziv
+      const fileName = p.epubBlob.name || p.epubNazivDatoteke || "Učitani EPUB spremljen u bazi";
+      epubNameLabel.innerHTML = `📄 Učitana datoteka: <strong>${fileName}</strong>`;
+      epubNameLabel.style.color = '#2e7d32'; // Diskretna zelena boja za potvrdu
+    } else {
+      epubNameLabel.innerText = "Nije priložena EPUB datoteka.";
+      epubNameLabel.style.color = '#777';
+    }
+  }
+    
     if (document.getElementById('p-gdoc-url')) {
       document.getElementById('p-gdoc-url').value = p.gdocUrl || '';
     }
@@ -1094,6 +1142,17 @@ async function urediProjekt(id) {
       formaContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
+}
+
+function azurirajePrikazImenaEpuba(input) {
+  const epubNameLabel = document.getElementById('p-epub-file-name');
+  if (!epubNameLabel) return;
+
+  if (input.files && input.files[0]) {
+    const file = input.files[0];
+    epubNameLabel.innerHTML = `📄 Odabrana nova datoteka: <strong>${file.name}</strong>`;
+    epubNameLabel.style.color = '#1976d2'; // Plava boja za novi odabir
+  }
 }
 
 async function obrisiProjekt(id) {
