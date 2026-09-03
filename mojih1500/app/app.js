@@ -109,10 +109,10 @@ async function dohvatiCijeliTekstIzGDoca(gdocUrl) {
  */
 
 async function pozoviGeminiAPI(izvor, prijevod, glosar, apiKey) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`;
 
   const systemInstructionText = `
-Ti si stručni analitičar i poravnavatelj književnih prijevoda.
+Ti si stručnjak za književno prievođenje.
 Zadani su JEDAN izvorni odlomak i njegov izravni prijevod.
 
 Pri analizi OBAVEZNO koristi priloženi GLOSAR dokumenta kako bi provjerio konzistentnost terminologije i uočio eventualna odstupanja ili nepravilne alternativne prijevode.
@@ -130,7 +130,8 @@ ${izvor}
 PRIJEVOD:
 ${prijevod}
 
-Navedi stilsku analizu, točnost te istakni ako se uočava nekonzistentnost s priloženim glosarom.
+
+Ako prijevod sadrži stilske pogreške, kriive prijevode, nekonzistentnost s priloženim glosarom za isti termin u izvorniku ili propuste u prijevodu idioma, napiši kratke napomene na jeziku prijevoda. 
 `;
 
   const payload = {
@@ -2079,7 +2080,7 @@ async function obrisiAnalizirano(projektId) {
 //funkcije za rad s glosarima
 
 async function stvoriGlosar(izvorniTekst, prevedeniTekst, apiKey) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.7-flash:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${apiKey}`;
 
   const prompt = `
 Analiziraj sljedeći izvorni tekst i njegov prijevod. 
