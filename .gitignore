@@ -3,3 +3,4 @@ _site/
 .jekyll-metadata
 .bundle/
 Vendor/
+node_modules
