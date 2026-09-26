@@ -20,7 +20,7 @@ Na ogledni sam prijevod dobio nekoliko stranica publicističkog teksta izuzetno 
 
 Pojmovi, konstrukcije i specifičan misaoni sklop teksta slagali su se prirodno. Urednik je bio vrlo zadovoljan isporučenim tekstom i ubrzo je stigla konkretna ponuda: na prijevod sam dobio pozamašno publicističko djelo.
 
-Međutim, postojala je jedna ključna razlika — glavno djelo nije bilo iz filozofije, nego iz područja psihologije.
+Međutim, postojala je jedna ključna razlika —  knjiga koju sam dobio na prijevod bila je iz područja psihologije.
 
 ## Ulazak u nepoznato: Razlika između razumijevanja i metajezika
 
